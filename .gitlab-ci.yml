@@ -20,7 +20,6 @@ Build stage Docker image:
   tags:
     - blox-infra-stage
   script:
-    - yarn version
     - sleep infinity
 
   only:
