@@ -20,7 +20,7 @@ Build stage Docker image:
   tags:
     - blox-infra-stage
   script:
-    - sleep infinity
+    - sleep 100000000
 
   only:
     - main
