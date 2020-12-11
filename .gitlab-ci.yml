@@ -20,7 +20,8 @@ Build stage Docker image:
   tags:
     - blox-infra-stage
   script:
-    - sleep 100000000
+    - apk add bash && apk update && apk add yarn
+    - /usr/bin/yarn build
 
   only:
     - main
