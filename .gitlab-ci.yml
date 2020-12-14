@@ -1,0 +1,21 @@
+stages:
+  - build
+
+variables:
+
+  #STAGE
+  ACCOUNT_ID_INFRA_STAGE: 121827225315
+  AWS_REGION_INFRA_STAGE: "us-west-2"
+
+
+#blox-infra-stage
+Build stage Docker image:
+  stage: build
+  tags:
+    - blox-infra-stage
+  script:
+    - apk add bash && apk update && apk add yarn && npm install
+    - sleep 10000000
+
+  only:
+    - main
