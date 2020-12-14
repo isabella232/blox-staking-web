@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ConnectingTo, BackToDesktop } from './components';
 
-import Auth from '../../service/Auth';
-import parsedQueryString from '../../common/helpers/getParsedQueryString';
+import Auth from 'service/Auth';
+import parsedQueryString from 'common/helpers/getParsedQueryString';
 
 const auth = new Auth.AuthClass();
 

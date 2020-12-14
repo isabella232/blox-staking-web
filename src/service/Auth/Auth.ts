@@ -83,4 +83,3 @@ interface Auth0ResponseData {
 }
 
 type Profile = Record<string, any> | null;
-type Error = Record<string, any> | null;

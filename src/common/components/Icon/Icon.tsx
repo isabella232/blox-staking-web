@@ -40,7 +40,7 @@ type Props = {
   name: string;
   isDisabled?: boolean;
   fontSize: string;
-  color: string;
+  color?: string;
   onClick?: () => void;
 };
 

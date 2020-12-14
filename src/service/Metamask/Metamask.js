@@ -10,6 +10,7 @@ const depositContract = new web3.eth.Contract(depositContractABI, depositTo);
 export default class MetaMask {
   constructor() {
     this.metaMask = window.ethereum; 
+    this.accounts = [];
   }
 
   isExist = () => typeof this.metaMask !== 'undefined' && this.metaMask.isMetaMask;

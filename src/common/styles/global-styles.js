@@ -10,6 +10,7 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: 'Avenir', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:${({theme}) => theme.gray800};
     & > * {
       -webkit-font-smoothing: antialised;
       backface-visibility: hidden;
