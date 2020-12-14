@@ -6,6 +6,10 @@ ENV APP_WORKDIR=/builds/bloxapp/blox-staking-web
 COPY . $APP_WORKDIR
 WORKDIR $APP_WORKDIR
 
+ARG S3_BUCKET
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+
 RUN apk update && apk upgrade && \
     apk add --virtual build-deps git gcc make g++ py-pip curl --no-cache \
         nodejs \
