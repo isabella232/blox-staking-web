@@ -18,4 +18,4 @@ RUN apk add npm && npm install && npm audit fix && pip install awscli
 RUN yarn build
 
 RUN aws configure set region us-west-2
-RUN aws s3 cp build/ s3://blox-staking-web-testing/ --recursive
+RUN aws s3 cp build/ s3://app.stage.bloxstaking.com/ --recursive
