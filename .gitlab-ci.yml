@@ -14,8 +14,7 @@ Build stage Docker image:
   tags:
     - blox-infra-stage
   script:
-    - apk add bash && apk update && apk add yarn && npm install
-    - sleep 10000000
+    - docker build -t test-build -f Dockerfile .
 
   only:
     - main
