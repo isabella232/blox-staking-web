@@ -14,8 +14,7 @@ Build stage Docker image:
   tags:
     - blox-infra-stage
   script:
-    - apk add bash && apk update && apk add yarn && npm install
-    - sleep 10000000
+    - docker build --build-arg S3_BUCKET=$S3_BUCKET --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -t test-build -f Dockerfile .
 
   only:
     - main
