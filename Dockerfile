@@ -7,11 +7,8 @@ RUN apk update && apk upgrade && \
         nodejs \
         yarn
 
-RUN npm install
-
 COPY . $APP_WORKDIR
 WORKDIR $APP_WORKDIR
-#RUN yarn build
+RUN yarn build
 
-
-RUN sleep 1000000000
+#RUN sleep 1000000000
