@@ -7,6 +7,7 @@ RUN apk update && apk upgrade && \
         nodejs \
         yarn
 
+RUN npm install
 
 COPY . $APP_WORKDIR
 WORKDIR $APP_WORKDIR
