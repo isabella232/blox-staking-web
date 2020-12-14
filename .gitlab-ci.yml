@@ -15,7 +15,7 @@ Build stage Docker image:
     - blox-infra-stage
   script:
     - apk add bash && apk update && apk add yarn && npm install
-    - /usr/bin/yarn build
+    - sleep 10000000
 
   only:
     - main
