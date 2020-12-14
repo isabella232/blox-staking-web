@@ -77,7 +77,7 @@ const Disconnect = styled.div`
 
 const ConnectedWallet = (props: Props) => {
   const { metamaskInfo, queryStringNetworkId } = props
-  const { selectedAddress, networkName, networkVersion } = metamaskInfo;
+  const { selectedAddress, networkName, networkVersion, balance } = metamaskInfo;
   return (
     <Wrapper>
       <DotWrapper>
@@ -89,7 +89,7 @@ const ConnectedWallet = (props: Props) => {
       </NetworkAndAccountWrapper>
       <Balance>
         <Icon name={'eth-icon-colors'} fontSize={'10px'} color={'gray600'} />
-        <BalanceText>000.0000</BalanceText>
+        <BalanceText>{balance}</BalanceText>
       </Balance>
       <Disconnect>Disconnect</Disconnect>
     </Wrapper>

@@ -39,14 +39,12 @@ const Total = styled.div`
 `;
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
-console.log('qsObject', qsObject);
 
 const metamask = new Metamask();
 
 const metamaskInfoDefault = {
   networkVersion: '',
   networkName: '',
-  chainId: '',
   selectedAddress: '',
   balance: '',
 };
@@ -61,6 +59,12 @@ const StakingDeposit = () => {
     setMetamaskNotSupportedPopUpStatus(!metamask.isExist());
   }, []);
 
+  useEffect(() => {
+    console.log('metamaskInfo', metamaskInfo);
+  }, [metamaskInfo]);
+
+  
+
   const hideMetamaskNotSupportedPopUp = () => setMetamaskNotSupportedPopUpStatus(false);
 
   const connectAndUpdateMetamask = async () => {
@@ -70,15 +74,17 @@ const StakingDeposit = () => {
 
   const connectMetamask = async () => {
     try {
-      await metamask.enableAccounts();      
+      await metamask.enableAccounts();
+      await metamask.subscribeToChange('networkChanged', updateMetamaskInfo);      
     }
     catch(e) { throw new Error(e.message); }
   };
 
-  const updateMetamaskInfo = () => {
-    const { networkVersion, chainId, selectedAddress } = metamask.metaMask;
-    const networkName = NETWORK_IDS[networkVersion];
-    setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, chainId, selectedAddress })); 
+  const updateMetamaskInfo = async (networkId?) => {
+    const { networkVersion, selectedAddress } = metamask.metaMask;
+    const networkName = networkId ? NETWORK_IDS[networkId] : NETWORK_IDS[networkVersion];
+    const balance = await metamask.getBalance(selectedAddress);
+    setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, selectedAddress, balance })); 
   }; 
 
   return ( 
