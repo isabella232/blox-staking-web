@@ -41,9 +41,7 @@ const Authentication = () => {
     asyncFunc();
   }, [location.search])
 
-  const backToDesktop = () => {
-    tokenData && window.location.reload();
-  };
+  const backToDesktop = () => tokenData && window.location.reload();
 
   return (
     <Wrapper>
@@ -54,4 +52,4 @@ const Authentication = () => {
   );
 }
 
-export default Authentication;
+export default Authentication; 
