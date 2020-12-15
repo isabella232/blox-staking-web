@@ -48,13 +48,14 @@ const Authentication = () => {
   }, [tokenData]);
 
   const backToDesktop = () => {
-    tokenData && window.open(`blox-live://${tokenData.id_token}`, '_blank');
+    tokenData && window.location.reload();
   };
 
   return (
     <Wrapper>
       {isLoading && <BackToDesktop onClick={backToDesktop} />}
       {provider && !isLoading && <ConnectingTo provider={provider} />}
+      {tokenData && <iframe title={'callApp'} width={'0px'} height={'0px'} src={`blox-live://${tokenData.id_token}`} />}
     </Wrapper>
   );
 }
