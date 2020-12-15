@@ -49,7 +49,7 @@ const metamaskInfoDefault = {
   balance: '',
 };
 
-const StakingDeposit = () => {
+const StakingDeposit = () => { 
   const [ showMetamaskNotSupportedPopUp, setMetamaskNotSupportedPopUpStatus ] = useState(false);
   const [ metamaskInfo, setMetamaskInfo ] = useState(metamaskInfoDefault);
   const [ checkedTerms, setCheckedTermsStatus ] = useState(false);
