@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Icon } from 'common/components';
+import { truncateText } from 'common/helpers/truncateText';
 
 const Wrapper = styled.div`
   width: 320px;
@@ -85,11 +86,11 @@ const ConnectedWallet = (props: Props) => {
       </DotWrapper>
       <NetworkAndAccountWrapper>
         <Network>{networkName}</Network>
-        <Account>{selectedAddress}</Account>
+        <Account>{truncateText(selectedAddress, 6, 6)}</Account>
       </NetworkAndAccountWrapper>
       <Balance>
         <Icon name={'eth-icon-colors'} fontSize={'10px'} color={'gray600'} />
-        <BalanceText>{balance}</BalanceText>
+        <BalanceText>{Math.floor(Number(balance)*10000) / 10000}</BalanceText>
       </Balance>
       <Disconnect>Disconnect</Disconnect>
     </Wrapper>

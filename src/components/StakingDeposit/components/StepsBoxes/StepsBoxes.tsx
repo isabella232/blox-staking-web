@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { truncateText } from 'common/helpers/truncateText';
 import { InfoWithTooltip, Checkbox, Button } from 'common/components';
 import StepBox from '../StepBox';
 
@@ -52,7 +53,7 @@ const tooltipText = `
   The service fee is non-refundable. Network gas fees will apply.
 `;
 
-const StepsBoxes = ({stepsData, setStepsData, checkedTerms, setCheckedTermsStatus, metamaskAccount}: Props) => {
+const StepsBoxes = ({stepsData, setStepsData, checkedTerms, setCheckedTermsStatus, metamaskAccount, sendEthersTo}: Props) => {
 
   React.useEffect(() => updateStep(0, metamaskAccount), [metamaskAccount]);
 
@@ -67,12 +68,14 @@ const StepsBoxes = ({stepsData, setStepsData, checkedTerms, setCheckedTermsStatu
     setStepsData(newStepsData);
   }
 
+  const validator = '0xD46fcC1E7a85601108Ff0869f68D8C76b44AcF4F';
+
   return (
     <>
       <StepBox data={stepsData[0]}>
         <StepBoxLeft>
           <StepBoxLeftParagraph>
-            After completing the Service Fee Deposit, you will be able to run the validator 0x8237...a2863F with
+            After completing the Service Fee Deposit, you will be able to run the validator {truncateText(validator, 6, 6)} with
             BloxStaking until transfers are enabled (phase 1.5) OR for up to 2 years.
             Whichever comes first.&nbsp; 
             <InfoWithTooltip title={tooltipText} placement={'bottom'} margin={'0px'} verticalAlign={'sub'}/>
@@ -93,19 +96,6 @@ const StepsBoxes = ({stepsData, setStepsData, checkedTerms, setCheckedTermsStatu
         </StepBoxRight>
       </StepBox>
       <StepBox data={stepsData[1]}>
-        <StepBoxLeft>
-          <StepBoxLeftParagraph>
-             <b>Amount</b> 0.5 ETH + Gas (fee is converted into CDT and burnt
-          </StepBoxLeftParagraph>
-          <StepBoxLeftParagraph>
-            <b>Deposit Address</b> 0x078661f0E792495278298fd12c87cD49be8d50E5
-          </StepBoxLeftParagraph>
-        </StepBoxLeft> 
-        <StepBoxRight>
-          <Button isDisabled={stepsData[1].isDisabled}>Deposit</Button> 
-        </StepBoxRight>
-      </StepBox>
-      <StepBox data={stepsData[2]}>
       <StepBoxLeft>
           <StepBoxLeftParagraph>
              <b>Amount</b> 32 ETH + Gas
@@ -118,7 +108,7 @@ const StepsBoxes = ({stepsData, setStepsData, checkedTerms, setCheckedTermsStatu
           </StepBoxLeftParagraph>
         </StepBoxLeft> 
         <StepBoxRight>
-          <Button isDisabled={stepsData[2].isDisabled}>Deposit</Button> 
+          <Button isDisabled={stepsData[1].isDisabled} onClick={() => sendEthersTo()}>Deposit</Button> 
         </StepBoxRight>
       </StepBox>
     </>
@@ -131,6 +121,7 @@ type Props = {
   stepsData: Record<string, any>[];
   setStepsData: React.Dispatch<React.SetStateAction<Record<string, any>[]>>;
   metamaskAccount: string;
+  sendEthersTo: () => void;
 };
 
 export default StepsBoxes;

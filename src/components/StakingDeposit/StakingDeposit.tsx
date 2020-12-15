@@ -40,7 +40,7 @@ const Total = styled.div`
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
 
-const metamask = new Metamask();
+const metamask = new Metamask({ depositTo: '0x4e409dB090a71D14d32AdBFbC0A22B1B06dde7dE' });
 
 const metamaskInfoDefault = {
   networkVersion: '',
@@ -75,7 +75,8 @@ const StakingDeposit = () => {
   const connectMetamask = async () => {
     try {
       await metamask.enableAccounts();
-      await metamask.subscribeToChange('networkChanged', updateMetamaskInfo);      
+      await metamask.subscribeToChange('networkChanged', updateMetamaskInfo);     
+      await metamask.subscribeToChange('accountsChanged', updateMetamaskInfo);  
     }
     catch(e) { throw new Error(e.message); }
   };
@@ -103,8 +104,9 @@ const StakingDeposit = () => {
           checkedTerms={checkedTerms} 
           setCheckedTermsStatus={() => setCheckedTermsStatus(!checkedTerms)}
           metamaskAccount={metamaskInfo.selectedAddress}
+          sendEthersTo={metamask.sendEthersTo}
         />
-        <Total>Total: 32.5 ETH + gas fees</Total>
+        <Total>Total: 32 ETH + gas fees</Total>
       </Section>
       {showMetamaskNotSupportedPopUp && <MetamaskNotFound onClose={hideMetamaskNotSupportedPopUp} />}
     </Wrapper>
