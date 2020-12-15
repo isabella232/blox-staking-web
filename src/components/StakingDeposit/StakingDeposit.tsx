@@ -60,7 +60,7 @@ const StakingDeposit = () => {
   }, []);
 
   useEffect(() => {
-    // console.log('metamaskInfo', metamaskInfo);
+    console.log('metamaskInfo', metamaskInfo);
   }, [metamaskInfo]);
 
   
