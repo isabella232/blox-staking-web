@@ -2,10 +2,11 @@ import Web3 from 'web3';
 import { EVENTS } from './constants';
 
 export default class MetaMask {
-  constructor() {
+  constructor(props) {
     this.metaMask = window.ethereum; 
     this.accounts = [];
     this.web3 = {};
+    this.depositTo = props.depositTo // 0x4e409dB090a71D14d32AdBFbC0A22B1B06dde7dE amitai
   }
 
   isExist = () => typeof this.metaMask !== 'undefined' && this.metaMask.isMetaMask;
@@ -22,45 +23,26 @@ export default class MetaMask {
     return await this.web3.utils.fromWei(balanceInWei, "ether");
   };
 
-  sendEthersTo = ({amount, ...depositData}, accounts) => new Promise((resolve, reject) => {
-    const { selectedAddress, networkVersion } = this.metaMask;
-    const { publicKey, withdrawalCredentials, signature, depositDataRoot } = depositData;
-
-    const depositContractABI = require('./deposit_tx2.json');
-    const depositTo = '0x16e82d77882a663454ef92806b7deca1d394810f';
-
-    const web3 = new Web3();
-    const depositContract = new web3.eth.Contract(depositContractABI, depositTo);
-
-    if(networkVersion !== '5') {
-      reject(new Error('Please choose Goerli network in Metamask before deposit'));
-      return;
-    }
+  sendEthersTo = () => new Promise((resolve, reject) => {
+    const { selectedAddress } = this.metaMask;
 
     const method = 'eth_sendTransaction';
-
-    const depositMethod = depositContract.methods.deposit(
-      `0x${publicKey}`, `0x${withdrawalCredentials}`, `0x${signature}`, `0x${depositDataRoot}`,
-    );
-
-    const data = depositMethod.encodeABI();
-    const from = selectedAddress || accounts[0];   
+    const from = selectedAddress
 
     const params = [
       {
         from,
-        to: depositTo,
+        to: this.depositTo,
         gas: '0x61A80', // 0.01
         gasPrice: '5208', // 0.01
-        value: this.web3.utils.numberToHex(this.web3.utils.toWei('32', 'ether')), // (amount * 1000000).toString(), // '32000000000'
-        data,
+        value: this.web3.utils.numberToHex(this.web3.utils.toWei('1', 'ether')), // (amount * 1000000).toString(), // '32000000000'
       },
     ];
 
     const configObject = {method, params, from};
     return this.metaMask.sendAsync(configObject, (error, response) => {
       if(error) { reject(error); }
-      console.log('response', response);
+      console.log('tx success response', response);
       resolve(response.result);
     });
   });
