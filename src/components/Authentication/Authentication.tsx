@@ -41,12 +41,6 @@ const Authentication = () => {
     asyncFunc();
   }, [location.search])
 
-  useEffect(() => {
-    if(tokenData && tokenData.id_token) {
-      backToDesktop();
-    }
-  }, [tokenData]);
-
   const backToDesktop = () => {
     tokenData && window.location.reload();
   };
