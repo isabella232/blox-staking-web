@@ -73,7 +73,7 @@ const StepsBoxes = (props: Props) => {
 
   useEffect(() => {
     updateStep(0, selectedAddress && error.type === '');
-    updateStep(1, selectedAddress && error.type === '')
+    updateStep(1, selectedAddress && error.type === '');
   }, [metamaskInfo, error]);
 
   useEffect(() => {
