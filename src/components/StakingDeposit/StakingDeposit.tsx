@@ -5,12 +5,11 @@ import {NETWORK_IDS} from 'service/Metamask/constants';
 import {Button} from 'common/components';
 import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage,
-    MetamaskNotFound, StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod
+    MetamaskNotFound, WrongNetworkModal, StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod
 } from './components';
 
 import {STEP_BOXES} from './constants';
 import parsedQueryString from 'common/helpers/getParsedQueryString';
-import WrongNetworkModal from "./components/WrongNetworkModal/WrongNetworkModal";
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
 const {network_id, deposit_to, public_key} = qsObject;

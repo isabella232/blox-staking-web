@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import { Header, Authentication, StakingDeposit } from './components';
+import DepositFinished from "./components/StakingDeposit/components/DepositFinished";
 
 const Wrapper = styled.div`
   height:100vh;
@@ -16,7 +17,8 @@ function App() {
         <Switch>
           <Route path="/auth" component={Authentication} />
           <Route path="/staking-deposit" component={StakingDeposit} />
-        </Switch>        
+            <Route path="/test" component={DepositFinished} />
+        </Switch>
       </Wrapper>
     </Router>
   );

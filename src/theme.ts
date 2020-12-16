@@ -67,6 +67,7 @@ declare module 'styled-components' {
     accent3100: string;
     accent350: string;
     white: string;
+    color00ebb7: string;
   }
 }
 
@@ -136,6 +137,7 @@ const theme: DefaultTheme = {
   accent3100: '#d1c8fe',
   accent350: '#eae9ff',
   white: '#ffffff',
+  color00ebb7: '#00ebb7',
 };
 
 export default theme;
