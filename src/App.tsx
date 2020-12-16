@@ -16,8 +16,7 @@ function App() {
         <Header />
         <Switch>
           <Route path="/auth" component={Authentication} />
-          <Route path="/staking-deposit" component={StakingDeposit} />
-            <Route path="/test" component={DepositFinished} />
+          <Route path="/staking-deposit" component={StakingDeposit} />           
         </Switch>
       </Wrapper>
     </Router>
