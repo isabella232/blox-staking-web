@@ -5,7 +5,7 @@ import {NETWORK_IDS} from 'service/Metamask/constants';
 import {Button} from 'common/components';
 import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage,
-    MetamaskNotFound, StepsBoxes, ConnectedWallet
+    MetamaskNotFound, StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod
 } from './components';
 
 import {STEP_BOXES} from './constants';
@@ -13,10 +13,9 @@ import parsedQueryString from 'common/helpers/getParsedQueryString';
 import WrongNetworkModal from "./components/WrongNetworkModal/WrongNetworkModal";
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
-const depositTo = '0x4e409dB090a71D14d32AdBFbC0A22B1B06dde7dE';
-const publicKey = '0xD46fcC1E7a85601108Ff0869f68D8C76b44AcF4F';
+const {network_id, deposit_to, public_key} = qsObject;
 
-const metamask = new Metamask({depositTo});
+const metamask = new Metamask({depositTo: deposit_to});
 
 const initialMetamaskInfoState = {
     networkVersion: '',
@@ -36,7 +35,7 @@ const StakingDeposit = () => {
     const [oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal] = useState(false);
     const [showWrongNetworkModal, setShowWrongNetworkModal] = useState(false);
 
-    const areNetworksEqual = qsObject.network_id === metamaskInfo.networkVersion;
+    const areNetworksEqual = network_id === metamaskInfo.networkVersion;
 
     useEffect(() => {
         setMetamaskNotSupportedPopUpStatus(!metamask.isExist());
@@ -44,10 +43,9 @@ const StakingDeposit = () => {
 
     useEffect(() => {
         if (qsObject.network_id && metamaskInfo.networkVersion && !areNetworksEqual) {
-            setError({type: 'networksNotEqual', message: `Please change to ${NETWORK_IDS[qsObject.network_id]}`,});
+            setError({type: 'networksNotEqual', message: `Please change to ${NETWORK_IDS[network_id]}`,});
             if (!oneTimeWrongNetworkModal) {
-                //TODO need to show proper modal
-                setOneTimeWrongNetworkModal(false);
+                setOneTimeWrongNetworkModal(true);
                 setShowWrongNetworkModal(true);
             }
         } else if (metamaskInfo.balance !== '' && Number(metamaskInfo.balance) < 33) {
@@ -85,13 +83,18 @@ const StakingDeposit = () => {
 
     return (
         <Wrapper>
-            <Title>Mainnet Staking Deposit</Title>
+            <Title>{network_id === "1" ? 'Mainnet' : 'Testnet'} Staking Deposit</Title>
             <Section>
                 <SubTitle>Deposit Method</SubTitle>
-                {metamaskInfo.selectedAddress ?
-                    (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error}/>) :
-                    (<Button onClick={connectAndUpdateMetamask}>Connect Wallet</Button>
-                    )}
+                <DepositMethod>
+                    {metamaskInfo.selectedAddress ?
+                        (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual}
+                                          error={error}/>) :
+                        (<Button onClick={connectAndUpdateMetamask}>Connect Wallet</Button>
+                        )}
+                    {network_id === "5" &&
+                    <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
+                </DepositMethod>
                 {error.type && <ErrorMessage>{error.message}</ErrorMessage>}
             </Section>
             <Section>
@@ -101,16 +104,17 @@ const StakingDeposit = () => {
                             setCheckedTermsStatus={() => setCheckedTermsStatus(!checkedTerms)}
                             metamaskInfo={metamaskInfo}
                             sendEthersTo={metamask.sendEthersTo}
-                            depositTo={depositTo}
-                            publicKey={publicKey}
+                            depositTo={deposit_to}
+                            publicKey={public_key}
+                            network_id={network_id}
                 />
                 <Total>Total: 32 ETH + gas fees</Total>
             </Section>
             {showMetamaskNotSupportedPopUp && <MetamaskNotFound onClose={hideMetamaskNotSupportedPopUp}/>}
-            {showWrongNetworkModal && <WrongNetworkModal networkType={qsObject.network_id}
-                                                         onClose={hideWrongNetworkModal}/>}
+            {showWrongNetworkModal &&
+            <WrongNetworkModal networkType={qsObject.network_id} onClose={hideWrongNetworkModal}/>}
         </Wrapper>
     );
-}
+};
 
 export default StakingDeposit;
