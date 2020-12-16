@@ -42,6 +42,7 @@ export default class MetaMask {
     const configObject = {method, params};
     return this.metaMask.request(configObject)
     .then((response) => {
+      this.subscribeToTransactionReceipt(response);
       callback(response);
       resolve(response);
     })
@@ -52,5 +53,24 @@ export default class MetaMask {
     if(!EVENTS[eventName]) { return; }
     this.web3 = new Web3(Web3.givenProvider);
     this.metaMask.on(EVENTS[eventName], callback);
+  };
+
+  subscribeToTransactionReceipt = (response) => { // TODO: stop the interval
+    let data = null;
+
+    const callback = (error, txReceipt) => {
+      data = txReceipt;
+    }
+
+    let timer = setInterval(() => {
+      this.web3.eth.getTransactionReceipt(response, callback);
+    }, 3000);
+
+    if(data) {
+      debugger;
+      clearInterval(timer);
+      timer = null;
+      return data.status;
+    }
   };
 }
