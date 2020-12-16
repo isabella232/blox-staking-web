@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { truncateText } from 'common/helpers/truncateText';
@@ -53,11 +53,16 @@ const tooltipText = `
   The service fee is non-refundable. Network gas fees will apply.
 `;
 
-const StepsBoxes = ({stepsData, setStepsData, checkedTerms, setCheckedTermsStatus, metamaskAccount, sendEthersTo}: Props) => {
+const StepsBoxes = (props: Props) => {
+  const { stepsData, setStepsData, checkedTerms, setCheckedTermsStatus,
+          metamaskInfo, sendEthersTo, publicKey, depositTo, error
+        } = props;
 
-  React.useEffect(() => updateStep(0, metamaskAccount), [metamaskAccount]);
+  const { selectedAddress } = metamaskInfo;
 
-  React.useEffect(() => updateStep(1, checkedTerms), [checkedTerms]);
+  useEffect(() => updateStep(0, selectedAddress && error.type === ''), [metamaskInfo, error]);
+
+  useEffect(() => updateStep(1, checkedTerms), [checkedTerms]); // TODO: check disable flow
 
   const updateStep = (stepIndex, condition) => {
     const newStepsData = [...stepsData];
@@ -68,14 +73,17 @@ const StepsBoxes = ({stepsData, setStepsData, checkedTerms, setCheckedTermsStatu
     setStepsData(newStepsData);
   }
 
-  const validator = '0xD46fcC1E7a85601108Ff0869f68D8C76b44AcF4F';
+  const truncatedPublicKey = truncateText(publicKey, 20, 6);
+  const truncatedDepositTo = truncateText(depositTo, 20, 6);
+
+  console.log('stepsData', stepsData);
 
   return (
     <>
       <StepBox data={stepsData[0]}>
         <StepBoxLeft>
           <StepBoxLeftParagraph>
-            After completing the Service Fee Deposit, you will be able to run the validator {truncateText(validator, 6, 6)} with
+            After completing the Service Fee Deposit, you will be able to run the validator {truncatedPublicKey} with
             BloxStaking until transfers are enabled (phase 1.5) OR for up to 2 years.
             Whichever comes first.&nbsp; 
             <InfoWithTooltip title={tooltipText} placement={'bottom'} margin={'0px'} verticalAlign={'sub'}/>
@@ -85,11 +93,11 @@ const StepsBoxes = ({stepsData, setStepsData, checkedTerms, setCheckedTermsStatu
           <Checkbox isDisabled={stepsData[0].isDisabled} checked={checkedTerms} onClick={setCheckedTermsStatus} />
           <Terms>
             I agree to Blox’s <br />
-            <Link isDisabled={stepsData[0].isDisabled} href={!stepsData[0].isDisabled ? '': null} target={'_blank'}>
+            <Link isDisabled={stepsData[0].isDisabled} href={!stepsData[0].isDisabled ? 'https://www.bloxstaking.com/privacy-policy/': null} target={'_blank'}>
               Privacy Policy
             </Link>
             &nbsp;and&nbsp;
-            <Link isDisabled={stepsData[0].isDisabled} href={!stepsData[0].isDisabled ? '': null} target={'_blank'}>
+            <Link isDisabled={stepsData[0].isDisabled} href={!stepsData[0].isDisabled ? 'https://www.bloxstaking.com/terms-of-use/': null} target={'_blank'}>
               License and Service Agreement
             </Link>
           </Terms>
@@ -101,10 +109,10 @@ const StepsBoxes = ({stepsData, setStepsData, checkedTerms, setCheckedTermsStatu
              <b>Amount</b> 32 ETH + Gas
           </StepBoxLeftParagraph>
           <StepBoxLeftParagraph>
-            <b>Validator Public Key</b> 0x82379d23bdsdsfsfsff6c3d...cd0746e5fa6c1ba2863F
+            <b>Validator Public Key</b> {truncatedPublicKey}
           </StepBoxLeftParagraph>
           <StepBoxLeftParagraph>
-            <b>Deposit Address</b> 0x078661f0E792495278298fd12c87cD49be8d50E5
+            <b>Deposit Address</b> {truncatedDepositTo}
           </StepBoxLeftParagraph>
         </StepBoxLeft> 
         <StepBoxRight>
@@ -120,8 +128,11 @@ type Props = {
   setCheckedTermsStatus: () => void;
   stepsData: Record<string, any>[];
   setStepsData: React.Dispatch<React.SetStateAction<Record<string, any>[]>>;
-  metamaskAccount: string;
+  metamaskInfo: Record<string, any>;
   sendEthersTo: () => void;
+  publicKey: string;
+  depositTo: string;
+  error: Record<string, any>;
 };
 
 export default StepsBoxes;

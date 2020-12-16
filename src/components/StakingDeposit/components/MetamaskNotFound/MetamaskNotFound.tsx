@@ -26,7 +26,7 @@ const MetamaskNotFound = ({onClose}: Props) => {
         3. Copy your unique deposit URL <br />
         4. Paste it and continue with your deposit <br />
       </Description>
-      <UniqueUrl url={'http://localhost:3000/staking-deposit?paras=gjdfhgkjdhgdfjghdkfjg4545'} />
+      <UniqueUrl url={location.toString()} />
       <ButtonWrapper>
         <Button onClick={onClose}>Close</Button>
       </ButtonWrapper>

@@ -4,7 +4,7 @@ import { Icon } from 'common/components';
 import { truncateText } from 'common/helpers/truncateText';
 
 const Wrapper = styled.div`
-  width: 320px;
+  width: 330px;
   height: 48px;
   padding: 8px 16px;
   border-radius: 8px;
@@ -14,7 +14,7 @@ const Wrapper = styled.div`
 `;
 
 const DotWrapper = styled.div`
-  width:15px;
+  width:17px;
   display:flex;
   align-items:center;
 `;
@@ -27,17 +27,16 @@ const Dot = styled.div<{ isEqual: boolean }>`
 `;
 
 const NetworkAndAccountWrapper = styled.div`
-  width:130px;
+  width:125px;
   display:flex;
   flex-direction:column;
 `;
 
-const Network = styled.div`
+const Network = styled.div<{ error: boolean }>`
   height: 16px;
-  margin: 0 0 0 2px;
   font-size: 11px;
   font-weight: 500;
-  color:${({theme}) => theme.gray600};
+  color:${({theme, error}) => error? theme.destructive600 : theme.gray600};
 `;
 
 const Account = styled.div`
@@ -51,12 +50,13 @@ const Account = styled.div`
   white-space:nowrap;
 `;
 
-const Balance = styled.div`
-  width: 82px;
+const Balance = styled.div<{ color: string }>`
+  width: 85px;
   height: 100%;
+  padding-left:12px;
   font-size: 11px;
   font-weight: 500;
-  color:${({theme}) => theme.gray600};
+  color:${({theme, color}) => theme[color]};
   display:flex;
   align-items:center;
   justify-content:center;
@@ -74,22 +74,24 @@ const Disconnect = styled.div`
   align-items:center;
   justify-content:center;
   cursor:pointer;
+  padding-left:12px;
 `;
 
 const ConnectedWallet = (props: Props) => {
-  const { metamaskInfo, queryStringNetworkId } = props
-  const { selectedAddress, networkName, networkVersion, balance } = metamaskInfo;
+  const { metamaskInfo, areNetworksEqual, error } = props
+  const { selectedAddress, networkName, balance } = metamaskInfo;
+  const balanceColor = error.type === 'lowBalance' ? 'destructive600' : 'gray600'
   return (
     <Wrapper>
       <DotWrapper>
-        <Dot isEqual={networkVersion === queryStringNetworkId} />
+        <Dot isEqual={areNetworksEqual} />
       </DotWrapper>
       <NetworkAndAccountWrapper>
-        <Network>{networkName}</Network>
+        <Network error={error.type === 'networksNotEqual'}>{networkName}</Network>
         <Account>{truncateText(selectedAddress, 6, 6)}</Account>
       </NetworkAndAccountWrapper>
-      <Balance>
-        <Icon name={'eth-icon-colors'} fontSize={'10px'} color={'gray600'} />
+      <Balance color={balanceColor}>
+        <Icon name={'eth-icon-colors'} fontSize={'10px'} color={balanceColor} />
         <BalanceText>{Math.floor(Number(balance)*10000) / 10000}</BalanceText>
       </Balance>
       <Disconnect>Disconnect</Disconnect>
@@ -99,7 +101,8 @@ const ConnectedWallet = (props: Props) => {
 
 type Props = {
   metamaskInfo: Record<string, any>;
-  queryStringNetworkId: string;
+  areNetworksEqual: boolean;
+  error: Record<string, any>; 
 };
 
 export default ConnectedWallet;

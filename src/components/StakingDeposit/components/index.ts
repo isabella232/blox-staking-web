@@ -1,3 +1,9 @@
+export { default as Wrapper } from './Wrapper';
+export { default as Section } from './Section';
+export { default as Title } from './Title';
+export { default as SubTitle } from './SubTitle';
+export { default as Total } from './Total';
+export { default as ErrorMessage } from './ErrorMessage';
 export { default as MetamaskNotFound } from './MetamaskNotFound';
 export { default as StepBox } from './StepBox';
 export { default as StepsBoxes } from './StepsBoxes';
