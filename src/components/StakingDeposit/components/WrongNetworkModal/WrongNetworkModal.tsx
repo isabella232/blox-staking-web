@@ -6,7 +6,7 @@ import gif from 'assets/images/gif.gif';
 
 const WrongNetworkModal = (props: Props) => {
     const {networkType, onClose} = props;
-    const isMainnet = networkType === 1;
+    const isMainnet = networkType === "1";
     const networkName = isMainnet ? 'Main' : 'Test';
     const token = isMainnet ? 'ETH' : 'Goerli';
 
@@ -56,7 +56,7 @@ const WrongNetworkModal = (props: Props) => {
             <Wrapper>
                 <InnerWrapper>
                     <Title>{networkName} Network Required</Title>
-                    <Description>{networkName}net validator supports {token} deposits only. Please change your MetaMask Network to {!isMainnet ? 'ETH' : 'Goerli'} {!isMainnet ? 'Main' : 'Test'} Network. </Description>
+                    <Description>{networkName}net validator supports {token} deposits only. Please change your MetaMask Network to {token} {networkName} Network. </Description>
                     <Button style={{'width': '175px', 'marginTop': '116px'}} onClick={onClose}>Got it</Button>
                 </InnerWrapper>
                 <ImageWrapper>
@@ -68,7 +68,7 @@ const WrongNetworkModal = (props: Props) => {
 };
 
 type Props = {
-    networkType: number;
+    networkType: string;
     onClose?: () => void;
 };
 
