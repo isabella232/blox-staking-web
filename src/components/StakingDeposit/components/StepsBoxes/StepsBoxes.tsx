@@ -66,7 +66,7 @@ const tooltipText = `
 
 const StepsBoxes = (props: Props) => {
   const { stepsData, setStepsData, checkedTerms, setCheckedTermsStatus,
-          metamaskInfo, sendEthersTo, publicKey, depositTo, error, network_id
+          metamaskInfo, onDepositStart, publicKey, depositTo, error, network_id
         } = props;
 
   const { selectedAddress } = metamaskInfo;
@@ -179,7 +179,7 @@ const StepsBoxes = (props: Props) => {
           </StepBoxLeftParagraph>
         </StepBoxLeft> 
         <StepBoxRight>
-          <Button isDisabled={stepsData[2].isDisabled} onClick={() => sendEthersTo()}>Deposit</Button> 
+          <Button isDisabled={stepsData[2].isDisabled} onClick={() => onDepositStart()}>Deposit</Button> 
         </StepBoxRight>
       </StepBox>
     </>
@@ -192,7 +192,7 @@ type Props = {
   stepsData: Record<string, any>[];
   setStepsData: React.Dispatch<React.SetStateAction<Record<string, any>[]>>;
   metamaskInfo: Record<string, any>;
-  sendEthersTo: () => void;
+  onDepositStart: () => void;
   publicKey: string;
   depositTo: string;
   error: Record<string, any>;

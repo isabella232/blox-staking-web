@@ -23,7 +23,7 @@ export default class MetaMask {
     return await this.web3.utils.fromWei(balanceInWei, "ether");
   };
 
-  sendEthersTo = () => new Promise((resolve, reject) => {
+  sendEthersTo = (callback) => new Promise((resolve, reject) => {
     const { selectedAddress } = this.metaMask;
 
     const method = 'eth_sendTransaction';
@@ -39,12 +39,13 @@ export default class MetaMask {
       },
     ];
 
-    const configObject = {method, params, from};
-    return this.metaMask.sendAsync(configObject, (error, response) => {
-      if(error) { reject(error); }
-      console.log('tx success response', response);
-      resolve(response.result);
-    });
+    const configObject = {method, params};
+    return this.metaMask.request(configObject)
+    .then((response) => {
+      callback(response);
+      resolve(response);
+    })
+    .catch((error) => reject(error));
   });
 
   subscribeToChange = (eventName, callback) => {

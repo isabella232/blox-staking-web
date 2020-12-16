@@ -9,11 +9,10 @@ import { Wrapper, Section, Title, SubTitle, Total, ErrorMessage,
 
 import { STEP_BOXES } from './constants';
 import parsedQueryString from 'common/helpers/getParsedQueryString';
+import { notification } from 'antd';
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
 const { network_id, deposit_to, public_key } = qsObject;
-
-const metamask = new Metamask({ depositTo: deposit_to });
 
 const initialMetamaskInfoState = {
   networkVersion: '',
@@ -22,7 +21,9 @@ const initialMetamaskInfoState = {
   balance: '',
 };
 
-const initialErrorState = { type: '', message: '' }
+const initialErrorState = { type: '', message: '' };
+
+const metamask = new Metamask({ depositTo: deposit_to });
 
 const StakingDeposit = () => { 
   const [ showMetamaskNotSupportedPopUp, setMetamaskNotSupportedPopUpStatus ] = useState(false);
@@ -30,11 +31,14 @@ const StakingDeposit = () => {
   const [ checkedTerms, setCheckedTermsStatus ] = useState(false);
   const [ error, setError ] = useState(initialErrorState);
   const [ stepsData, setStepsData ] = useState(STEP_BOXES);
+  const [ isLoadingDeposit, setDepositLoadingStatus ] = useState(false);
 
   const areNetworksEqual = network_id === metamaskInfo.networkVersion;
 
   useEffect(() => {
     setMetamaskNotSupportedPopUpStatus(!metamask.isExist());
+    const placement = 'bottomRight';
+    notification.config({ placement });
   }, []);
 
   useEffect(() => {
@@ -49,8 +53,6 @@ const StakingDeposit = () => {
     }
   }, [qsObject, metamaskInfo]);
 
-  
-
   const hideMetamaskNotSupportedPopUp = () => setMetamaskNotSupportedPopUpStatus(false);
 
   const connectAndUpdateMetamask = async () => {
@@ -63,6 +65,7 @@ const StakingDeposit = () => {
       await metamask.enableAccounts();
       await metamask.subscribeToChange('networkChanged', updateMetamaskInfo);     
       await metamask.subscribeToChange('accountsChanged', updateMetamaskInfo);  
+      notification.success({ message: '', description: 'Successfully connected to MetaMask' });
     }
     catch(e) { throw new Error(e.message); }
   };
@@ -73,6 +76,16 @@ const StakingDeposit = () => {
     const balance = await metamask.getBalance(selectedAddress);
     setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, selectedAddress, balance })); 
   }; 
+
+  const onDepositStart = () => {
+    const onStart = (txHash) => {
+      setDepositLoadingStatus(true);
+      console.log('isLoadingDeposit', isLoadingDeposit);
+      console.log('txHash', txHash);
+      notification.success({ message: '', description: `Successfully deposited 32 ETH to ${deposit_to}` });
+    };
+    metamask.sendEthersTo(onStart);
+  }
 
   return (  
     <Wrapper>
@@ -94,7 +107,7 @@ const StakingDeposit = () => {
           checkedTerms={checkedTerms} error={error}
           setCheckedTermsStatus={() => setCheckedTermsStatus(!checkedTerms)}
           metamaskInfo={metamaskInfo}
-          sendEthersTo={metamask.sendEthersTo}
+          onDepositStart={onDepositStart}
           depositTo={deposit_to}
           publicKey={public_key}
           network_id={network_id}

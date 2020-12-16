@@ -1,3 +1,5 @@
+@import '~antd/dist/antd.css';
+
 @font-face {
   font-family: 'Avenir';
   src: url('./assets/fonts/edefe737-dc78-4aa3-ad03-3c6f908330ed.eot?#iefix');
