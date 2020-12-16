@@ -11,10 +11,9 @@ import { STEP_BOXES } from './constants';
 import parsedQueryString from 'common/helpers/getParsedQueryString';
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
-const depositTo = '0x4e409dB090a71D14d32AdBFbC0A22B1B06dde7dE';
-const publicKey = '0xD46fcC1E7a85601108Ff0869f68D8C76b44AcF4F';
+const { network_id, deposit_to, public_key } = qsObject;
 
-const metamask = new Metamask({ depositTo });
+const metamask = new Metamask({ depositTo: deposit_to });
 
 const initialMetamaskInfoState = {
   networkVersion: '',
@@ -32,7 +31,7 @@ const StakingDeposit = () => {
   const [ error, setError ] = useState(initialErrorState);
   const [ stepsData, setStepsData ] = useState(STEP_BOXES);
 
-  const areNetworksEqual = qsObject.network_id === metamaskInfo.networkVersion;
+  const areNetworksEqual = network_id === metamaskInfo.networkVersion;
 
   useEffect(() => {
     setMetamaskNotSupportedPopUpStatus(!metamask.isExist());
@@ -40,7 +39,7 @@ const StakingDeposit = () => {
 
   useEffect(() => {
     if(qsObject.network_id && metamaskInfo.networkVersion && !areNetworksEqual) {
-      setError({type: 'networksNotEqual', message: `Please change to ${NETWORK_IDS[qsObject.network_id]}`,});
+      setError({type: 'networksNotEqual', message: `Please change to ${NETWORK_IDS[network_id]}`,});
     }
     else if(metamaskInfo.balance !== '' && Number(metamaskInfo.balance) < 33) {
       setError({type: 'lowBalance', message: 'Insufficient balance in selected wallet'});
@@ -93,8 +92,8 @@ const StakingDeposit = () => {
           setCheckedTermsStatus={() => setCheckedTermsStatus(!checkedTerms)}
           metamaskInfo={metamaskInfo}
           sendEthersTo={metamask.sendEthersTo}
-          depositTo={depositTo}
-          publicKey={publicKey}
+          depositTo={deposit_to}
+          publicKey={public_key}
         />
         <Total>Total: 32 ETH + gas fees</Total>
       </Section>
