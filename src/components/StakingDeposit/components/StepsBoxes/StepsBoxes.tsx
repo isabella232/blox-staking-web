@@ -76,9 +76,7 @@ const StepsBoxes = (props: Props) => {
   const truncatedPublicKey = truncateText(publicKey, 20, 6);
   const truncatedDepositTo = truncateText(depositTo, 20, 6);
 
-  console.log('stepsData', stepsData);
-
-  return (
+  return ( 
     <>
       <StepBox data={stepsData[0]}>
         <StepBoxLeft>
