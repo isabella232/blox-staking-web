@@ -51,7 +51,7 @@ const Account = styled.div`
 `;
 
 const Balance = styled.div<{ color: string }>`
-  width: 85px;
+  width: 85px; 
   height: 100%;
   padding-left:12px;
   font-size: 11px;
