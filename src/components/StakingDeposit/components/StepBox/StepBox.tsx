@@ -24,7 +24,7 @@ const Title = styled.div<{ isActive: boolean }>`
   margin: 0px 67px 0px 31px;
   font-size: 16px;
   font-weight: 900;
-  color:${({isActive, theme}) => isActive && theme.primary900};
+  color:${({theme, isActive}) => isActive && theme.primary900};
 `;
 
 const StepBox = ({data, children}: Props) => {

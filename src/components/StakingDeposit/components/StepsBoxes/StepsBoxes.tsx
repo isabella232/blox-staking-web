@@ -45,6 +45,17 @@ const Link = styled.a<{ isDisabled: boolean }>`
   cursor:${({isDisabled}) => isDisabled ? 'default' : 'pointer'};
 `;
 
+const Free = styled.div`
+  font-size: 20px;
+  font-weight: 900;
+  color: ${({theme}) => theme.accent2400};
+  text-transform:uppercase;
+`;
+
+const GreenColor = styled.span`
+  color: ${({theme}) => theme.accent2400};
+`;
+
 const tooltipText = `
   By depositing the service fee of $180 (paid in ETH and automatically converted to CDT by a third party),
   Blox Staking will provide staking services for 1 Eth2 validator until transfers are available (phase 1.5)
@@ -60,23 +71,28 @@ const StepsBoxes = (props: Props) => {
 
   const { selectedAddress } = metamaskInfo;
 
-  useEffect(() => updateStep(0, selectedAddress && error.type === ''), [metamaskInfo, error]);
+  useEffect(() => {
+    updateStep(0, selectedAddress && error.type === '');
+    updateStep(1, selectedAddress && error.type === '')
+  }, [metamaskInfo, error]);
 
-  useEffect(() => updateStep(1, checkedTerms), [checkedTerms]); // TODO: check disable flow
+  useEffect(() => {
+    updateStep(2, checkedTerms && error.type === '');
+  }, [checkedTerms, error]);
 
   const updateStep = (stepIndex, condition) => {
-    const newStepsData = [...stepsData];
-    const newStep = condition ? 
+    setStepsData((prevState) => {
+      const newStepsData = [...prevState];
+      const newStep = condition ? 
       { isActive: true, isDisabled: false } : 
       { isActive: false, isDisabled: true };
-    newStepsData[stepIndex] = {...stepsData[stepIndex], ...newStep};
-    setStepsData(newStepsData);
+      newStepsData[stepIndex] = {...stepsData[stepIndex], ...newStep};
+      return newStepsData;
+    }); 
   }
 
   const truncatedPublicKey = truncateText(publicKey, 20, 6);
   const truncatedDepositTo = truncateText(depositTo, 20, 6);
-
-  console.log('stepsData', stepsData);
 
   return (
     <>
@@ -104,6 +120,20 @@ const StepsBoxes = (props: Props) => {
         </StepBoxRight>
       </StepBox>
       <StepBox data={stepsData[1]}>
+        <StepBoxLeft>
+          <StepBoxLeftParagraph>
+             <b>Amount</b> <GreenColor>FREE</GreenColor>
+          </StepBoxLeftParagraph>
+          <StepBoxLeftParagraph>
+            In order to give Eth 2.0 an early stage power push, we decided to offer free service for all stakers.
+            <GreenColor>Validators created during the promotion are FREE.</GreenColor>
+          </StepBoxLeftParagraph>
+        </StepBoxLeft> 
+        <StepBoxRight>
+          <Free>Free</Free>
+        </StepBoxRight>
+      </StepBox>
+      <StepBox data={stepsData[2]}>
       <StepBoxLeft>
           <StepBoxLeftParagraph>
              <b>Amount</b> 32 ETH + Gas
@@ -116,7 +146,7 @@ const StepsBoxes = (props: Props) => {
           </StepBoxLeftParagraph>
         </StepBoxLeft> 
         <StepBoxRight>
-          <Button isDisabled={stepsData[1].isDisabled} onClick={() => sendEthersTo()}>Deposit</Button> 
+          <Button isDisabled={stepsData[2].isDisabled} onClick={() => sendEthersTo()}>Deposit</Button> 
         </StepBoxRight>
       </StepBox>
     </>
