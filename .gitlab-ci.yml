@@ -18,3 +18,14 @@ Build stage Docker image:
 
   only:
     - stage
+
+#blox-infra-prod
+Build prod Docker image:
+  stage: build
+  tags:
+    - blox-infra-prod
+  script:
+    - docker build --build-arg S3_BUCKET=$PROD_S3_BUCKET --build-arg AWS_ACCESS_KEY_ID=$PROD_AWS_ACCESS_KEY_ID --build-arg AWS_SECRET_ACCESS_KEY=$PROD_AWS_SECRET_ACCESS_KEY -t test-build -f Dockerfile .
+
+  only:
+    - main
