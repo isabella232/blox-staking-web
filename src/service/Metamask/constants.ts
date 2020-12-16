@@ -1,4 +1,4 @@
-export const EVENTS: Record<string, any> = { 
+export const EVENTS: Record<string, any> = {
   accountsChanged: 'accountsChanged',
   networkChanged: 'networkChanged',
   chainIdChanged: 'chainIdChanged',

@@ -29,7 +29,8 @@ const Title = styled.div<{ isActive: boolean }>`
 
 const StepBox = ({data, children}: Props) => {
   const { number, title, isActive, isDisabled } = data;
-  return (
+
+    return (
     <Wrapper isDisabled={isDisabled}>
       <Number>{number}</Number>
       <Title isActive={isActive}>{title}</Title>
