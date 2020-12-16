@@ -6,7 +6,7 @@ import { InfoWithTooltip, Checkbox, Button } from 'common/components';
 import StepBox from '../StepBox';
 
 const StepBoxLeft = styled.div`
-  width: 395px;
+  width: 410px;
   height: 68px;
   font-size: 11px;
   font-weight: 500;
@@ -66,18 +66,26 @@ const tooltipText = `
 
 const StepsBoxes = (props: Props) => {
   const { stepsData, setStepsData, checkedTerms, setCheckedTermsStatus,
-          metamaskInfo, sendEthersTo, publicKey, depositTo, error
+          metamaskInfo, sendEthersTo, publicKey, depositTo, error, network_id
         } = props;
 
   const { selectedAddress } = metamaskInfo;
 
   useEffect(() => {
-    updateStep(0, selectedAddress && error.type === '');
-    updateStep(1, selectedAddress && error.type === '');
+    if(network_id === '1') {
+      updateStep(0, selectedAddress && error.type === '');
+      updateStep(1, selectedAddress && error.type === '');
+    }
+    else if(network_id === '5') {
+      updateStep(1, selectedAddress && error.type === '');
+      updateStep(2, selectedAddress && error.type === '');
+    }
   }, [metamaskInfo, error]);
 
   useEffect(() => {
-    updateStep(2, checkedTerms && error.type === '');
+    if(network_id === '1') {
+      updateStep(2, checkedTerms && error.type === '');
+    }
   }, [checkedTerms, error]);
 
   const updateStep = (stepIndex, condition) => {
@@ -96,47 +104,72 @@ const StepsBoxes = (props: Props) => {
 
   return (
     <>
-      <StepBox data={stepsData[0]}>
-        <StepBoxLeft>
-          <StepBoxLeftParagraph>
-            After completing the Service Fee Deposit, you will be able to run the validator {truncatedPublicKey} with
-            BloxStaking until transfers are enabled (phase 1.5) OR for up to 2 years.
-            Whichever comes first.&nbsp; 
-            <InfoWithTooltip title={tooltipText} placement={'bottom'} margin={'0px'} verticalAlign={'sub'}/>
-          </StepBoxLeftParagraph>
-        </StepBoxLeft>
-        <StepBoxRight>
-          <Checkbox isDisabled={stepsData[0].isDisabled} checked={checkedTerms} onClick={setCheckedTermsStatus} />
-          <Terms>
-            I agree to Blox’s <br />
-            <Link isDisabled={stepsData[0].isDisabled} href={!stepsData[0].isDisabled ? 'https://www.bloxstaking.com/privacy-policy/': null} target={'_blank'}>
-              Privacy Policy
-            </Link>
-            &nbsp;and&nbsp;
-            <Link isDisabled={stepsData[0].isDisabled} href={!stepsData[0].isDisabled ? 'https://www.bloxstaking.com/terms-of-use/': null} target={'_blank'}>
-              License and Service Agreement
-            </Link>
-          </Terms>
-        </StepBoxRight>
-      </StepBox>
-      <StepBox data={stepsData[1]}>
-        <StepBoxLeft>
-          <StepBoxLeftParagraph>
-             <b>Amount</b> <GreenColor>FREE</GreenColor>
-          </StepBoxLeftParagraph>
-          <StepBoxLeftParagraph>
-            In order to give Eth 2.0 an early stage power push, we decided to offer free service for all stakers.
-            <GreenColor>Validators created during the promotion are FREE.</GreenColor>
-          </StepBoxLeftParagraph>
-        </StepBoxLeft> 
-        <StepBoxRight>
-          <Free>Free</Free>
-        </StepBoxRight>
-      </StepBox>
-      <StepBox data={stepsData[2]}>
+      {network_id === '1' && (
+        <StepBox data={stepsData[0]}>
+          <StepBoxLeft>
+            <StepBoxLeftParagraph>
+              After completing the Service Fee Deposit, you will be able to run the validator {truncatedPublicKey} with
+              BloxStaking until transfers are enabled (phase 1.5) OR for up to 2 years.
+              Whichever comes first.&nbsp; 
+              <InfoWithTooltip title={tooltipText} placement={'bottom'} margin={'0px'} verticalAlign={'sub'}/>
+            </StepBoxLeftParagraph>
+          </StepBoxLeft>
+          <StepBoxRight>
+            <Checkbox isDisabled={stepsData[0].isDisabled} checked={checkedTerms} onClick={setCheckedTermsStatus} />
+            <Terms>
+              I agree to Blox’s <br />
+              <Link isDisabled={stepsData[0].isDisabled} href={!stepsData[0].isDisabled ? 'https://www.bloxstaking.com/privacy-policy/': null} target={'_blank'}>
+                Privacy Policy
+              </Link>
+              &nbsp;and&nbsp;
+              <Link isDisabled={stepsData[0].isDisabled} href={!stepsData[0].isDisabled ? 'https://www.bloxstaking.com/terms-of-use/': null} target={'_blank'}>
+                License and Service Agreement
+              </Link>
+            </Terms>
+          </StepBoxRight>
+        </StepBox>
+      )}
+
+      {network_id === '1' && (
+        <StepBox data={stepsData[1]} networkId={network_id}>
+          <StepBoxLeft>
+            <StepBoxLeftParagraph>
+                <b>Amount</b> <GreenColor>FREE</GreenColor>
+            </StepBoxLeftParagraph>
+            <StepBoxLeftParagraph>
+              In order to give Eth 2.0 an early stage power push, we decided to offer free service for all stakers.&nbsp;
+              <GreenColor>Validators created during the promotion are FREE.</GreenColor>
+            </StepBoxLeftParagraph>
+          </StepBoxLeft> 
+          <StepBoxRight>
+            <Free>Free</Free>
+          </StepBoxRight>
+        </StepBox>
+      )}
+
+      {network_id === '5' && (
+        <StepBox data={stepsData[1]} networkId={network_id}>
+          <StepBoxLeft>
+            <StepBoxLeftParagraph>
+                <b>Amount</b> Free
+            </StepBoxLeftParagraph>
+            <StepBoxLeftParagraph>
+                <b>Service Period</b> Unlimited
+            </StepBoxLeftParagraph>
+            <StepBoxLeftParagraph>
+                <b>Testnet validators are FREE</b> Staking on Mainnet will require a service fee deposit
+            </StepBoxLeftParagraph>
+          </StepBoxLeft> 
+          <StepBoxRight>
+            <Free>Free &amp; Unlimited!</Free>
+          </StepBoxRight>
+        </StepBox>
+      )}
+
+      <StepBox data={stepsData[2]} networkId={network_id}>
       <StepBoxLeft>
           <StepBoxLeftParagraph>
-             <b>Amount</b> 32 ETH + Gas
+            <b>Amount</b> 32 ETH + Gas
           </StepBoxLeftParagraph>
           <StepBoxLeftParagraph>
             <b>Validator Public Key</b> {truncatedPublicKey}
@@ -163,6 +196,7 @@ type Props = {
   publicKey: string;
   depositTo: string;
   error: Record<string, any>;
+  network_id: string;
 };
 
 export default StepsBoxes;

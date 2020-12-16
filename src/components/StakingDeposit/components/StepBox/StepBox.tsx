@@ -21,17 +21,17 @@ const Number = styled.div`
 
 const Title = styled.div<{ isActive: boolean }>`
   width: 59px;
-  margin: 0px 67px 0px 31px;
+  margin: 0px 52px 0px 31px;
   font-size: 16px;
   font-weight: 900;
   color:${({theme, isActive}) => isActive && theme.primary900};
 `;
 
-const StepBox = ({data, children}: Props) => {
+const StepBox = ({data, networkId, children}: Props) => {
   const { number, title, isActive, isDisabled } = data;
   return (
     <Wrapper isDisabled={isDisabled}>
-      <Number>{number}</Number>
+      <Number>{networkId === '5' ? number - 1 : number}</Number>
       <Title isActive={isActive}>{title}</Title>
       {children}
     </Wrapper>
@@ -41,6 +41,7 @@ const StepBox = ({data, children}: Props) => {
 type Props = {
   data: Record<string, any>;
   children?: React.ReactNode;
+  networkId?: string;
 };
 
 export default StepBox;

@@ -4,7 +4,7 @@ import { NETWORK_IDS } from 'service/Metamask/constants';
 
 import { Button } from 'common/components';
 import { Wrapper, Section, Title, SubTitle, Total, ErrorMessage,
-         MetamaskNotFound, StepsBoxes, ConnectedWallet
+         MetamaskNotFound, StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod
        } from './components';
 
 import { STEP_BOXES } from './constants';
@@ -76,13 +76,16 @@ const StakingDeposit = () => {
 
   return (  
     <Wrapper>
-      <Title>Mainnet Staking Deposit</Title>
+      <Title>{network_id === "1" ? 'Mainnet' : 'Testnet'} Staking Deposit</Title>
       <Section>
         <SubTitle>Deposit Method</SubTitle>
-        {metamaskInfo.selectedAddress ? 
-          (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} />) : 
-          (<Button onClick={connectAndUpdateMetamask}>Connect Wallet</Button>
-        )}  
+        <DepositMethod>
+          {metamaskInfo.selectedAddress ? 
+            (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} />) : 
+            (<Button onClick={connectAndUpdateMetamask}>Connect Wallet</Button>
+          )}  
+          {network_id === "5" && <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
+        </DepositMethod>
         {error.type && <ErrorMessage>{error.message}</ErrorMessage>}
       </Section>
       <Section>
@@ -94,6 +97,7 @@ const StakingDeposit = () => {
           sendEthersTo={metamask.sendEthersTo}
           depositTo={deposit_to}
           publicKey={public_key}
+          network_id={network_id}
         />
         <Total>Total: 32 ETH + gas fees</Total>
       </Section>
