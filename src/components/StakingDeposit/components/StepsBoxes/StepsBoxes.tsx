@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { truncateText } from 'common/helpers/truncateText';
-import { InfoWithTooltip, Checkbox, Button } from 'common/components';
+import { InfoWithTooltip, Checkbox, Button, Spinner } from 'common/components';
 import StepBox from '../StepBox';
 
 const StepBoxLeft = styled.div`
@@ -52,8 +52,40 @@ const Free = styled.div`
   text-transform:uppercase;
 `;
 
-const GreenColor = styled.span`
+const GreenColor = styled.span<{ fontSize?: string }>`
   color: ${({theme}) => theme.accent2400};
+  font-size:${({fontSize}) => fontSize};
+`;
+
+const ButtonWrapper = styled.div`
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
+  align-items:center;
+`;
+
+const SuccessWrapper = styled.div`
+  width:100%;
+  height:70%;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
+`;
+
+const Loading = styled.div`
+  width:85%;
+  display:flex;
+  justify-content:space-between;
+  color:${({theme}) => theme.primary900};
+`;
+
+const ViewTransaction = styled.a`
+  font-size: 11px;
+  font-weight: 500;
+  color:${({theme}) => theme.gray600};
+  text-decoration:underline;
 `;
 
 const tooltipText = `
@@ -66,7 +98,8 @@ const tooltipText = `
 
 const StepsBoxes = (props: Props) => {
   const { stepsData, setStepsData, checkedTerms, setCheckedTermsStatus,
-          metamaskInfo, onDepositStart, publicKey, depositTo, error, network_id
+          metamaskInfo, onDepositStart, publicKey, depositTo, error, network_id,
+          isLoadingDeposit, isDepositSuccess, txHash
         } = props;
 
   const { selectedAddress } = metamaskInfo;
@@ -101,6 +134,8 @@ const StepsBoxes = (props: Props) => {
 
   const truncatedPublicKey = truncateText(publicKey, 20, 6);
   const truncatedDepositTo = truncateText(depositTo, 20, 6);
+
+  const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
 
   return (
     <>
@@ -161,7 +196,7 @@ const StepsBoxes = (props: Props) => {
             </StepBoxLeftParagraph>
           </StepBoxLeft> 
           <StepBoxRight>
-            <Free>Free &amp; Unlimited!</Free>
+            <GreenColor fontSize={'16px'}>Free &amp; Unlimited!</GreenColor>
           </StepBoxRight>
         </StepBox>
       )}
@@ -179,7 +214,19 @@ const StepsBoxes = (props: Props) => {
           </StepBoxLeftParagraph>
         </StepBoxLeft> 
         <StepBoxRight>
-          <Button isDisabled={stepsData[2].isDisabled} onClick={() => onDepositStart()}>Deposit</Button> 
+          {isDepositSuccess && txHash ? (
+            <SuccessWrapper>
+              <GreenColor fontSize={'16px'}>Deposit Confirmed!</GreenColor>
+              <ViewTransaction href={`${etherscanLink}${txHash}`} target={'_blank'}>
+                View transaction
+              </ViewTransaction>
+            </SuccessWrapper>
+          ) : (
+            <ButtonWrapper>
+              <Button isDisabled={stepsData[2].isDisabled || isLoadingDeposit} onClick={() => onDepositStart()}>Deposit</Button> 
+              {isLoadingDeposit && <Loading> <Spinner width={'17px'} /> Waiting for confirmation...</Loading>}
+            </ButtonWrapper>
+          )}
         </StepBoxRight>
       </StepBox>
     </>
@@ -197,6 +244,9 @@ type Props = {
   depositTo: string;
   error: Record<string, any>;
   network_id: string;
+  isLoadingDeposit: boolean;
+  isDepositSuccess: boolean;
+  txHash: string;
 };
 
 export default StepsBoxes;

@@ -32,6 +32,8 @@ const StakingDeposit = () => {
   const [ error, setError ] = useState(initialErrorState);
   const [ stepsData, setStepsData ] = useState(STEP_BOXES);
   const [ isLoadingDeposit, setDepositLoadingStatus ] = useState(false);
+  const [ isDepositSuccess, setDepositSuccessStatus ] = useState(false);
+  const [ txHash, setTxHash ] = useState('');
 
   const areNetworksEqual = network_id === metamaskInfo.networkVersion;
 
@@ -63,7 +65,7 @@ const StakingDeposit = () => {
   const connectMetamask = async () => {
     try {
       await metamask.enableAccounts();
-      await metamask.subscribeToChange('networkChanged', updateMetamaskInfo);     
+      await metamask.subscribeToChange('chainChanged', updateMetamaskInfo);     
       await metamask.subscribeToChange('accountsChanged', updateMetamaskInfo);  
       notification.success({ message: '', description: 'Successfully connected to MetaMask' });
     }
@@ -79,12 +81,28 @@ const StakingDeposit = () => {
 
   const onDepositStart = () => {
     const onStart = (txHash) => {
+      setTxHash(txHash);
       setDepositLoadingStatus(true);
-      console.log('isLoadingDeposit', isLoadingDeposit);
-      console.log('txHash', txHash);
-      notification.success({ message: '', description: `Successfully deposited 32 ETH to ${deposit_to}` });
+      notification.success({ message: '', description: `Transaction hash: ${txHash}` });
     };
-    metamask.sendEthersTo(onStart);
+
+    const onSuccess = (error, txReceipt) => {
+      setDepositLoadingStatus(false);
+      if(error) { 
+        notification.error({ message: '', description: error });
+      }
+      else if(txReceipt) {
+        console.log('txReceipt', txReceipt);
+        if(txReceipt.status) {
+          notification.success({ message: '', description: `Successfully deposited 32 ETH to ${deposit_to}` });
+          setDepositSuccessStatus(true);
+          return;
+        }
+        notification.error({ message: '', description: `Failed to send transaction` });
+      }
+    }
+
+    metamask.sendEthersTo(onStart, onSuccess); 
   }
 
   return (  
@@ -111,6 +129,9 @@ const StakingDeposit = () => {
           depositTo={deposit_to}
           publicKey={public_key}
           network_id={network_id}
+          isLoadingDeposit={isLoadingDeposit}
+          isDepositSuccess={isDepositSuccess}
+          txHash={txHash}
         />
         <Total>Total: 32 ETH + gas fees</Total>
       </Section>

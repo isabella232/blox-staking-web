@@ -6,7 +6,8 @@ export default class MetaMask {
     this.metaMask = window.ethereum; 
     this.accounts = [];
     this.web3 = {};
-    this.depositTo = props.depositTo // 0x4e409dB090a71D14d32AdBFbC0A22B1B06dde7dE amitai
+    this.depositTo = '0x4e409dB090a71D14d32AdBFbC0A22B1B06dde7dE'; //props.depositTo // 0x4e409dB090a71D14d32AdBFbC0A22B1B06dde7dE amitai
+    this.timer = null;
   }
 
   isExist = () => typeof this.metaMask !== 'undefined' && this.metaMask.isMetaMask;
@@ -23,8 +24,8 @@ export default class MetaMask {
     return await this.web3.utils.fromWei(balanceInWei, "ether");
   };
 
-  sendEthersTo = (callback) => new Promise((resolve, reject) => {
-    const { selectedAddress } = this.metaMask;
+  sendEthersTo = (onStart, onSuccess) => new Promise((resolve, reject) => {
+    const { selectedAddress } = this.metaMask; 
 
     const method = 'eth_sendTransaction';
     const from = selectedAddress
@@ -42,8 +43,8 @@ export default class MetaMask {
     const configObject = {method, params};
     return this.metaMask.request(configObject)
     .then((response) => {
-      this.subscribeToTransactionReceipt(response);
-      callback(response);
+      onStart(response);
+      this.subscribeToTransactionReceipt(response, onSuccess);
       resolve(response);
     })
     .catch((error) => reject(error));
@@ -55,22 +56,21 @@ export default class MetaMask {
     this.metaMask.on(EVENTS[eventName], callback);
   };
 
-  subscribeToTransactionReceipt = (response) => { // TODO: stop the interval
-    let data = null;
-
+  subscribeToTransactionReceipt = (txHash, onSuccess) => {
     const callback = (error, txReceipt) => {
-      data = txReceipt;
+      if(error || txReceipt) {
+        clearInterval(this.timer);
+        this.timer = null;
+      }
+      if(error) {
+        onSuccess(error, null);
+      }
+      if(txReceipt) {
+        onSuccess(null, txReceipt);
+      }
     }
-
-    let timer = setInterval(() => {
-      this.web3.eth.getTransactionReceipt(response, callback);
+    this.timer = setInterval(() => {
+      this.web3.eth.getTransactionReceipt(txHash, callback);
     }, 3000);
-
-    if(data) {
-      debugger;
-      clearInterval(timer);
-      timer = null;
-      return data.status;
-    }
   };
 }
