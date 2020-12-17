@@ -5,7 +5,7 @@ import {NETWORK_IDS} from 'service/Metamask/constants';
 import {Button} from 'common/components';
 import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage,
-    MetaMaskNotFoundModal, WrongNetworkModal, StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod
+    MetaMaskNotFoundModal, BrowserNotSupported, WrongNetworkModal, StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod
 } from './components';
 
 import {STEP_BOXES} from './constants';
@@ -27,6 +27,7 @@ const initialErrorState = {type: '', message: ''}
 
 const StakingDeposit = () => {
     const [showMetamaskNotSupportedPopUp, setMetamaskNotSupportedPopUpStatus] = useState(false);
+    const [showBrowserNotSupportedPopUp, setBrowserNotSupportedPopUp] = useState(false);
     const [metamaskInfo, setMetamaskInfo] = useState(initialMetamaskInfoState);
     const [checkedTerms, setCheckedTermsStatus] = useState(false);
     const [error, setError] = useState(initialErrorState);
@@ -38,6 +39,9 @@ const StakingDeposit = () => {
 
     useEffect(() => {
         setMetamaskNotSupportedPopUpStatus(!metamask.isExist());
+        const isChrome = navigator.userAgent.indexOf("Chrome") !== -1;
+        const isFireFox = navigator.userAgent.indexOf("FireFox") !== -1;
+        setBrowserNotSupportedPopUp(!isChrome && !isFireFox);
     }, []);
 
     useEffect(() => {
@@ -56,6 +60,7 @@ const StakingDeposit = () => {
 
 
     const hideMetamaskNotSupportedPopUp = () => setMetamaskNotSupportedPopUpStatus(false);
+    const hideBrowserNotSupportedPopUp = () => setBrowserNotSupportedPopUp(false);
     const hideWrongNetworkModal = () => setShowWrongNetworkModal(false);
 
     const connectAndUpdateMetamask = async () => {
@@ -110,6 +115,7 @@ const StakingDeposit = () => {
                 <Total>Total: 32 ETH + gas fees</Total>
             </Section>
             {showMetamaskNotSupportedPopUp && <MetaMaskNotFoundModal onClose={hideMetamaskNotSupportedPopUp}/>}
+            {showBrowserNotSupportedPopUp && <BrowserNotSupported onClose={hideBrowserNotSupportedPopUp}/>}
             {showWrongNetworkModal &&
             <WrongNetworkModal networkType={qsObject.network_id} onClose={hideWrongNetworkModal}/>}
         </Wrapper>
