@@ -65,7 +65,7 @@ const StakingDeposit = () => {
   const connectMetamask = async () => {
     try {
       await metamask.enableAccounts();
-      await metamask.subscribeToChange('chainChanged', updateMetamaskInfo);     
+      await metamask.subscribeToChange('networkChanged', updateMetamaskInfo); // TODO: change to chainId
       await metamask.subscribeToChange('accountsChanged', updateMetamaskInfo);  
       notification.success({ message: '', description: 'Successfully connected to MetaMask' });
     }
@@ -92,7 +92,6 @@ const StakingDeposit = () => {
         notification.error({ message: '', description: error });
       }
       else if(txReceipt) {
-        console.log('txReceipt', txReceipt);
         if(txReceipt.status) {
           notification.success({ message: '', description: `Successfully deposited 32 ETH to ${deposit_to}` });
           setDepositSuccessStatus(true);

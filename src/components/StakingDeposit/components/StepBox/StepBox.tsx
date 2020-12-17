@@ -19,7 +19,7 @@ const Number = styled.div`
   font-weight: 500;
 `;
 
-const Title = styled.div<{ isActive: boolean }>`
+const Title = styled.div<{ isActive?: boolean }>`
   width: 59px;
   margin: 0px 52px 0px 31px;
   font-size: 16px;
@@ -28,11 +28,11 @@ const Title = styled.div<{ isActive: boolean }>`
 `;
 
 const StepBox = ({data, networkId, children}: Props) => {
-  const { number, title, isActive, isDisabled } = data;
+  const { number, title, isDisabled } = data;
   return (
     <Wrapper isDisabled={isDisabled}>
       <Number>{networkId === '5' ? number - 1 : number}</Number>
-      <Title isActive={isActive}>{title}</Title>
+      <Title>{title}</Title>
       {children}
     </Wrapper>
   )
