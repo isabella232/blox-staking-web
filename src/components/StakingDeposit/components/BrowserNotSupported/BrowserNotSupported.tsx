@@ -10,11 +10,10 @@ const ButtonWrapper = styled.div`
   margin-top:24px;
 `;
 
-const MetamaskNotFound = ({onClose}: Props) => {
+const BrowserNotSupported = ({onClose}: Props) => {
   return (
     <ModalTemplate image={image} imageWidth={'92px'} padding={'32px 32px 32px 72px'}
-      justifyContent={'initial'} onClose={onClose}
-    >
+      justifyContent={'initial'} onClose={onClose}>
       <Title>Browser Not Supported by MetaMask</Title>
       <Description>
         Blox uses Metamask (and its Trezor &amp; Ledger integration) to initiate transactions.
@@ -38,4 +37,4 @@ type Props = {
   onClose?: () => void;
 };
 
-export default MetamaskNotFound;
+export default BrowserNotSupported;

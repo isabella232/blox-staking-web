@@ -5,7 +5,7 @@ import {NETWORK_IDS} from 'service/Metamask/constants';
 import {Button} from 'common/components';
 import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage,
-    MetamaskNotFound, WrongNetworkModal, StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod
+    MetaMaskNotFoundModal, WrongNetworkModal, StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod
 } from './components';
 
 import {STEP_BOXES} from './constants';
@@ -109,7 +109,7 @@ const StakingDeposit = () => {
                 />
                 <Total>Total: 32 ETH + gas fees</Total>
             </Section>
-            {showMetamaskNotSupportedPopUp && <MetamaskNotFound onClose={hideMetamaskNotSupportedPopUp}/>}
+            {showMetamaskNotSupportedPopUp && <MetaMaskNotFoundModal onClose={hideMetamaskNotSupportedPopUp}/>}
             {showWrongNetworkModal &&
             <WrongNetworkModal networkType={qsObject.network_id} onClose={hideWrongNetworkModal}/>}
         </Wrapper>

@@ -48,7 +48,7 @@ const WrongNetworkModal = (props: Props) => {
     `;
     const Image = styled.img`
           width: 192px;
-          height: 336;                    
+          height: 336px;                    
     `;
 
     return (
