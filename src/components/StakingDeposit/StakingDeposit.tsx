@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import Metamask from 'service/Metamask';
 import { NETWORK_IDS } from 'service/Metamask/constants';
 
-import { Button } from 'common/components';
 import { Wrapper, Section, Title, SubTitle, Total, ErrorMessage,
-         MetamaskNotFound, StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod
+         MetamaskNotFound, StepsBoxes, ConnectedWallet, NeedGoETH,
+         DepositMethod, ConnectWalletButton
        } from './components';
 
 import { STEP_BOXES } from './constants';
@@ -112,7 +112,7 @@ const StakingDeposit = () => {
         <DepositMethod>
           {metamaskInfo.selectedAddress ? 
             (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} />) : 
-            (<Button onClick={connectAndUpdateMetamask}>Connect Wallet</Button>
+            (<ConnectWalletButton onMetamaskClick={connectAndUpdateMetamask} />
           )}  
           {network_id === "5" && <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
         </DepositMethod>

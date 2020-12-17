@@ -10,3 +10,4 @@ export { default as StepsBoxes } from './StepsBoxes';
 export { default as ConnectedWallet } from './ConnectedWallet';
 export { default as NeedGoETH } from './NeedGoETH';
 export { default as DepositMethod } from './DepositMethod';
+export { default as ConnectWalletButton } from './ConnectWalletButton';
