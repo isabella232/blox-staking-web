@@ -16,7 +16,7 @@ function App() {
         <Switch>
           <Route path="/auth" component={Authentication} />
           <Route path="/staking-deposit" component={StakingDeposit} />
-        </Switch>        
+        </Switch>
       </Wrapper>
     </Router>
   );
