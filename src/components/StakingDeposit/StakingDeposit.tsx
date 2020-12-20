@@ -152,6 +152,9 @@ const StakingDeposit = () => {
         {showBrowserNotSupportedPopUp && <BrowserNotSupported onClose={hideBrowserNotSupportedPopUp}/>}
         {showWrongNetworkModal &&
         <WrongNetworkModal networkType={qsObject.network_id} onClose={hideWrongNetworkModal}/>}
+        {isDepositSuccess && txHash && (
+          <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={`blox-live://tx_hash=${txHash}`} />
+        )}
       </Wrapper>
     );
   }
