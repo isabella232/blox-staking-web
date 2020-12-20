@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import axios from 'axios';
 import Metamask from 'service/Metamask';
 import {NETWORK_IDS} from 'service/Metamask/constants';
 
@@ -13,7 +14,7 @@ import parsedQueryString from 'common/helpers/getParsedQueryString';
 import { notification } from 'antd';
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
-const {network_id, deposit_to, public_key} = qsObject; // TODO: replace account id with of public key
+const {network_id, deposit_to, public_key, account_id} = qsObject; // TODO: replace account id with of public key
 
 const initialMetamaskInfoState = {
     networkVersion: '',
@@ -108,6 +109,12 @@ const StakingDeposit = () => {
         if(txReceipt.status) {
           notification.success({ message: '', description: `Successfully deposited 32 ETH to ${deposit_to}` });
           setDepositSuccessStatus(true);
+          axios({
+            url: `${process.env.REACT_APP_API_URL}/accounts/${account_id}`,
+            method: 'patch',
+            data: { deposited: true, txHash },
+            responseType: 'json',
+          });
           return;
         }
         notification.error({ message: '', description: `Failed to send transaction` });
@@ -123,6 +130,7 @@ const StakingDeposit = () => {
   };
 
   if(network_id && deposit_to && public_key) {
+    const desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${deposit_to}`;
     return (  
       <Wrapper>
         <Title>{network_id === "1" ? 'Mainnet' : 'Testnet'} Staking Deposit</Title>
@@ -158,7 +166,7 @@ const StakingDeposit = () => {
         {showWrongNetworkModal &&
         <WrongNetworkModal networkType={qsObject.network_id} onClose={hideWrongNetworkModal}/>}
         {isDepositSuccess && txHash && (
-          <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={`blox-live://tx_hash=${txHash}`} />
+          <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={desktopAppLink} />
         )}
       </Wrapper>
     );
