@@ -75,11 +75,10 @@ export default class MetaMask {
   };
 
   disconnect = () => {
-    this.metaMask.removeAllListeners('accountsChanged');
-    this.metaMask.removeAllListeners('networkChanged');
-    this.metaMask.removeAllListeners('connect');
-    this.metaMask.removeAllListeners('close');
-    this.metaMask.removeAllListeners('data');
-    this.metaMask.removeAllListeners('error');
+    const userEvents = Object.values(EVENTS);
+    const events = [...userEvents ,'connect', 'close', 'data', 'error'];
+    events.forEach((eventName) => {
+      this.metaMask.removeAllListeners(eventName);
+    });
   }
 }

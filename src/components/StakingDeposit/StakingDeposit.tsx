@@ -13,7 +13,7 @@ import parsedQueryString from 'common/helpers/getParsedQueryString';
 import { notification } from 'antd';
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
-const {network_id, deposit_to, public_key} = qsObject;
+const {network_id, deposit_to, public_key} = qsObject; // TODO: replace account id with of public key
 
 const initialMetamaskInfoState = {
     networkVersion: '',
