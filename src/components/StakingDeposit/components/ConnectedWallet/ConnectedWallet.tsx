@@ -78,7 +78,7 @@ const Disconnect = styled.div`
 `;
 
 const ConnectedWallet = (props: Props) => {
-  const { metamaskInfo, areNetworksEqual, error } = props
+  const { metamaskInfo, areNetworksEqual, error, onDisconnect } = props
   const { selectedAddress, networkName, balance } = metamaskInfo;
   const balanceColor = error.type === 'lowBalance' ? 'destructive600' : 'gray600'
   return (
@@ -94,7 +94,7 @@ const ConnectedWallet = (props: Props) => {
         <Icon name={'eth-icon-colors'} fontSize={'10px'} color={balanceColor} />
         <BalanceText>{Math.floor(Number(balance)*10000) / 10000}</BalanceText>
       </Balance>
-      <Disconnect>Disconnect</Disconnect>
+      <Disconnect onClick={onDisconnect}>Disconnect</Disconnect>
     </Wrapper>
   );
 };
@@ -103,6 +103,7 @@ type Props = {
   metamaskInfo: Record<string, any>;
   areNetworksEqual: boolean;
   error: Record<string, any>; 
+  onDisconnect: () => void;
 };
 
 export default ConnectedWallet;

@@ -73,4 +73,13 @@ export default class MetaMask {
       this.web3.eth.getTransactionReceipt(txHash, callback);
     }, 3000);
   };
+
+  disconnect = () => {
+    this.metaMask.removeAllListeners('accountsChanged');
+    this.metaMask.removeAllListeners('networkChanged');
+    this.metaMask.removeAllListeners('connect');
+    this.metaMask.removeAllListeners('close');
+    this.metaMask.removeAllListeners('data');
+    this.metaMask.removeAllListeners('error');
+  }
 }

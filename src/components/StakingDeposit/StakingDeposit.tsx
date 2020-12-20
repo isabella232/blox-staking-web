@@ -117,6 +117,11 @@ const StakingDeposit = () => {
     metamask.sendEthersTo(onStart, onSuccess); 
   }
 
+  const onDisconnect = () => {
+    setMetamaskInfo(initialMetamaskInfoState);
+    metamask.disconnect();
+  };
+
   if(network_id && deposit_to && public_key) {
     return (  
       <Wrapper>
@@ -125,7 +130,7 @@ const StakingDeposit = () => {
           <SubTitle>Deposit Method</SubTitle>
           <DepositMethod>
             {metamaskInfo.selectedAddress ? 
-              (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} />) : 
+              (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} onDisconnect={onDisconnect} />) : 
               (<ConnectWalletButton onMetamaskClick={connectAndUpdateMetamask} />
             )}  
             {network_id === "5" && <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
