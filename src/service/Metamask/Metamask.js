@@ -12,7 +12,7 @@ export default class MetaMask {
 
   isExist = () => typeof this.metaMask !== 'undefined' && this.metaMask.isMetaMask;
 
-  enableAccounts = async () => {
+  enableAccounts = async () => { 
     const accounts = await this.metaMask.enable();
     this.web3 = new Web3(Web3.givenProvider);
     this.accounts = accounts;
