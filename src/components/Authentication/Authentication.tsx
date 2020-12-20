@@ -41,11 +41,9 @@ const Authentication = () => {
     asyncFunc();
   }, [location.search])
 
-  const backToDesktop = () => tokenData && window.location.reload();
-
   return (
     <Wrapper>
-      {isLoading && <BackToDesktop onClick={backToDesktop} />}
+      {isLoading && <BackToDesktop />}
       {provider && !isLoading && <ConnectingTo provider={provider} />}
       {tokenData && <iframe title={'callApp'} width={'0px'} height={'0px'} src={`blox-live://${tokenData.id_token}`} />}
     </Wrapper>

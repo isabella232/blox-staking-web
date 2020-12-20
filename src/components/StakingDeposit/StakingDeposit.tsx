@@ -28,7 +28,7 @@ const metamask = new Metamask({ depositTo: deposit_to });
 
 const StakingDeposit = () => { 
   const [ showMetamaskNotSupportedPopUp, setMetamaskNotSupportedPopUpStatus ] = useState(false);
-  const [showBrowserNotSupportedPopUp, setBrowserNotSupportedPopUp] = useState(false);
+  const [ showBrowserNotSupportedPopUp, setBrowserNotSupportedPopUp ] = useState(false);
   const [ metamaskInfo, setMetamaskInfo ] = useState(initialMetamaskInfoState);
   const [ checkedTerms, setCheckedTermsStatus ] = useState(false);
   const [ error, setError ] = useState(initialErrorState);
@@ -36,8 +36,8 @@ const StakingDeposit = () => {
   const [ isLoadingDeposit, setDepositLoadingStatus ] = useState(false);
   const [ isDepositSuccess, setDepositSuccessStatus ] = useState(false);
   const [ txHash, setTxHash ] = useState('');
-  const [oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal] = useState(false);
-  const [showWrongNetworkModal, setShowWrongNetworkModal] = useState(false);
+  const [ oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal ] = useState(false);
+  const [ showWrongNetworkModal, setShowWrongNetworkModal ] = useState(false);
 
   const areNetworksEqual = network_id === metamaskInfo.networkVersion;
 

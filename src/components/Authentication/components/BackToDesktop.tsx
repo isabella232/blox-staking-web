@@ -27,24 +27,13 @@ const SmallText = styled.div`
   color:${({theme}) => theme.gray800};
 `;
 
-const Link = styled.div`
-  color:${({theme}) => theme.primary600};
-  cursor:pointer;
-  font-size: 14px;
-`;
-
-const BackToDesktop = ({onClick}: Props) => (
+const BackToDesktop = () => (
   <Wrapper>
-    <OpeningLink>Opening link in Blox Staking</OpeningLink>
+    <OpeningLink>Launching Blox Staking...</OpeningLink>
     <SmallText>
       You have successfully Logged in&nbsp;
-      <Link onClick={() => onClick()}>Go back to app now</Link>
     </SmallText>
   </Wrapper>
 );
-
-type Props = {
-  onClick: () => void;
-}
 
 export default BackToDesktop;
