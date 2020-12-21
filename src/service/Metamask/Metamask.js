@@ -7,6 +7,7 @@ export default class MetaMask {
     this.accounts = [];
     this.web3 = {};
     this.depositTo = props.depositTo; //props.depositTo // 0x4e409dB090a71D14d32AdBFbC0A22B1B06dde7dE amitai
+    this.txData = props.txData;
     this.timer = null;
   }
 
@@ -37,6 +38,7 @@ export default class MetaMask {
         gas: '0x61A80', // 0.01
         gasPrice: '5208', // 0.01
         value: this.web3.utils.numberToHex(this.web3.utils.toWei('32', 'ether')), // (amount * 1000000).toString(), // '32000000000'
+        data: this.txData,
       },
     ];
 

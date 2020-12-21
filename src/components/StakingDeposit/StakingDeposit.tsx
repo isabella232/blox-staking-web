@@ -14,7 +14,7 @@ import parsedQueryString from 'common/helpers/getParsedQueryString';
 import { notification } from 'antd';
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
-const {network_id, deposit_to, public_key, account_id} = qsObject; // TODO: replace account id with of public key
+const {network_id, deposit_to, public_key, account_id, tx_data} = qsObject; // TODO: replace account id with of public key
 
 const initialMetamaskInfoState = {
     networkVersion: '',
@@ -25,7 +25,7 @@ const initialMetamaskInfoState = {
 
 const initialErrorState = { type: '', message: '' };
 
-const metamask = new Metamask({ depositTo: deposit_to });
+const metamask = new Metamask({ depositTo: deposit_to, txData: tx_data });
 
 const StakingDeposit = () => { 
   const [ showMetamaskNotSupportedPopUp, setMetamaskNotSupportedPopUpStatus ] = useState(false);
