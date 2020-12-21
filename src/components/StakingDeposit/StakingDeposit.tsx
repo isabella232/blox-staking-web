@@ -112,7 +112,7 @@ const StakingDeposit = () => {
           axios({
             url: `${process.env.REACT_APP_API_URL}/accounts/${account_id}`,
             method: 'patch',
-            data: { deposited: true, txHash },
+            data: { deposited: true, depositTxHash: txHash },
             responseType: 'json',
           });
           return;
