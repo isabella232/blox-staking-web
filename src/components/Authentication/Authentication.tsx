@@ -22,7 +22,10 @@ const Authentication = () => {
   }, []);
 
   useEffect(() => {
-    saveTokenIfCodeExist();
+    const asyncFunc = async () => {
+      await saveTokenIfCodeExist();
+    }
+    asyncFunc();
   }, [location.search]);
 
   const startLogin = () => {
@@ -35,7 +38,7 @@ const Authentication = () => {
 
   const saveTokenIfCodeExist = async () => {
     const queryStrings = /code|error/;
-    if (queryStrings.test(location.search)) {
+    if (queryStrings.test(location.search) && !tokenData) {
       setLoadingStatus(true);
       const qsObject: Record<string, any> = parsedQueryString(location.search);
       const responseData = await auth.loadAuthToken(qsObject.code);
@@ -43,16 +46,16 @@ const Authentication = () => {
     }
   };
 
-  const backToDesktop = () => {
-    setTokenData(null);
-    saveTokenIfCodeExist();
+  const backToDesktop = async () => {
+    await setLoadingStatus(false);
+    await setLoadingStatus(true);
   }
 
   return ( 
     <Wrapper>
       {isLoading && <BackToDesktop onClick={backToDesktop} />}
       {provider && !isLoading && <ConnectingTo provider={provider} />}
-      {tokenData && (
+      {tokenData && isLoading && (
         <iframe title={'callApp'} width={'0px'} height={'0px'} src={`blox-live://token_id=${tokenData.id_token}`} />
       )}
     </Wrapper>
