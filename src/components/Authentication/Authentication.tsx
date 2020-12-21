@@ -51,10 +51,10 @@ const Authentication = () => {
       {isLoading && <BackToDesktop onClick={backToDesktop} />}
       {provider && !isLoading && <ConnectingTo provider={provider} />}
       {tokenData && (
-        <iframe title={'callApp'} width={'0px'} height={'0px'} src={`blox-live://${tokenData.id_token}`} />
+        <iframe title={'callApp'} width={'0px'} height={'0px'} src={`blox-live://token_id=${tokenData.id_token}`} />
       )}
     </Wrapper>
   );
 }
 
-export default Authentication; 
+export default Authentication;
