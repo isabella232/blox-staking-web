@@ -46,7 +46,7 @@ const Authentication = () => {
 
   const backToDesktop = () => tokenData && window.location.reload();
 
-  return (
+  return ( 
     <Wrapper>
       {isLoading && <BackToDesktop onClick={backToDesktop} />}
       {provider && !isLoading && <ConnectingTo provider={provider} />}
