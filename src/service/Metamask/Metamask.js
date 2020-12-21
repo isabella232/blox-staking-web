@@ -73,4 +73,12 @@ export default class MetaMask {
       this.web3.eth.getTransactionReceipt(txHash, callback);
     }, 3000);
   };
+
+  disconnect = () => {
+    const userEvents = Object.values(EVENTS);
+    const events = [...userEvents ,'connect', 'close', 'data', 'error'];
+    events.forEach((eventName) => {
+      this.metaMask.removeAllListeners(eventName);
+    });
+  }
 }
