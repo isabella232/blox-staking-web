@@ -129,7 +129,7 @@ const StakingDeposit = () => {
     metamask.disconnect();
   };
 
-  if(network_id && deposit_to && public_key) {
+  if(network_id && deposit_to && public_key) { 
     const desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${deposit_to}`;
     return (  
       <Wrapper>
