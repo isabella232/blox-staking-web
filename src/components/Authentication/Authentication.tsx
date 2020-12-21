@@ -19,7 +19,6 @@ const Authentication = () => {
 
   useEffect(() => {
     startLogin();
-    saveTokenIfCodeExist();
   }, []);
 
   useEffect(() => {
@@ -44,7 +43,10 @@ const Authentication = () => {
     }
   };
 
-  const backToDesktop = () => tokenData && window.location.reload();
+  const backToDesktop = () => {
+    setTokenData(null);
+    saveTokenIfCodeExist();
+  }
 
   return ( 
     <Wrapper>
