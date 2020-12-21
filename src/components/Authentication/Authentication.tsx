@@ -47,11 +47,11 @@ const Authentication = () => {
       {provider && !isLoading && <ConnectingTo provider={provider} />}
       {tokenData && (
         <iframe allow={'web-share document-domain sync-xhr'} title={'callApp'}
-                width={'0px'} height={'0px'} src={`blox-live://${tokenData.id_token}`}
+                width={'0px'} height={'0px'} src={`blox-live://token_id=${tokenData.id_token}`}
         />
       )}
     </Wrapper>
   );
 }
 
-export default Authentication; 
+export default Authentication;
