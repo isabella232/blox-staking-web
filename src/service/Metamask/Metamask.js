@@ -36,7 +36,7 @@ export default class MetaMask {
         to: this.depositTo,
         gas: '0x61A80', // 0.01
         gasPrice: '5208', // 0.01
-        value: this.web3.utils.numberToHex(this.web3.utils.toWei('1', 'ether')), // (amount * 1000000).toString(), // '32000000000'
+        value: this.web3.utils.numberToHex(this.web3.utils.toWei('32', 'ether')), // (amount * 1000000).toString(), // '32000000000'
       },
     ];
 
