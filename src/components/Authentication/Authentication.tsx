@@ -18,39 +18,43 @@ const Authentication = () => {
   const [tokenData, setTokenData] = useState<Record<string, any> | null> (null);
 
   useEffect(() => {
-    const asyncFunc = () => {
-      const qsObject: Record<string, any> = parsedQueryString(location.search);
-      setProvider(qsObject.provider);
-      if(Auth.constants[qsObject.provider]) {
-        auth.loginWithSocialApp(qsObject.provider);
-      }
-    };
-    asyncFunc();
+    startLogin();
+    saveTokenIfCodeExist();
   }, []);
 
   useEffect(() => {
-    const asyncFunc = async () => {
-      const queryStrings = /code|error/;
-      if (queryStrings.test(location.search)) {
-        setLoadingStatus(true);
-        const qsObject: Record<string, any> = parsedQueryString(location.search);
-        const responseData = await auth.loadAuthToken(qsObject.code);
-        await setTokenData(responseData);
-      }
+    saveTokenIfCodeExist();
+  }, [location.search]);
+
+  const startLogin = () => {
+    const qsObject: Record<string, any> = parsedQueryString(location.search);
+    setProvider(qsObject.provider);
+    if(Auth.constants[qsObject.provider]) {
+      auth.loginWithSocialApp(qsObject.provider);
     }
-    asyncFunc();
-  }, [location.search])
+  };
+
+  const saveTokenIfCodeExist = async () => {
+    const queryStrings = /code|error/;
+    if (queryStrings.test(location.search)) {
+      setLoadingStatus(true);
+      const qsObject: Record<string, any> = parsedQueryString(location.search);
+      const responseData = await auth.loadAuthToken(qsObject.code);
+      await setTokenData(responseData);
+    }
+  };
+
+  const backToDesktop = () => tokenData && window.location.reload();
 
   return (
     <Wrapper>
-      {isLoading && <BackToDesktop />}
+      {isLoading && <BackToDesktop onClick={backToDesktop} />}
       {provider && !isLoading && <ConnectingTo provider={provider} />}
       {tokenData && (
-        <iframe allow={'web-share document-domain sync-xhr'} title={'callApp'}
-        width={'0px'} height={'0px'} src={`blox-live://${tokenData.id_token}`} />
+        <iframe title={'callApp'} width={'0px'} height={'0px'} src={`blox-live://token_id=${tokenData.id_token}`} />
       )}
     </Wrapper>
   );
 }
 
-export default Authentication; 
+export default Authentication;
