@@ -45,7 +45,10 @@ const Authentication = () => {
     <Wrapper>
       {isLoading && <BackToDesktop />}
       {provider && !isLoading && <ConnectingTo provider={provider} />}
-      {tokenData && <iframe title={'callApp'} width={'0px'} height={'0px'} src={`blox-live://${tokenData.id_token}`} />}
+      {tokenData && (
+        <iframe allow={'web-share document-domain sync-xhr'} title={'callApp'}
+        width={'0px'} height={'0px'} src={`blox-live://${tokenData.id_token}`} />
+      )}
     </Wrapper>
   );
 }
