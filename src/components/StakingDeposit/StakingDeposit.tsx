@@ -31,7 +31,7 @@ const initialErrorState = {type: '', message: ''};
 
 const metamask = new Metamask({depositTo: deposit_to, txData: tx_data});
 
-const StakingDeposit = () => { 
+const StakingDeposit = () => {
   const [ metamaskInfo, setMetamaskInfo ] = useState(initialMetamaskInfoState);
   const [ checkedTerms, setCheckedTermsStatus ] = useState(false);
   const [ error, setError ] = useState(initialErrorState);
@@ -135,8 +135,9 @@ const StakingDeposit = () => {
                     await sendAccountUpdate(true, txReceipt.transactionHash, () => {}, () => {});
                     notification.success({message: '', description: `Successfully deposited 32 ETH to ${deposit_to}`});
                     setDepositSuccessStatus(true);
+                }else {
+                    notification.error({message: '', description: `Failed to send transaction`});
                 }
-                notification.error({message: '', description: `Failed to send transaction`});
             }
         };
 
@@ -150,16 +151,16 @@ const StakingDeposit = () => {
 
   if(network_id && deposit_to && public_key) {
     const desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${deposit_to}`;
-    return (  
+    return (
       <Wrapper>
         <Title>{network_id === "1" ? 'Mainnet' : 'Testnet'} Staking Deposit</Title>
         <Section>
           <SubTitle>Deposit Method</SubTitle>
           <DepositMethod>
-            {metamaskInfo.selectedAddress ? 
-              (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} onDisconnect={onDisconnect} />) : 
+            {metamaskInfo.selectedAddress ?
+              (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} onDisconnect={onDisconnect} />) :
               (<ConnectWalletButton onMetamaskClick={connectAndUpdateMetamask} />
-            )}  
+            )}
             {network_id === "5" && <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
           </DepositMethod>
           {error.type && <ErrorMessage>{error.message}</ErrorMessage>}
