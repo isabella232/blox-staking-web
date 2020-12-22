@@ -3,6 +3,7 @@ import axios from 'axios';
 import Metamask from 'service/Metamask';
 import {NETWORK_IDS} from 'service/Metamask/constants';
 
+
 import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage, StepsBoxes,
     ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton
@@ -10,14 +11,14 @@ import {
 
 import {STEP_BOXES} from './constants';
 import parsedQueryString from 'common/helpers/getParsedQueryString';
-import { notification } from 'antd';
+import {notification} from 'antd';
 
 import ModalsManager from '../ModalsManager';
 import useModals from '../ModalsManager/useModals';
 import { MODAL_TYPES } from '../ModalsManager/constants';
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
-const { network_id, deposit_to, public_key, account_id, tx_data } = qsObject;
+const {network_id, deposit_to, public_key, account_id, tx_data, id_token} = qsObject; // TODO: replace account id with of public key
 
 const initialMetamaskInfoState = {
     networkVersion: '',
@@ -26,9 +27,9 @@ const initialMetamaskInfoState = {
     balance: '',
 };
 
-const initialErrorState = { type: '', message: '' };
+const initialErrorState = {type: '', message: ''};
 
-const metamask = new Metamask({ depositTo: deposit_to, txData: tx_data });
+const metamask = new Metamask({depositTo: deposit_to, txData: tx_data});
 
 const StakingDeposit = () => { 
   const [ metamaskInfo, setMetamaskInfo ] = useState(initialMetamaskInfoState);
@@ -53,6 +54,7 @@ const StakingDeposit = () => {
 
     const placement = 'bottomRight';
     notification.config({ placement });
+    window.history.replaceState(null, null, window.location.pathname);
   }, []);
 
   useEffect(() => {
@@ -80,7 +82,7 @@ const StakingDeposit = () => {
     try {
       await metamask.enableAccounts();
       await metamask.subscribeToChange('networkChanged', (networkId) => updateMetamaskInfo(networkId, null)); // TODO: change to chainId
-      await metamask.subscribeToChange('accountsChanged', (accountId) => updateMetamaskInfo(null, accountId));  
+      await metamask.subscribeToChange('accountsChanged', (accountId) => updateMetamaskInfo(null, accountId));
       notification.success({ message: '', description: 'Successfully connected to MetaMask' });
     }
     catch(e) { throw new Error(e.message); }
@@ -93,44 +95,61 @@ const StakingDeposit = () => {
 
 
     const balance = await metamask.getBalance(account);
-    setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, selectedAddress: account, balance })); 
-  }; 
+    setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, selectedAddress: account, balance }));
+  };
 
-  const onDepositStart = () => {
-    const onStart = (txHash) => {
-      setTxHash(txHash);
-      setDepositLoadingStatus(true);
-      notification.success({ message: '', description: `Transaction hash: ${txHash}` });
+    const sendAccountUpdate = async (deposited, txHash, onSuccess, onFailure) => {
+        try {
+            const res = await axios({
+                url: `${process.env.REACT_APP_API_URL}/accounts/${account_id}`,
+                method: 'patch',
+                data: {deposited: deposited, depositTxHash: txHash},
+                responseType: 'json',
+                headers: {Authorization: `Bearer ${id_token}`},
+            });
+            onSuccess(res.data);
+        } catch (error) {
+            console.log(`Error updating account - ${error}`);
+            onFailure(error);
+        }
     };
 
-    const onSuccess = (error, txReceipt) => {
-      setDepositLoadingStatus(false);
-      if(error) { 
-        notification.error({ message: '', description: error });
-      }
-      else if(txReceipt) {
-        if(txReceipt.status) {
-          notification.success({ message: '', description: `Successfully deposited 32 ETH to ${deposit_to}` });
-          setDepositSuccessStatus(true);
-          axios({
-            url: `${process.env.REACT_APP_API_URL}/accounts/${account_id}`,
-            method: 'patch',
-            data: { deposited: true, depositTxHash: txHash },
-            responseType: 'json',
-          });
-          return;
-        }
-        notification.error({ message: '', description: `Failed to send transaction` });
-      }
-    }
+    const onDepositStart = () => {
+        const onStart = async (txHash) => {
+            setTxHash(txHash);
+            setDepositLoadingStatus(true);
+            await sendAccountUpdate(false, txHash, () => {
+                notification.success({message: '', description: `Transaction hash: ${txHash}`});
+                return;
+            }, () => {
+                return;
+            });
+        };
 
-    metamask.sendEthersTo(onStart, onSuccess); 
-  }
+        const onSuccess = async (error, txReceipt) => {
+            setDepositLoadingStatus(false);
+            if (error) {
+                notification.error({message: '', description: error});
+            } else if (txReceipt) {
+                if (txReceipt.status) {
+                    await sendAccountUpdate(true, txHash, () => {
+                        notification.success({message: '', description: `Successfully deposited 32 ETH to ${deposit_to}`});
+                        setDepositSuccessStatus(true);
+                    }, () => {
+                        return;
+                    })
+                }
+                notification.error({message: '', description: `Failed to send transaction`});
+            }
+        };
 
-  const onDisconnect = () => {
-    setMetamaskInfo(initialMetamaskInfoState);
-    metamask.disconnect();
-  };
+        metamask.sendEthersTo(onStart, onSuccess);
+    };
+
+    const onDisconnect = () => {
+        setMetamaskInfo(initialMetamaskInfoState);
+        metamask.disconnect();
+    };
 
   if(network_id && deposit_to && public_key) {
     const desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${deposit_to}`;
