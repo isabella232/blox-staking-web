@@ -33,7 +33,7 @@ const WrongNetworkModal = (props: Props) => {
     const Description = styled.div`
         font-size: 14px;
         font-weight: 500;
-        margin-top: 24px
+        margin-top: 24px;
     `;
 
     const ImageWrapper = styled.div`

@@ -50,14 +50,14 @@ const Image = styled.img`
   margin-right:5px;
 `;
 
-const ConnectWalletButton = ({ onMetamaskClick }: Props) => {
+const ConnectWalletButton = ({ onMetamaskClick, onLedgerClick, onTrezorClick }: Props) => {
   const [ showMenu, setMenuStatus ] = useState(false);
 
   const ITEMS = [
     { label: 'portis', displayName: 'Portis', icon: icons.PortisImage, onClick: () => null },
     { label: 'metamask', displayName: 'Metamask', icon: icons.MetamaskImage, onClick: () => onMetamaskClick() },
-    { label: 'ledger', displayName: 'Ledger via Metamask', icon: icons.LedgerImage, onClick: () => null },
-    { label: 'trezor', displayName: 'Trezor via Metamask', icon: icons.TrezorImage, onClick: () => null },
+    { label: 'ledger', displayName: 'Ledger via Metamask', icon: icons.LedgerImage, onClick: () => onLedgerClick() },
+    { label: 'trezor', displayName: 'Trezor via Metamask', icon: icons.TrezorImage, onClick: () => onTrezorClick() },
   ];
 
   return (
@@ -79,6 +79,8 @@ const ConnectWalletButton = ({ onMetamaskClick }: Props) => {
 
 type Props = {
   onMetamaskClick: () => void;
+  onLedgerClick: () => void;
+  onTrezorClick: () => void;
 };
 
 export default ConnectWalletButton;

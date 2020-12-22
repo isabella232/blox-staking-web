@@ -44,6 +44,19 @@ const StakingDeposit = () => {
   const { showModal, hideModal, modal } = useModals();
 
   const areNetworksEqual = network_id === metamaskInfo.networkVersion;
+  const onLedgerClick = () => showModal({ show: true, type: MODAL_TYPES.LEDGER,
+    params: { onClick: () => {
+      hideModal();
+      connectAndUpdateMetamask();
+    } } }
+  );
+
+  const onTrezorClick = () => showModal({ show: true, type: MODAL_TYPES.TREZOR,
+    params: { onClick: () => {
+      hideModal();
+      connectAndUpdateMetamask();
+    } } }
+  );
 
   useEffect(() => {
     const isChrome = navigator.userAgent.indexOf("Chrome") !== -1;
@@ -159,7 +172,7 @@ const StakingDeposit = () => {
           <DepositMethod>
             {metamaskInfo.selectedAddress ?
               (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} onDisconnect={onDisconnect} />) :
-              (<ConnectWalletButton onMetamaskClick={connectAndUpdateMetamask} />
+              (<ConnectWalletButton onLedgerClick={onLedgerClick} onTrezorClick={onTrezorClick} onMetamaskClick={connectAndUpdateMetamask} />
             )}
             {network_id === "5" && <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
           </DepositMethod>

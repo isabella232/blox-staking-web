@@ -1,5 +1,5 @@
 import React from 'react';
-import { MetaMaskNotFoundModal, BrowserNotSupported, WrongNetworkModal } from '../StakingDeposit/components';
+import { MetaMaskNotFoundModal, BrowserNotSupported, WrongNetworkModal, LedgerModal, TrezorModal } from '../StakingDeposit/components';
 import { MODAL_TYPES } from './constants';
 
 const ModalsManager = ({modal, onClose}: Props) => {
@@ -14,9 +14,9 @@ const ModalsManager = ({modal, onClose}: Props) => {
         case MODAL_TYPES.WRONG_NETWORK:
           return <WrongNetworkModal networkType={params?.networkId} onClose={onClose} />;
         case MODAL_TYPES.LEDGER:
-          return <div>abc</div>;
+          return <LedgerModal onClose={onClose} onClick={params.onClick} />;
         case MODAL_TYPES.TREZOR:
-          return <div>abc</div>;        
+          return <TrezorModal onClose={onClose} onClick={params.onClick} />;        
         default:
           return null;
       }
