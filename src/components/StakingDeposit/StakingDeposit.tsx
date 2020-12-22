@@ -79,18 +79,21 @@ const StakingDeposit = () => {
   const connectMetamask = async () => {
     try {
       await metamask.enableAccounts();
-      await metamask.subscribeToChange('networkChanged', updateMetamaskInfo); // TODO: change to chainId
-      await metamask.subscribeToChange('accountsChanged', updateMetamaskInfo);  
+      await metamask.subscribeToChange('networkChanged', (networkId) => updateMetamaskInfo(networkId, null)); // TODO: change to chainId
+      await metamask.subscribeToChange('accountsChanged', (accountId) => updateMetamaskInfo(null, accountId));  
       notification.success({ message: '', description: 'Successfully connected to MetaMask' });
     }
     catch(e) { throw new Error(e.message); }
   };
 
-  const updateMetamaskInfo = async (networkId?) => {
+  const updateMetamaskInfo = async (networkId?, accountId?) => {
     const { networkVersion, selectedAddress } = metamask.metaMask;
     const networkName = networkId ? NETWORK_IDS[networkId] : NETWORK_IDS[networkVersion];
-    const balance = await metamask.getBalance(selectedAddress);
-    setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, selectedAddress, balance })); 
+    const account = accountId?.length === 1 ? accountId[0] : selectedAddress;
+
+
+    const balance = await metamask.getBalance(account);
+    setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, selectedAddress: account, balance })); 
   }; 
 
   const onDepositStart = () => {
