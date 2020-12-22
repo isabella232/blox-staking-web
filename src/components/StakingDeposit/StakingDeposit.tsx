@@ -5,14 +5,17 @@ import {NETWORK_IDS} from 'service/Metamask/constants';
 
 
 import {
-    Wrapper, Section, Title, SubTitle, Total, ErrorMessage,
-    MetaMaskNotFoundModal, BrowserNotSupported, WrongNetworkModal,
-    StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton
+    Wrapper, Section, Title, SubTitle, Total, ErrorMessage, StepsBoxes,
+    ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton
 } from './components';
 
 import {STEP_BOXES} from './constants';
 import parsedQueryString from 'common/helpers/getParsedQueryString';
 import {notification} from 'antd';
+
+import ModalsManager from '../ModalsManager';
+import useModals from '../ModalsManager/useModals';
+import { MODAL_TYPES } from '../ModalsManager/constants';
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
 const {network_id, deposit_to, public_key, account_id, tx_data, id_token} = qsObject; // TODO: replace account id with of public key
@@ -28,9 +31,7 @@ const initialErrorState = {type: '', message: ''};
 
 const metamask = new Metamask({depositTo: deposit_to, txData: tx_data});
 
-const StakingDeposit = () => {
-  const [ showMetamaskNotSupportedPopUp, setMetamaskNotSupportedPopUpStatus ] = useState(false);
-  const [ showBrowserNotSupportedPopUp, setBrowserNotSupportedPopUp ] = useState(false);
+const StakingDeposit = () => { 
   const [ metamaskInfo, setMetamaskInfo ] = useState(initialMetamaskInfoState);
   const [ checkedTerms, setCheckedTermsStatus ] = useState(false);
   const [ error, setError ] = useState(initialErrorState);
@@ -39,42 +40,43 @@ const StakingDeposit = () => {
   const [ isDepositSuccess, setDepositSuccessStatus ] = useState(false);
   const [ txHash, setTxHash ] = useState('');
   const [ oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal ] = useState(false);
-  const [ showWrongNetworkModal, setShowWrongNetworkModal ] = useState(false);
+
+  const { showModal, hideModal, modal } = useModals();
 
   const areNetworksEqual = network_id === metamaskInfo.networkVersion;
 
-    useEffect(() => {
-        setMetamaskNotSupportedPopUpStatus(!metamask.isExist());
-        const isChrome = navigator.userAgent.indexOf("Chrome") !== -1;
-        const isFireFox = navigator.userAgent.indexOf("FireFox") !== -1;
-        setBrowserNotSupportedPopUp(!isChrome && !isFireFox);
-        const placement = 'bottomRight';
-        notification.config({placement});
-        window.history.replaceState(null, null, window.location.pathname); // hide the query params from browser url
-    }, []);
+  useEffect(() => {
+    const isChrome = navigator.userAgent.indexOf("Chrome") !== -1;
+    const isFireFox = navigator.userAgent.indexOf("FireFox") !== -1;
 
-    useEffect(() => {
-        if (qsObject.network_id && metamaskInfo.networkVersion && !areNetworksEqual) {
-            setError({type: 'networksNotEqual', message: `Please change to ${NETWORK_IDS[network_id]}`,});
-            if (!oneTimeWrongNetworkModal) {
-                setOneTimeWrongNetworkModal(true);
-                setShowWrongNetworkModal(true);
-            }
-        } else if (metamaskInfo.balance !== '' && Number(metamaskInfo.balance) < 33) {
-            setError({type: 'lowBalance', message: 'Insufficient balance in selected wallet'});
-        } else {
-            setError({type: '', message: ''});
-        }
-    }, [metamaskInfo]);
+    !metamask.isExist() && showModal({ show: true, type: MODAL_TYPES.METAMASK_NOT_SUPPORTED });
+    !isChrome && !isFireFox && showModal({ show: true, type: MODAL_TYPES.BROWSER_NOT_SUPPORTED });
 
-    const hideMetamaskNotSupportedPopUp = () => setMetamaskNotSupportedPopUpStatus(false);
-    const hideBrowserNotSupportedPopUp = () => setBrowserNotSupportedPopUp(false);
-    const hideWrongNetworkModal = () => setShowWrongNetworkModal(false);
+    const placement = 'bottomRight';
+    notification.config({ placement });
+    window.history.replaceState(null, null, window.location.pathname);
+  }, []);
 
-    const connectAndUpdateMetamask = async () => {
-        await connectMetamask();
-        await updateMetamaskInfo();
-    };
+  useEffect(() => {
+    if(qsObject.network_id && metamaskInfo.networkVersion && !areNetworksEqual) {
+      setError({type: 'networksNotEqual', message: `Please change to ${NETWORK_IDS[network_id]}`,});
+      if (!oneTimeWrongNetworkModal) {
+        setOneTimeWrongNetworkModal(true);
+        showModal({ show: true, type: MODAL_TYPES.WRONG_NETWORK, params: { networkType: network_id } });
+    }
+    }
+    else if(metamaskInfo.balance !== '' && Number(metamaskInfo.balance) < 33) {
+      setError({type: 'lowBalance', message: 'Insufficient balance in selected wallet'});
+    }
+    else {
+      setError({type: '', message: ''});
+    }
+  }, [qsObject, metamaskInfo]);
+
+  const connectAndUpdateMetamask = async () => {
+    await connectMetamask();
+    await updateMetamaskInfo();
+  };
 
   const connectMetamask = async () => {
     try {
@@ -146,51 +148,46 @@ const StakingDeposit = () => {
         metamask.disconnect();
     };
 
-    if (network_id && deposit_to && public_key) {
-        const desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${deposit_to}`;
-        return (
-            <Wrapper>
-                <Title>{network_id === "1" ? 'Mainnet' : 'Testnet'} Staking Deposit</Title>
-                <Section>
-                    <SubTitle>Deposit Method</SubTitle>
-                    <DepositMethod>
-                        {metamaskInfo.selectedAddress ?
-                            (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual}
-                                              error={error} onDisconnect={onDisconnect}/>) :
-                            (<ConnectWalletButton onMetamaskClick={connectAndUpdateMetamask}/>
-                            )}
-                        {network_id === "5" &&
-                        <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
-                    </DepositMethod>
-                    {error.type && <ErrorMessage>{error.message}</ErrorMessage>}
-                </Section>
-                <Section>
-                    <SubTitle>Plan and Summary</SubTitle>
-                    <StepsBoxes stepsData={stepsData} setStepsData={setStepsData}
-                                checkedTerms={checkedTerms} error={error}
-                                setCheckedTermsStatus={() => setCheckedTermsStatus(!checkedTerms)}
-                                metamaskInfo={metamaskInfo}
-                                onDepositStart={onDepositStart}
-                                depositTo={deposit_to}
-                                publicKey={public_key}
-                                network_id={network_id}
-                                isLoadingDeposit={isLoadingDeposit}
-                                isDepositSuccess={isDepositSuccess}
-                                txHash={txHash}
-                    />
-                    <Total>Total: 32 ETH + gas fees</Total>
-                </Section>
-                {showMetamaskNotSupportedPopUp && <MetaMaskNotFoundModal onClose={hideMetamaskNotSupportedPopUp}/>}
-                {showBrowserNotSupportedPopUp && <BrowserNotSupported onClose={hideBrowserNotSupportedPopUp}/>}
-                {showWrongNetworkModal &&
-                <WrongNetworkModal networkType={qsObject.network_id} onClose={hideWrongNetworkModal}/>}
-                {isDepositSuccess && txHash && (
-                    <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={desktopAppLink}/>
-                )}
-            </Wrapper>
-        );
-    }
-    return null;
+  if(network_id && deposit_to && public_key) {
+    const desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${deposit_to}`;
+    return (  
+      <Wrapper>
+        <Title>{network_id === "1" ? 'Mainnet' : 'Testnet'} Staking Deposit</Title>
+        <Section>
+          <SubTitle>Deposit Method</SubTitle>
+          <DepositMethod>
+            {metamaskInfo.selectedAddress ? 
+              (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} onDisconnect={onDisconnect} />) : 
+              (<ConnectWalletButton onMetamaskClick={connectAndUpdateMetamask} />
+            )}  
+            {network_id === "5" && <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
+          </DepositMethod>
+          {error.type && <ErrorMessage>{error.message}</ErrorMessage>}
+        </Section>
+        <Section>
+        <SubTitle>Plan and Summary</SubTitle>
+          <StepsBoxes stepsData={stepsData} setStepsData={setStepsData}
+            checkedTerms={checkedTerms} error={error}
+            setCheckedTermsStatus={() => setCheckedTermsStatus(!checkedTerms)}
+            metamaskInfo={metamaskInfo}
+            onDepositStart={onDepositStart}
+            depositTo={deposit_to}
+            publicKey={public_key}
+            network_id={network_id}
+            isLoadingDeposit={isLoadingDeposit}
+            isDepositSuccess={isDepositSuccess}
+            txHash={txHash}
+          />
+          <Total>Total: 32 ETH + gas fees</Total>
+        </Section>
+        <ModalsManager modal={modal} onClose={hideModal} />
+        {isDepositSuccess && txHash && (
+          <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={desktopAppLink} />
+        )}
+      </Wrapper>
+    );
+  }
+  return null;
 }
 
 export default StakingDeposit;
