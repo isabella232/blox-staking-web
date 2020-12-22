@@ -130,12 +130,9 @@ const StakingDeposit = () => {
                 notification.error({message: '', description: error});
             } else if (txReceipt) {
                 if (txReceipt.status) {
-                    await sendAccountUpdate(true, txHash, () => {
-                        notification.success({message: '', description: `Successfully deposited 32 ETH to ${deposit_to}`});
-                        setDepositSuccessStatus(true);
-                    }, () => {
-                        return;
-                    })
+                    await sendAccountUpdate(true, txReceipt.transactionHash, () => {}, () => {});
+                    notification.success({message: '', description: `Successfully deposited 32 ETH to ${deposit_to}`});
+                    setDepositSuccessStatus(true);
                 }
                 notification.error({message: '', description: `Failed to send transaction`});
             }
