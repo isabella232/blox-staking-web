@@ -29,20 +29,19 @@ const initialErrorState = {type: '', message: ''};
 const metamask = new Metamask({depositTo: deposit_to, txData: tx_data});
 
 const StakingDeposit = () => {
-    // useHistory().push({pathname: location.pathname});
-    const [showMetamaskNotSupportedPopUp, setMetamaskNotSupportedPopUpStatus] = useState(false);
-    const [showBrowserNotSupportedPopUp, setBrowserNotSupportedPopUp] = useState(false);
-    const [metamaskInfo, setMetamaskInfo] = useState(initialMetamaskInfoState);
-    const [checkedTerms, setCheckedTermsStatus] = useState(false);
-    const [error, setError] = useState(initialErrorState);
-    const [stepsData, setStepsData] = useState(STEP_BOXES);
-    const [isLoadingDeposit, setDepositLoadingStatus] = useState(false);
-    const [isDepositSuccess, setDepositSuccessStatus] = useState(false);
-    const [txHash, setTxHash] = useState('');
-    const [oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal] = useState(false);
-    const [showWrongNetworkModal, setShowWrongNetworkModal] = useState(false);
+  const [ showMetamaskNotSupportedPopUp, setMetamaskNotSupportedPopUpStatus ] = useState(false);
+  const [ showBrowserNotSupportedPopUp, setBrowserNotSupportedPopUp ] = useState(false);
+  const [ metamaskInfo, setMetamaskInfo ] = useState(initialMetamaskInfoState);
+  const [ checkedTerms, setCheckedTermsStatus ] = useState(false);
+  const [ error, setError ] = useState(initialErrorState);
+  const [ stepsData, setStepsData ] = useState(STEP_BOXES);
+  const [ isLoadingDeposit, setDepositLoadingStatus ] = useState(false);
+  const [ isDepositSuccess, setDepositSuccessStatus ] = useState(false);
+  const [ txHash, setTxHash ] = useState('');
+  const [ oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal ] = useState(false);
+  const [ showWrongNetworkModal, setShowWrongNetworkModal ] = useState(false);
 
-    const areNetworksEqual = network_id === metamaskInfo.networkVersion;
+  const areNetworksEqual = network_id === metamaskInfo.networkVersion;
 
     useEffect(() => {
         setMetamaskNotSupportedPopUpStatus(!metamask.isExist());
@@ -77,23 +76,25 @@ const StakingDeposit = () => {
         await updateMetamaskInfo();
     };
 
-    const connectMetamask = async () => {
-        try {
-            await metamask.enableAccounts();
-            await metamask.subscribeToChange('networkChanged', updateMetamaskInfo); // TODO: change to chainId
-            await metamask.subscribeToChange('accountsChanged', updateMetamaskInfo);
-            notification.success({message: '', description: 'Successfully connected to MetaMask'});
-        } catch (e) {
-            throw new Error(e.message);
-        }
-    };
+  const connectMetamask = async () => {
+    try {
+      await metamask.enableAccounts();
+      await metamask.subscribeToChange('networkChanged', (networkId) => updateMetamaskInfo(networkId, null)); // TODO: change to chainId
+      await metamask.subscribeToChange('accountsChanged', (accountId) => updateMetamaskInfo(null, accountId));
+      notification.success({ message: '', description: 'Successfully connected to MetaMask' });
+    }
+    catch(e) { throw new Error(e.message); }
+  };
 
-    const updateMetamaskInfo = async (networkId?) => {
-        const {networkVersion, selectedAddress} = metamask.metaMask;
-        const networkName = networkId ? NETWORK_IDS[networkId] : NETWORK_IDS[networkVersion];
-        const balance = await metamask.getBalance(selectedAddress);
-        setMetamaskInfo((prevState) => ({...prevState, networkName, networkVersion, selectedAddress, balance}));
-    };
+  const updateMetamaskInfo = async (networkId?, accountId?) => {
+    const { networkVersion, selectedAddress } = metamask.metaMask;
+    const networkName = networkId ? NETWORK_IDS[networkId] : NETWORK_IDS[networkVersion];
+    const account = accountId?.length === 1 ? accountId[0] : selectedAddress;
+
+
+    const balance = await metamask.getBalance(account);
+    setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, selectedAddress: account, balance }));
+  };
 
     const sendAccountUpdate = async (deposited, txHash, onSuccess, onFailure) => {
         try {

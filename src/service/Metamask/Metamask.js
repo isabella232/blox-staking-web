@@ -6,7 +6,7 @@ export default class MetaMask {
     this.metaMask = window.ethereum; 
     this.accounts = [];
     this.web3 = {};
-    this.depositTo = props.depositTo; //props.depositTo // 0x4e409dB090a71D14d32AdBFbC0A22B1B06dde7dE amitai
+    this.depositTo = props.depositTo;
     this.txData = props.txData;
     this.timer = null;
   }
