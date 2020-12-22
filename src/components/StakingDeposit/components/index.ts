@@ -14,3 +14,5 @@ export { default as ConnectWalletButton } from './ConnectWalletButton';
 export { default as WrongNetworkModal } from './WrongNetworkModal';
 export { default as DepositFinished } from './DepositFinished';
 export { default as MetaMaskNotFoundModal } from './MetaMaskNotFoundModal';
+export { default as LedgerModal } from './LedgerModal';
+export { default as TrezorModal } from './TrezorModal';
