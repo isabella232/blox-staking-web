@@ -4,17 +4,20 @@ import Metamask from 'service/Metamask';
 import {NETWORK_IDS} from 'service/Metamask/constants';
 
 import {
-    Wrapper, Section, Title, SubTitle, Total, ErrorMessage,
-    MetaMaskNotFoundModal, BrowserNotSupported, WrongNetworkModal, 
-    StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton
+    Wrapper, Section, Title, SubTitle, Total, ErrorMessage, StepsBoxes,
+    ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton
 } from './components';
 
 import {STEP_BOXES} from './constants';
 import parsedQueryString from 'common/helpers/getParsedQueryString';
 import { notification } from 'antd';
 
+import ModalsManager from '../ModalsManager';
+import useModals from '../ModalsManager/useModals';
+import { MODAL_TYPES } from '../ModalsManager/constants';
+
 const qsObject: Record<string, any> = parsedQueryString(location.search);
-const {network_id, deposit_to, public_key, account_id, tx_data} = qsObject; // TODO: replace account id with of public key
+const { network_id, deposit_to, public_key, account_id, tx_data } = qsObject;
 
 const initialMetamaskInfoState = {
     networkVersion: '',
@@ -28,8 +31,6 @@ const initialErrorState = { type: '', message: '' };
 const metamask = new Metamask({ depositTo: deposit_to, txData: tx_data });
 
 const StakingDeposit = () => { 
-  const [ showMetamaskNotSupportedPopUp, setMetamaskNotSupportedPopUpStatus ] = useState(false);
-  const [ showBrowserNotSupportedPopUp, setBrowserNotSupportedPopUp ] = useState(false);
   const [ metamaskInfo, setMetamaskInfo ] = useState(initialMetamaskInfoState);
   const [ checkedTerms, setCheckedTermsStatus ] = useState(false);
   const [ error, setError ] = useState(initialErrorState);
@@ -38,15 +39,18 @@ const StakingDeposit = () => {
   const [ isDepositSuccess, setDepositSuccessStatus ] = useState(false);
   const [ txHash, setTxHash ] = useState('');
   const [ oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal ] = useState(false);
-  const [ showWrongNetworkModal, setShowWrongNetworkModal ] = useState(false);
+
+  const { showModal, hideModal, modal } = useModals();
 
   const areNetworksEqual = network_id === metamaskInfo.networkVersion;
 
   useEffect(() => {
-    setMetamaskNotSupportedPopUpStatus(!metamask.isExist());
     const isChrome = navigator.userAgent.indexOf("Chrome") !== -1;
     const isFireFox = navigator.userAgent.indexOf("FireFox") !== -1;
-    setBrowserNotSupportedPopUp(!isChrome && !isFireFox);
+
+    !metamask.isExist() && showModal({ show: true, type: MODAL_TYPES.METAMASK_NOT_SUPPORTED });
+    !isChrome && !isFireFox && showModal({ show: true, type: MODAL_TYPES.BROWSER_NOT_SUPPORTED });
+
     const placement = 'bottomRight';
     notification.config({ placement });
   }, []);
@@ -56,7 +60,7 @@ const StakingDeposit = () => {
       setError({type: 'networksNotEqual', message: `Please change to ${NETWORK_IDS[network_id]}`,});
       if (!oneTimeWrongNetworkModal) {
         setOneTimeWrongNetworkModal(true);
-        setShowWrongNetworkModal(true);
+        showModal({ show: true, type: MODAL_TYPES.WRONG_NETWORK, params: { networkType: network_id } });
     }
     }
     else if(metamaskInfo.balance !== '' && Number(metamaskInfo.balance) < 33) {
@@ -66,10 +70,6 @@ const StakingDeposit = () => {
       setError({type: '', message: ''});
     }
   }, [qsObject, metamaskInfo]);
-
-  const hideMetamaskNotSupportedPopUp = () => setMetamaskNotSupportedPopUpStatus(false);
-  const hideBrowserNotSupportedPopUp = () => setBrowserNotSupportedPopUp(false);
-  const hideWrongNetworkModal = () => setShowWrongNetworkModal(false);
 
   const connectAndUpdateMetamask = async () => {
     await connectMetamask();
@@ -164,10 +164,7 @@ const StakingDeposit = () => {
           />
           <Total>Total: 32 ETH + gas fees</Total>
         </Section>
-        {showMetamaskNotSupportedPopUp && <MetaMaskNotFoundModal onClose={hideMetamaskNotSupportedPopUp}/>}
-        {showBrowserNotSupportedPopUp && <BrowserNotSupported onClose={hideBrowserNotSupportedPopUp}/>}
-        {showWrongNetworkModal &&
-        <WrongNetworkModal networkType={qsObject.network_id} onClose={hideWrongNetworkModal}/>}
+        <ModalsManager modal={modal} onClose={hideModal} />
         {isDepositSuccess && txHash && (
           <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={desktopAppLink} />
         )}
