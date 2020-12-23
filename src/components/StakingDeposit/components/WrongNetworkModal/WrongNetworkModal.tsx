@@ -2,14 +2,14 @@ import CustomModal from "../../../../common/components/CustomModal";
 import React from "react";
 import styled from "styled-components";
 import {Button} from "../../../../common/components";
-import gif from 'assets/images/gif.gif';
+import mainnet from 'assets/images/metamask-mainnet-network.gif';
+import test from 'assets/images/metamask-test-network.gif';
 
 const WrongNetworkModal = (props: Props) => {
     const {networkType, onClose} = props;
     const isMainnet = networkType === "1";
     const networkName = isMainnet ? 'Main' : 'Test';
     const token = isMainnet ? 'ETH' : 'Goerli';
-
 
     const Wrapper = styled.div`
         width:100%;
@@ -60,7 +60,7 @@ const WrongNetworkModal = (props: Props) => {
                     <Button style={{'width': '175px', 'marginTop': '116px'}} onClick={onClose}>Got it</Button>
                 </InnerWrapper>
                 <ImageWrapper>
-                    <Image src={gif}/>
+                    <Image src={isMainnet ? mainnet : test}/>
                 </ImageWrapper>
             </Wrapper>
         </CustomModal>
