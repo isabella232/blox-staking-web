@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
+import { detect } from 'detect-browser';
+
 import Metamask from 'service/Metamask';
 import {NETWORK_IDS} from 'service/Metamask/constants';
 
@@ -18,6 +20,8 @@ import { MODAL_TYPES } from '../ModalsManager/constants';
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
 const {network_id, deposit_to, public_key, account_id, tx_data, id_token} = qsObject; // TODO: replace account id with of public key
+
+const browser = detect();
 
 const initialMetamaskInfoState = {
     networkVersion: '',
@@ -43,30 +47,17 @@ const StakingDeposit = () => {
   const { showModal, hideModal, modal } = useModals();
 
   const areNetworksEqual = network_id === metamaskInfo.networkVersion;
-  const onLedgerClick = () => showModal({ show: true, type: MODAL_TYPES.LEDGER,
-    params: { onClick: () => {
-      hideModal();
-      connectAndUpdateMetamask();
-    } } }
-  );
-
-  const onTrezorClick = () => showModal({ show: true, type: MODAL_TYPES.TREZOR,
-    params: { onClick: () => {
-      hideModal();
-      connectAndUpdateMetamask();
-    } } }
-  );
 
   useEffect(() => {
-    const isChrome = navigator.userAgent.indexOf("Chrome") !== -1;
-    const isFireFox = navigator.userAgent.indexOf("FireFox") !== -1;
-
-    !metamask.isExist() && showModal({ show: true, type: MODAL_TYPES.METAMASK_NOT_SUPPORTED });
-    !isChrome && !isFireFox && showModal({ show: true, type: MODAL_TYPES.BROWSER_NOT_SUPPORTED });
-
     const placement = 'bottomRight';
     notification.config({ placement });
     // window.history.replaceState(null, null, window.location.pathname);
+
+    if(browser.name !== 'chrome' && browser.name !== 'firefox') {
+      showModal({ show: true, type: MODAL_TYPES.BROWSER_NOT_SUPPORTED });
+      return;
+    }
+    !metamask.isExist() && showModal({ show: true, type: MODAL_TYPES.METAMASK_NOT_SUPPORTED });
   }, []);
 
   useEffect(() => {
@@ -85,7 +76,39 @@ const StakingDeposit = () => {
     }
   }, [qsObject, metamaskInfo]);
 
+
+  const onLedgerClick = () => {
+    if(!metamask.isExist()) {
+      showModal({ show: true, type: MODAL_TYPES.METAMASK_NOT_SUPPORTED });
+      return;
+    }
+
+    showModal({ show: true, type: MODAL_TYPES.LEDGER,
+      params: { onClick: () => {
+        hideModal();
+        connectAndUpdateMetamask();
+      } } }
+    );
+  }
+
+  const onTrezorClick = () => {
+    if(!metamask.isExist()) {
+      showModal({ show: true, type: MODAL_TYPES.METAMASK_NOT_SUPPORTED });
+      return;
+    }
+    showModal({ show: true, type: MODAL_TYPES.TREZOR,
+      params: { onClick: () => {
+        hideModal();
+        connectAndUpdateMetamask();
+      } } }
+    );
+  }
+
   const connectAndUpdateMetamask = async () => {
+    if(!metamask.isExist()) {
+      showModal({ show: true, type: MODAL_TYPES.METAMASK_NOT_SUPPORTED });
+      return;
+    }
     await connectMetamask();
     await updateMetamaskInfo();
   };
