@@ -33,8 +33,8 @@ const MetaMaskNotFoundModal = ({onClose}: Props) => {
             <Title>MetaMask Required</Title>
             <DescriptionWrapper>
                 <Description>You need </Description>
-                <Description style={{'color': '#0090ff'}}>MetaMask's wallet browser extension</Description>
-                <Description> You need in order to send the staking deposit.</Description>
+                <Description style={{'color': '#0090ff'}}>MetaMask's wallet browser extension</Description> <br />
+                <Description>in order to send the staking deposit.</Description>
             </DescriptionWrapper>
         </CustomModal>
     );
