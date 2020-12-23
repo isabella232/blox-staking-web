@@ -136,6 +136,7 @@ const StepsBoxes = (props: Props) => {
   const truncatedDepositTo = truncateText(depositTo, 20, 6);
 
   const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
+  const isButtonDisabled = stepsData[2].isDisabled || isLoadingDeposit;
 
   return (
     <>
@@ -223,7 +224,7 @@ const StepsBoxes = (props: Props) => {
             </SuccessWrapper>
           ) : (
             <ButtonWrapper>
-              <Button isDisabled={stepsData[2].isDisabled || isLoadingDeposit} onClick={() => onDepositStart()}>Deposit</Button> 
+              <Button isDisabled={isButtonDisabled} onClick={() => !isButtonDisabled && onDepositStart()}>Deposit</Button> 
               {isLoadingDeposit && <Loading> <Spinner width={'17px'} /> Waiting for confirmation...</Loading>}
             </ButtonWrapper>
           )}
