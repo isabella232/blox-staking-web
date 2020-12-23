@@ -90,11 +90,17 @@ const StakingDeposit = () => {
     await updateMetamaskInfo();
   };
 
+  const onNetworkChange = (networkId) => updateMetamaskInfo(networkId, null)
+
+  const onAccountChange = (accountsList) => {
+    accountsList.length === 0 ? disconnect() : updateMetamaskInfo(null, accountsList);   
+  };
+
   const connectMetamask = async () => {
     try {
       await metamask.enableAccounts();
-      await metamask.subscribeToChange('networkChanged', (networkId) => updateMetamaskInfo(networkId, null)); // TODO: change to chainId
-      await metamask.subscribeToChange('accountsChanged', (accountId) => updateMetamaskInfo(null, accountId));
+      await metamask.subscribeToChange('networkChanged', onNetworkChange); // TODO: change to chainId
+      await metamask.subscribeToChange('accountsChanged', onAccountChange);
       notification.success({ message: '', description: 'Successfully connected to MetaMask' });
     }
     catch(e) { throw new Error(e.message); }
@@ -104,8 +110,6 @@ const StakingDeposit = () => {
     const { networkVersion, selectedAddress } = metamask.metaMask;
     const networkName = networkId ? NETWORK_IDS[networkId] : NETWORK_IDS[networkVersion];
     const account = accountId?.length === 1 ? accountId[0] : selectedAddress;
-
-
     const balance = await metamask.getBalance(account);
     setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, selectedAddress: account, balance }));
   };
@@ -156,7 +160,7 @@ const StakingDeposit = () => {
         metamask.sendEthersTo(onStart, onSuccess);
     };
 
-    const onDisconnect = () => {
+    const disconnect = () => {
         setMetamaskInfo(initialMetamaskInfoState);
         metamask.disconnect();
     };
@@ -170,7 +174,7 @@ const StakingDeposit = () => {
           <SubTitle>Deposit Method</SubTitle>
           <DepositMethod>
             {metamaskInfo.selectedAddress ?
-              (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} onDisconnect={onDisconnect} />) :
+              (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} onDisconnect={disconnect} />) :
               (<ConnectWalletButton onLedgerClick={onLedgerClick} onTrezorClick={onTrezorClick} onMetamaskClick={connectAndUpdateMetamask} />
             )}
             {network_id === "5" && <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
