@@ -8,3 +8,4 @@ export { default as UniqueUrl } from './UniqueUrl';
 export { default as CopyToClipboardIcon } from './CopyToClipboardIcon';
 export { default as Checkbox } from './Checkbox';
 export { default as Spinner } from './Spinner';
+export { default as Link } from './Link';

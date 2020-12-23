@@ -3,10 +3,9 @@ import axios from 'axios';
 import Metamask from 'service/Metamask';
 import {NETWORK_IDS} from 'service/Metamask/constants';
 
-
 import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage, StepsBoxes,
-    ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton
+    ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton, Faq
 } from './components';
 
 import {STEP_BOXES} from './constants';
@@ -67,7 +66,7 @@ const StakingDeposit = () => {
 
     const placement = 'bottomRight';
     notification.config({ placement });
-    window.history.replaceState(null, null, window.location.pathname);
+    // window.history.replaceState(null, null, window.location.pathname);
   }, []);
 
   useEffect(() => {
@@ -194,6 +193,7 @@ const StakingDeposit = () => {
           />
           <Total>Total: 32 ETH + gas fees</Total>
         </Section>
+        <Faq networkId={network_id} />
         <ModalsManager modal={modal} onClose={hideModal} />
         {isDepositSuccess && txHash && (
           <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={desktopAppLink} />
