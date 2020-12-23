@@ -74,7 +74,7 @@ const StakingDeposit = () => {
       setError({type: 'networksNotEqual', message: `Please change to ${NETWORK_IDS[network_id]}`,});
       if (!oneTimeWrongNetworkModal) {
         setOneTimeWrongNetworkModal(true);
-        showModal({ show: true, type: MODAL_TYPES.WRONG_NETWORK, params: { networkType: network_id } });
+        showModal({ show: true, type: MODAL_TYPES.WRONG_NETWORK, params: { networkType: network_id.toString() } });
     }
     }
     else if(metamaskInfo.balance !== '' && Number(metamaskInfo.balance) < 33) {

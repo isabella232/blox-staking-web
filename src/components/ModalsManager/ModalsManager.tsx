@@ -12,11 +12,11 @@ const ModalsManager = ({modal, onClose}: Props) => {
         case MODAL_TYPES.BROWSER_NOT_SUPPORTED:
           return <BrowserNotSupported onClose={onClose} />;
         case MODAL_TYPES.WRONG_NETWORK:
-          return <WrongNetworkModal networkType={params?.networkId} onClose={onClose} />;
+          return <WrongNetworkModal networkType={params?.networkType} onClose={onClose} />;
         case MODAL_TYPES.LEDGER:
           return <LedgerModal onClose={onClose} onClick={params.onClick} />;
         case MODAL_TYPES.TREZOR:
-          return <TrezorModal onClose={onClose} onClick={params.onClick} />;        
+          return <TrezorModal onClose={onClose} onClick={params.onClick} />;
         default:
           return null;
       }
