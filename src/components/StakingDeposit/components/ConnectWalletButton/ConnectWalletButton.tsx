@@ -55,9 +55,9 @@ const ConnectWalletButton = ({ onMetamaskClick, onLedgerClick, onTrezorClick }: 
 
   const ITEMS = [
     { label: 'portis', displayName: 'Portis', icon: icons.PortisImage, onClick: () => null },
-    { label: 'metamask', displayName: 'Metamask', icon: icons.MetamaskImage, onClick: () => onMetamaskClick() },
-    { label: 'ledger', displayName: 'Ledger via Metamask', icon: icons.LedgerImage, onClick: () => onLedgerClick() },
-    { label: 'trezor', displayName: 'Trezor via Metamask', icon: icons.TrezorImage, onClick: () => onTrezorClick() },
+    { label: 'metamask', displayName: 'MetaMask', icon: icons.MetamaskImage, onClick: () => onMetamaskClick() },
+    { label: 'ledger', displayName: 'Ledger via MetaMask', icon: icons.LedgerImage, onClick: () => onLedgerClick() },
+    { label: 'trezor', displayName: 'Trezor via MetaMask', icon: icons.TrezorImage, onClick: () => onTrezorClick() },
   ];
 
   return (
