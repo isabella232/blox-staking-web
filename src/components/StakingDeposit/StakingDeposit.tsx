@@ -7,7 +7,7 @@ import {NETWORK_IDS} from 'service/Metamask/constants';
 
 import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage, StepsBoxes,
-    ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton, Faq
+    ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton, Faq, SecurityNotification
 } from './components';
 
 import {STEP_BOXES} from './constants';
@@ -43,6 +43,7 @@ const StakingDeposit = () => {
   const [ isDepositSuccess, setDepositSuccessStatus ] = useState(false);
   const [ txHash, setTxHash ] = useState('');
   const [ oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal ] = useState(false);
+  const [showSecurityNotification, setSecurityNotificationDisplay] = React.useState(true);
 
   const { showModal, hideModal, modal } = useModals();
 
@@ -51,6 +52,7 @@ const StakingDeposit = () => {
   useEffect(() => {
     const placement = 'bottomRight';
     notification.config({ placement });
+    setTimeout(() => setSecurityNotificationDisplay(false), 5000);
     // window.history.replaceState(null, null, window.location.pathname);
 
     if(browser.name !== 'chrome' && browser.name !== 'firefox') {
@@ -109,6 +111,7 @@ const StakingDeposit = () => {
       showModal({ show: true, type: MODAL_TYPES.METAMASK_NOT_SUPPORTED });
       return;
     }
+    setSecurityNotificationDisplay(false);
     await connectMetamask();
     await updateMetamaskInfo();
   };
@@ -225,6 +228,7 @@ const StakingDeposit = () => {
         {isDepositSuccess && txHash && (
           <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={desktopAppLink} />
         )}
+        {showSecurityNotification && <SecurityNotification hide={() => setSecurityNotificationDisplay(false)} />}
       </Wrapper>
     );
   }
