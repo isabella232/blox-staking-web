@@ -5,7 +5,7 @@ import {NETWORK_IDS} from 'service/WalletProviders/Metamask/constants';
 
 import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage, StepsBoxes,
-    ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton, Faq
+    ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton, Faq, SecurityNotification
 } from './components';
 
 import {STEP_BOXES} from './constants';
@@ -45,6 +45,7 @@ const StakingDeposit = () => {
     const [isDepositSuccess, setDepositSuccessStatus] = useState(false);
     const [txHash, setTxHash] = useState('');
     const [oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal] = useState(false);
+    const [showSecurityNotification, setSecurityNotificationDisplay] = React.useState(true);
 
     const {showModal, hideModal, modal} = useModals();
 
@@ -54,6 +55,7 @@ const StakingDeposit = () => {
         const placement = 'bottomRight';
         notification.config({placement});
         // window.history.replaceState(null, null, window.location.pathname);
+        setTimeout(() => setSecurityNotificationDisplay(false), 5000);
     }, []);
 
     useEffect(() => {
@@ -74,7 +76,6 @@ const StakingDeposit = () => {
         if (walletProvider == null) return;
         const neededModal = walletProvider.getWarningModal();
         if (neededModal !== undefined) {
-            console.log('TEST ---', neededModal)
             setWalletProvider(null);
             showModal({show: true, type: neededModal});
             return
@@ -91,7 +92,7 @@ const StakingDeposit = () => {
             );
             return
         }
-
+        setSecurityNotificationDisplay(false);
         setLoadingWallet(true);
         connectWallet(walletProvider.providerType);
     }, [walletProvider]);
@@ -110,7 +111,7 @@ const StakingDeposit = () => {
                 setLoadingWallet(false);
                 walletProvider.subscribeToEvent('networkChanged', onNetworkChange);
                 walletProvider.subscribeToEvent('accountsChanged', onAccountChange);
-                walletProvider.getInfo().then((info) =>{
+                walletProvider.getInfo().then((info) => {
                     updateWalletInfo(info)
                 });
             }, null)
@@ -172,7 +173,7 @@ const StakingDeposit = () => {
     const disconnect = () => {
         setWalletInfo(initialWalletInfoState);
         setLoadingWallet(false);
-        if (walletProvider != null){
+        if (walletProvider != null) {
             walletProvider.disconnect();
             setWalletProvider(null);
         }
@@ -245,6 +246,7 @@ const StakingDeposit = () => {
                 {isDepositSuccess && txHash && (
                     <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={desktopAppLink}/>
                 )}
+                {showSecurityNotification && <SecurityNotification hide={() => setSecurityNotificationDisplay(false)}/>}
             </Wrapper>
         );
     }

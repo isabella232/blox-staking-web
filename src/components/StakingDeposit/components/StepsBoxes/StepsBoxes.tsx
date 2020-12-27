@@ -224,7 +224,7 @@ const StepsBoxes = (props: Props) => {
             </SuccessWrapper>
           ) : (
             <ButtonWrapper>
-              <Button isDisabled={isButtonDisabled} onClick={() => !isButtonDisabled && onDepositStart()}>Deposit</Button> 
+              <Button isDisabled={isButtonDisabled} onClick={() => !isButtonDisabled && onDepositStart()}>Deposit with MetaMask</Button> 
               {isLoadingDeposit && <Loading> <Spinner width={'17px'} /> Waiting for confirmation...</Loading>}
             </ButtonWrapper>
           )}
