@@ -213,7 +213,7 @@ const StakingDeposit = () => {
                 <Section>
                     <SubTitle>Deposit Method</SubTitle>
                     <DepositMethod>
-                        {walletProvider != null ?
+                        {(walletProvider != null && !isLoadingWallet) ?
                             (<ConnectedWallet walletInfo={walletInfo} areNetworksEqual={areNetworksEqual}
                                               error={error} onDisconnect={disconnect}/>) :
                             (<ConnectWalletButton onWalletProviderClick={onWalletProviderClick}/>
@@ -230,7 +230,7 @@ const StakingDeposit = () => {
                     <StepsBoxes stepsData={stepsData} setStepsData={setStepsData}
                                 checkedTerms={checkedTerms} error={error}
                                 setCheckedTermsStatus={() => setCheckedTermsStatus(!checkedTerms)}
-                                metamaskInfo={walletInfo}
+                                walletInfo={walletInfo}
                                 onDepositStart={onDepositStart}
                                 depositTo={deposit_to}
                                 publicKey={public_key}
@@ -238,6 +238,7 @@ const StakingDeposit = () => {
                                 isLoadingDeposit={isLoadingDeposit}
                                 isDepositSuccess={isDepositSuccess}
                                 txHash={txHash}
+                                walletType={walletProvider ? walletProvider.providerType : null}
                     />
                     <Total>Total: 32 ETH + gas fees</Total>
                 </Section>

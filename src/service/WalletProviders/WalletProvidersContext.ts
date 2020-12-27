@@ -1,6 +1,6 @@
-import WalletProviderStrategy from "./WalletProviderStrategy";
 import PortisStrategy from "./Portis/PortisStrategy";
 import MetaMaskStrategy from "./Metamask/MetaMaskStrategy";
+import {WalletProviderStrategy} from "./WalletProviderStrategy";
 
 
 export default class WalletProvidersContext {

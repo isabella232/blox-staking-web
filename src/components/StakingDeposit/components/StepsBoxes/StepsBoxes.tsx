@@ -98,11 +98,11 @@ const tooltipText = `
 
 const StepsBoxes = (props: Props) => {
   const { stepsData, setStepsData, checkedTerms, setCheckedTermsStatus,
-          metamaskInfo, onDepositStart, publicKey, depositTo, error, network_id,
-          isLoadingDeposit, isDepositSuccess, txHash
+          walletInfo, onDepositStart, publicKey, depositTo, error, network_id,
+          isLoadingDeposit, isDepositSuccess, txHash, walletType
         } = props;
 
-  const { selectedAddress } = metamaskInfo;
+  const { selectedAddress } = walletInfo;
 
   useEffect(() => {
     if(network_id === '1') {
@@ -113,7 +113,7 @@ const StepsBoxes = (props: Props) => {
       updateStep(1, selectedAddress && error.type === '');
       updateStep(2, selectedAddress && error.type === '');
     }
-  }, [metamaskInfo, error]);
+  }, [walletInfo, error]);
 
   useEffect(() => {
     if(network_id === '1') {
@@ -124,16 +124,18 @@ const StepsBoxes = (props: Props) => {
   const updateStep = (stepIndex, condition) => {
     setStepsData((prevState) => {
       const newStepsData = [...prevState];
-      const newStep = condition ? 
-      { isActive: true, isDisabled: false } : 
+      const newStep = condition ?
+      { isActive: true, isDisabled: false } :
       { isActive: false, isDisabled: true };
       newStepsData[stepIndex] = {...stepsData[stepIndex], ...newStep};
       return newStepsData;
-    }); 
+    });
   }
 
   const truncatedPublicKey = truncateText(publicKey, 20, 6);
   const truncatedDepositTo = truncateText(depositTo, 20, 6);
+
+  const upperCaseWalletType = walletType ? walletType.charAt(0).toUpperCase() + walletType.slice(1) : null;
 
   const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
   const isButtonDisabled = stepsData[2].isDisabled || isLoadingDeposit;
@@ -146,7 +148,7 @@ const StepsBoxes = (props: Props) => {
             <StepBoxLeftParagraph>
               After completing the Service Fee Deposit, you will be able to run the validator {truncatedPublicKey} with
               BloxStaking until transfers are enabled (phase 1.5) OR for up to 2 years.
-              Whichever comes first.&nbsp; 
+              Whichever comes first.&nbsp;
               <InfoWithTooltip title={tooltipText} placement={'bottom'} margin={'0px'} verticalAlign={'sub'}/>
             </StepBoxLeftParagraph>
           </StepBoxLeft>
@@ -176,7 +178,7 @@ const StepsBoxes = (props: Props) => {
               In order to give Eth 2.0 an early stage power push, we decided to offer free service for all stakers.&nbsp;
               <GreenColor>Validators created during the promotion are FREE.</GreenColor>
             </StepBoxLeftParagraph>
-          </StepBoxLeft> 
+          </StepBoxLeft>
           <StepBoxRight>
             <Free>Free</Free>
           </StepBoxRight>
@@ -195,7 +197,7 @@ const StepsBoxes = (props: Props) => {
             <StepBoxLeftParagraph>
                 <b>Testnet validators are FREE</b> Staking on Mainnet will require a service fee deposit
             </StepBoxLeftParagraph>
-          </StepBoxLeft> 
+          </StepBoxLeft>
           <StepBoxRight>
             <GreenColor fontSize={'16px'}>Free &amp; Unlimited!</GreenColor>
           </StepBoxRight>
@@ -213,7 +215,7 @@ const StepsBoxes = (props: Props) => {
           <StepBoxLeftParagraph>
             <b>Deposit Address</b> {truncatedDepositTo}
           </StepBoxLeftParagraph>
-        </StepBoxLeft> 
+        </StepBoxLeft>
         <StepBoxRight>
           {isDepositSuccess && txHash ? (
             <SuccessWrapper>
@@ -224,7 +226,7 @@ const StepsBoxes = (props: Props) => {
             </SuccessWrapper>
           ) : (
             <ButtonWrapper>
-              <Button isDisabled={isButtonDisabled} onClick={() => !isButtonDisabled && onDepositStart()}>Deposit with MetaMask</Button> 
+              <Button isDisabled={isButtonDisabled} onClick={() => !isButtonDisabled && onDepositStart()}>{upperCaseWalletType ? `Deposit with ${upperCaseWalletType}` : `Deposit`}</Button>
               {isLoadingDeposit && <Loading> <Spinner width={'17px'} /> Waiting for confirmation...</Loading>}
             </ButtonWrapper>
           )}
@@ -239,7 +241,7 @@ type Props = {
   setCheckedTermsStatus: () => void;
   stepsData: Record<string, any>[];
   setStepsData: React.Dispatch<React.SetStateAction<Record<string, any>[]>>;
-  metamaskInfo: Record<string, any>;
+  walletInfo: Record<string, any>;
   onDepositStart: () => void;
   publicKey: string;
   depositTo: string;
@@ -248,6 +250,7 @@ type Props = {
   isLoadingDeposit: boolean;
   isDepositSuccess: boolean;
   txHash: string;
+  walletType: string;
 };
 
 export default StepsBoxes;

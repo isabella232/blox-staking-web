@@ -1,29 +1,29 @@
-import WalletProviderStrategy from "../WalletProviderStrategy";
 import Portis from "@portis/web3";
 import Web3 from "web3";
 import {NETWORK_IDS, NETWORK_MAP} from "./constants";
+import {WalletProviderStrategy} from "../WalletProviderStrategy";
 
 
 
-export default class PortisStrategy implements WalletProviderStrategy{
+export default class PortisStrategy extends WalletProviderStrategy{
 
     private portis : Portis;
-    private web3: Web3;
     private readonly networkType;
     private readonly networkVersion;
     private selectedAccount;
 
     constructor(networkType) {
+        super();
         this.networkVersion = networkType;
         this.networkType = NETWORK_MAP[networkType];
     }
 
     async connect() : Promise<void>{
-        this.portis = new Portis(process.env.REACT_APP_PORTIS_ID, this.networkType);  // goerli | mainnet
-        this.web3 = new Web3(this.portis.provider);
         try {
+            this.portis = new Portis(process.env.REACT_APP_PORTIS_ID, this.networkType);  // goerli | mainnet
+            this.web3 = new Web3(this.portis.provider);
             const accounts = await this.web3.eth.getAccounts();
-            this.selectedAccount = accounts[0]
+            this.selectedAccount = accounts[0];
             return Promise.resolve()
         }catch (e) {
             return Promise.reject(e)
@@ -52,13 +52,23 @@ export default class PortisStrategy implements WalletProviderStrategy{
         };
     }
 
-    sendTransaction(depositTo: string, txData: string, onStart, onSuccess) {
-        console.log(depositTo, txData, onStart, onSuccess)
+    async sendTransaction(depositTo: string, txData: string, onStart, onSuccess) : Promise<any>{
+        const param = {
+            to: depositTo,
+            from: this.selectedAccount,
+            gas: "1",
+            data: txData,
+            value: "1",
+        };
+        (await this.portis.widget).communication.signTransaction(param, this.portis.config)
+            .then((res) =>{
+                console.log('TEST------', res);
+                if (res.error != null) {
+                    Promise.resolve(res);
+                }
+                onStart(res.result);
+                this.subscribeToTransactionReceipt(res.result, onSuccess);
+                Promise.resolve(res);
+            });
     }
-
-    subscribeToEvent(eventName, callback) {
-        return [eventName, callback];
-    }
-
-
 }

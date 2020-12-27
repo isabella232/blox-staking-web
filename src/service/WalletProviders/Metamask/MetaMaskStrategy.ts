@@ -1,15 +1,13 @@
-import WalletProviderStrategy from "../WalletProviderStrategy";
 import Web3 from "web3";
 import {EVENTS, NETWORK_IDS} from "./constants";
 import {MODAL_TYPES} from "../../../components/ModalsManager/constants";
 import {detect} from "detect-browser";
+import {WalletProviderStrategy} from "../WalletProviderStrategy";
 
 
-export default class MetaMaskStrategy implements WalletProviderStrategy {
+export default class MetaMaskStrategy extends WalletProviderStrategy {
 
     private metaMask;
-    private web3: Web3;
-    private timer=null;
     private networkName: string;
 
     getWarningModal(): string {
@@ -91,24 +89,6 @@ export default class MetaMaskStrategy implements WalletProviderStrategy {
             })
             .catch((error) => Promise.reject(error));
     }
-
-    subscribeToTransactionReceipt = (txHash, onSuccess) => {
-        const callback = (error, txReceipt) => {
-            if(error || txReceipt) {
-                clearInterval(this.timer);
-                this.timer = null;
-            }
-            if(error) {
-                onSuccess(error, null);
-            }
-            if(txReceipt) {
-                onSuccess(null, txReceipt);
-            }
-        };
-        this.timer = setInterval(() => {
-            this.web3.eth.getTransactionReceipt(txHash, callback);
-        }, 3000);
-    };
 
     disconnect() {
         const userEvents = Object.values(EVENTS);
