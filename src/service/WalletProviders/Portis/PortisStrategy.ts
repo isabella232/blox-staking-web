@@ -56,19 +56,15 @@ export default class PortisStrategy extends WalletProviderStrategy{
         const param = {
             to: depositTo,
             from: this.selectedAccount,
-            gas: "1",
+            gas: '0x61A80', // 0.01
+            gasPrice: '5208', // 0.01
             data: txData,
-            value: "1",
+            value: this.web3.utils.numberToHex(this.web3.utils.toWei('32', 'ether')), // (amount * 1000000).toString(), // '32000000000',
         };
-        (await this.portis.widget).communication.signTransaction(param, this.portis.config)
-            .then((res) =>{
-                console.log('TEST------', res);
-                if (res.error != null) {
-                    Promise.resolve(res);
-                }
-                onStart(res.result);
-                this.subscribeToTransactionReceipt(res.result, onSuccess);
-                Promise.resolve(res);
-            });
+
+        await this.web3.eth.sendTransaction(param, ((_, hash) => {
+            onStart(hash);
+            this.subscribeToTransactionReceipt(hash, onSuccess);
+        }));
     }
 }
