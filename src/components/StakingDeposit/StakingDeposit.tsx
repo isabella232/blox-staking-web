@@ -157,7 +157,14 @@ const StakingDeposit = () => {
         }
     };
 
-    const onDepositStart = () => {
+    const onDepositStart = () => { 
+      // TODO:
+      // check if txHash exist in db
+      // if no continue
+      // if yes check if it's deposited true
+      // if no check it's status on web3
+      // if yes cancel deposit and fire notification
+
         const onStart = async (txHash) => {
             setTxHash(txHash);
             setDepositLoadingStatus(true);
