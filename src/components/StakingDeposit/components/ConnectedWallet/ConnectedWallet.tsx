@@ -78,8 +78,8 @@ const Disconnect = styled.div`
 `;
 
 const ConnectedWallet = (props: Props) => {
-  const { metamaskInfo, areNetworksEqual, error, onDisconnect } = props
-  const { selectedAddress, networkName, balance } = metamaskInfo;
+  const { walletInfo, areNetworksEqual, error, onDisconnect } = props
+  const { selectedAddress, networkName, balance } = walletInfo;
   const balanceColor = error.type === 'lowBalance' ? 'destructive600' : 'gray600'
   return (
     <Wrapper>
@@ -100,9 +100,9 @@ const ConnectedWallet = (props: Props) => {
 };
 
 type Props = {
-  metamaskInfo: Record<string, any>;
+  walletInfo: Record<string, any>;
   areNetworksEqual: boolean;
-  error: Record<string, any>; 
+  error: Record<string, any>;
   onDisconnect: () => void;
 };
 
