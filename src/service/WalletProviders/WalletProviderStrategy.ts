@@ -17,6 +17,14 @@ export abstract class WalletProviderStrategy{
     subscribeToEvent(eventName, callback){
         console.info(eventName, callback)
     }
+    getReceipt = async (txHash, onSuccess) => {
+        try {
+            return await this.web3.eth.getTransactionReceipt(txHash, onSuccess);
+        }
+        catch(error) {
+            return error.message;
+        }        
+    };
     protected subscribeToTransactionReceipt = (txHash, onSuccess) => {
         const callback = (error, txReceipt) => {
             if(error || txReceipt) {

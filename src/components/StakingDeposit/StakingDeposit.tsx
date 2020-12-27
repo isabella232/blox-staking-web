@@ -46,7 +46,9 @@ const StakingDeposit = () => {
     const [isDepositSuccess, setDepositSuccessStatus] = useState(false);
     const [txHash, setTxHash] = useState('');
     const [oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal] = useState(false);
-    const [showSecurityNotification, setSecurityNotificationDisplay] = React.useState(true);
+    const [showSecurityNotification, setSecurityNotificationDisplay] = useState(true);
+    const [checkingDeposited, setCheckingDepositedStatus] = useState(false);
+    const [alreadyDeposited, setAlreadyDeposited] = useState(false);
 
     const {showModal, hideModal, modal} = useModals();
 
@@ -139,21 +141,38 @@ const StakingDeposit = () => {
         accountsList.length === 0 ? disconnect() : updateWalletInfo(await walletProvider.getInfo());
     };
 
-    const onDepositStart = () => { 
-      // TODO:
-      // check if txHash exist in db
-      // if no continue
-      // if yes check if it's deposited true
-      // if no check it's status on web3
-      // if yes cancel deposit and fire notification
+    const checkIfAlreadyDeposited = async () => {
+      let deposited = false;
+      setCheckingDepositedStatus(true);
+      const account = await getAccount();
+      if(account) {
+        if(account.depositTxHash && account.deposited) {
+          deposited = true;
+        }
+        if(account.depositTxHash) {
+          const result = await walletProvider.getReceipt(account.depositTxHash);
+          deposited = result.status;
+        }
+      }       
+      return deposited;
+    }
 
-        const onStart = async (txHash) => {
-          const account = await getAccount();
-          console.log('account', account);
-          
-            debugger;
+    const showAlreadyDepositedNotification = () => {
+      notification.error({message: 'Error', description: `Account Id ${account_id} already deposited`});
+    };
 
+    const onDepositStart = async () => { 
+      const deposited = await checkIfAlreadyDeposited();
+      if(deposited) {
+        showAlreadyDepositedNotification();
+        setAlreadyDeposited(true);
+        setCheckingDepositedStatus(false);
+        return;
+      }
+
+        const onStart = async (txHash) => { 
             setTxHash(txHash);
+            setCheckingDepositedStatus(false);
             setDepositLoadingStatus(true);
             await sendAccountUpdate(false, txHash, () => {
                 notification.success({message: '', description: `Transaction hash: ${txHash}`});
@@ -201,12 +220,12 @@ const StakingDeposit = () => {
     const getAccount = async () => {
       try {
         const res = await axios({
-            url: `${process.env.REACT_APP_API_URL}/accounts/${account_id}`,
+            url: `${process.env.REACT_APP_API_URL}/accounts`,
             method: 'get',
             responseType: 'json',
             headers: {Authorization: `Bearer ${id_token}`},
         });
-        return res.data;
+        return res.data.filter((account) => account.id === Number(account_id))[0];
       } catch (error) {
           return error;
       }
@@ -272,6 +291,8 @@ const StakingDeposit = () => {
                                 isDepositSuccess={isDepositSuccess}
                                 txHash={txHash}
                                 walletType={walletProvider ? walletProvider.providerType : null}
+                                alreadyDeposited={alreadyDeposited}
+                                checkingDeposited={checkingDeposited}
                     />
                     <Total>Total: 32 ETH + gas fees</Total>
                 </Section>

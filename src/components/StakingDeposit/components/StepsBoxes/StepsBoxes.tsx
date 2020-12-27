@@ -99,7 +99,7 @@ const tooltipText = `
 const StepsBoxes = (props: Props) => {
   const { stepsData, setStepsData, checkedTerms, setCheckedTermsStatus,
           walletInfo, onDepositStart, publicKey, depositTo, error, network_id,
-          isLoadingDeposit, isDepositSuccess, txHash, walletType
+          isLoadingDeposit, isDepositSuccess, txHash, walletType, alreadyDeposited, checkingDeposited
         } = props;
 
   const { selectedAddress } = walletInfo;
@@ -138,7 +138,7 @@ const StepsBoxes = (props: Props) => {
   const upperCaseWalletType = walletType ? walletType.charAt(0).toUpperCase() + walletType.slice(1) : null;
 
   const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
-  const isButtonDisabled = stepsData[2].isDisabled || isLoadingDeposit;
+  const isButtonDisabled = stepsData[2].isDisabled || isLoadingDeposit || alreadyDeposited || checkingDeposited;
 
   return (
     <>
@@ -227,7 +227,7 @@ const StepsBoxes = (props: Props) => {
           ) : (
             <ButtonWrapper>
               <Button isDisabled={isButtonDisabled} onClick={() => !isButtonDisabled && onDepositStart()}>{upperCaseWalletType ? `Deposit with ${upperCaseWalletType}` : `Deposit`}</Button>
-              {isLoadingDeposit && <Loading> <Spinner width={'17px'} /> Waiting for confirmation...</Loading>}
+              {(isLoadingDeposit || checkingDeposited) && <Loading> <Spinner width={'17px'} /> Waiting for confirmation...</Loading>}
             </ButtonWrapper>
           )}
         </StepBoxRight>
@@ -251,6 +251,8 @@ type Props = {
   isDepositSuccess: boolean;
   txHash: string;
   walletType: string;
+  checkingDeposited: boolean;
+  alreadyDeposited: boolean;
 };
 
 export default StepsBoxes;
