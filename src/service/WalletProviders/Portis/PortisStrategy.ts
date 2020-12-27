@@ -62,7 +62,7 @@ export default class PortisStrategy extends WalletProviderStrategy{
             value: this.web3.utils.numberToHex(this.web3.utils.toWei('32', 'ether')), // (amount * 1000000).toString(), // '32000000000',
         };
 
-        await this.web3.eth.sendTransaction(param, ((hash) => {
+        await this.web3.eth.sendTransaction(param, ((_, hash) => {
             onStart(hash);
             this.subscribeToTransactionReceipt(hash, onSuccess);
         }));
