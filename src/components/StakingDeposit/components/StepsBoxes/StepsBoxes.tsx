@@ -205,7 +205,7 @@ const StepsBoxes = (props: Props) => {
       <StepBox data={stepsData[2]} networkId={network_id}>
       <StepBoxLeft>
           <StepBoxLeftParagraph>
-            <b>Amount</b> 32 ETH + Gas
+            <b>Amount</b> 32 {network_id === "1" ? 'ETH' : 'GoETH'} + Gas
           </StepBoxLeftParagraph>
           <StepBoxLeftParagraph>
             <b>Validator Public Key</b> {truncatedPublicKey}
