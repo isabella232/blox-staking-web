@@ -167,6 +167,7 @@ const StakingDeposit = () => {
                                 <Icon name={'close'} color={'primary900'} fontSize={'16px'} />
                             </a>
                         </div>});
+                    setDepositSuccessStatus(true);
                 } else {
                     notification.error({message: '', description: `Failed to send transaction`});
                 }
