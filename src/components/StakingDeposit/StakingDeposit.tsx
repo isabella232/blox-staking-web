@@ -9,6 +9,7 @@ import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage, StepsBoxes,
     ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton, Faq, SecurityNotification
 } from './components';
+import { Icon } from 'common/components';
 
 import {STEP_BOXES} from './constants';
 import parsedQueryString from 'common/helpers/getParsedQueryString';
@@ -169,13 +170,19 @@ const StakingDeposit = () => {
         };
 
         const onSuccess = async (error, txReceipt) => {
+          const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
             setDepositLoadingStatus(false);
             if (error) {
                 notification.error({message: '', description: error});
             } else if (txReceipt) {
                 if (txReceipt.status) {
                     await sendAccountUpdate(true, txReceipt.transactionHash, () => {}, () => {});
-                    notification.success({message: '', description: `Successfully deposited 32 ETH to ${deposit_to}`});
+                    notification.success({message: '', description: <div>
+                      Successfully deposited 32 ETH to {deposit_to}
+                      <a href={`${etherscanLink}${txHash}`} rel="noreferrer" target={'_blank'}>
+                        <Icon name={'close'} color={'primary900'} fontSize={'16px'} />
+                      </a>
+                    </div>});
                     setDepositSuccessStatus(true);
                 }else {
                     notification.error({message: '', description: `Failed to send transaction`});
