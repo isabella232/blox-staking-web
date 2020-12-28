@@ -87,7 +87,10 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
                 this.subscribeToTransactionReceipt(response, onSuccess);
                 Promise.resolve(response);
             })
-            .catch((error) => Promise.reject(error));
+            .catch((error) => {
+                onSuccess(error.message, null);
+                Promise.resolve({error: error})
+            });
     }
 
     disconnect() {

@@ -7,7 +7,7 @@ import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage, StepsBoxes,
     ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton, Faq, SecurityNotification
 } from './components';
-import { Icon } from 'common/components';
+import {Icon} from 'common/components';
 
 import {STEP_BOXES} from './constants';
 import parsedQueryString from 'common/helpers/getParsedQueryString';
@@ -89,6 +89,10 @@ const StakingDeposit = () => {
                         onClick: () => {
                             hideModal();
                             connectWallet(walletProvider.providerType);
+                        },
+                        onClose: () => {
+                            setWalletProvider(null);
+                            hideModal();
                         }
                     }
                 }
@@ -96,7 +100,7 @@ const StakingDeposit = () => {
             return
         }
         setSecurityNotificationDisplay(false);
-        setLoadingWallet(true);
+        if (walletProvider.showLoader()) setLoadingWallet(true);
         connectWallet(walletProvider.providerType);
     }, [walletProvider]);
 
@@ -109,7 +113,7 @@ const StakingDeposit = () => {
             .then(() => {
                 notification.success({
                     message: '',
-                    description: `Successfully connected to ${type}`
+                    description: `Successfully connected to ${type.charAt(0).toUpperCase() + type.slice(1)}`
                 });
                 setLoadingWallet(false);
                 walletProvider.subscribeToEvent('networkChanged', onNetworkChange);
@@ -142,35 +146,35 @@ const StakingDeposit = () => {
     };
 
     const checkIfAlreadyDeposited = async () => {
-      let deposited = false;
-      setCheckingDepositedStatus(true);
-      const account = await getAccount();
-      if(account) {
-        if(account.depositTxHash && account.deposited) {
-          deposited = true;
+        let deposited = false;
+        setCheckingDepositedStatus(true);
+        const account = await getAccount();
+        if (account) {
+            if (account.depositTxHash && account.deposited) {
+                deposited = true;
+            }
+            if (account.depositTxHash) {
+                const result = await walletProvider.getReceipt(account.depositTxHash);
+                deposited = result.status;
+            }
         }
-        if(account.depositTxHash) {
-          const result = await walletProvider.getReceipt(account.depositTxHash);
-          deposited = result.status;
-        }
-      }       
-      return deposited;
+        return deposited;
     }
 
     const showAlreadyDepositedNotification = () => {
-      notification.error({message: 'Error', description: `Account Id ${account_id} already deposited`});
+        notification.error({message: 'Error', description: `Account Id ${account_id} already deposited`});
     };
 
-    const onDepositStart = async () => { 
-      const deposited = await checkIfAlreadyDeposited();
-      if(deposited) {
-        showAlreadyDepositedNotification();
-        setAlreadyDeposited(true);
-        setCheckingDepositedStatus(false);
-        return;
-      }
+    const onDepositStart = async () => {
+        const deposited = await checkIfAlreadyDeposited();
+        if (deposited) {
+            showAlreadyDepositedNotification();
+            setAlreadyDeposited(true);
+            setCheckingDepositedStatus(false);
+            return;
+        }
 
-        const onStart = async (txHash) => { 
+        const onStart = async (txHash) => {
             setTxHash(txHash);
             setCheckingDepositedStatus(false);
             setDepositLoadingStatus(true);
@@ -183,21 +187,24 @@ const StakingDeposit = () => {
         };
 
         const onSuccess = async (error, txReceipt) => {
-          const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
+            const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
             setDepositLoadingStatus(false);
             if (error) {
+                setCheckingDepositedStatus(false);
                 notification.error({message: '', description: error});
             } else if (txReceipt) {
                 if (txReceipt.status) {
                     await sendAccountUpdate(true, txReceipt.transactionHash, () => {
                     }, () => {
                     });
-                    notification.success({message: '', description: <div>
+                    notification.success({
+                        message: '', description: <div>
                             Successfully deposited 32 ETH to {deposit_to}
                             <a href={`${etherscanLink}${txHash}`} rel="noreferrer" target={'_blank'}>
-                                <Icon name={'close'} color={'primary900'} fontSize={'16px'} />
+                                <Icon name={'close'} color={'primary900'} fontSize={'16px'}/>
                             </a>
-                        </div>});
+                        </div>
+                    });
                     setDepositSuccessStatus(true);
                 } else {
                     notification.error({message: '', description: `Failed to send transaction`});
@@ -218,17 +225,17 @@ const StakingDeposit = () => {
     };
 
     const getAccount = async () => {
-      try {
-        const res = await axios({
-            url: `${process.env.REACT_APP_API_URL}/accounts`,
-            method: 'get',
-            responseType: 'json',
-            headers: {Authorization: `Bearer ${id_token}`},
-        });
-        return res.data.filter((account) => account.id === Number(account_id))[0];
-      } catch (error) {
-          return error;
-      }
+        try {
+            const res = await axios({
+                url: `${process.env.REACT_APP_API_URL}/accounts`,
+                method: 'get',
+                responseType: 'json',
+                headers: {Authorization: `Bearer ${id_token}`},
+            });
+            return res.data.filter((account) => account.id === Number(account_id))[0];
+        } catch (error) {
+            return error;
+        }
     };
 
     const sendAccountUpdate = async (deposited, txHash, onSuccess, onFailure) => {
@@ -256,7 +263,6 @@ const StakingDeposit = () => {
         font-size: 11px;
         font-weight: 500;
     `;
-
     if (network_id && deposit_to && public_key) {
         const desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${deposit_to}`;
         return (
@@ -294,7 +300,7 @@ const StakingDeposit = () => {
                                 alreadyDeposited={alreadyDeposited}
                                 checkingDeposited={checkingDeposited}
                     />
-                    <Total>Total: 32 ETH + gas fees</Total>
+                    <Total>Total: 32 {network_id === "1" ? 'ETH' : 'GoETH'} + gas fees</Total>
                 </Section>
                 <Faq networkId={network_id}/>
                 <ModalsManager modal={modal} onClose={hideModal}/>

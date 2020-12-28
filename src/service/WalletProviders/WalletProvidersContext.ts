@@ -58,4 +58,8 @@ export default class WalletProvidersContext {
     public disconnect(){
         return this._strategy.disconnect();
     }
+
+    public showLoader() : boolean{
+        return this._strategy.showLoader();
+    }
 }

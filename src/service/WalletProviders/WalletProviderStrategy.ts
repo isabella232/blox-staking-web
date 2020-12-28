@@ -23,7 +23,7 @@ export abstract class WalletProviderStrategy{
         }
         catch(error) {
             return error.message;
-        }        
+        }
     };
     protected subscribeToTransactionReceipt = (txHash, onSuccess) => {
         const callback = (error, txReceipt) => {
@@ -42,4 +42,7 @@ export abstract class WalletProviderStrategy{
             this.web3.eth.getTransactionReceipt(txHash, callback);
         }, 3000);
     };
+    showLoader = (): boolean => {
+        return false;
+    }
 }
