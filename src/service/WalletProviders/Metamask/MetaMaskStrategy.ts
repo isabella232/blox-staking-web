@@ -14,7 +14,7 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
         const browser = detect();
         if (browser.name !== 'chrome' && browser.name !== 'firefox') {
             return MODAL_TYPES.BROWSER_NOT_SUPPORTED;
-        } else if (typeof window['ethereum'] == 'undefined'/*typeof this.metaMask !== 'undefined' && this.metaMask.isMetaMask*/) {
+        } else if (typeof window['ethereum'] == 'undefined') {
             return MODAL_TYPES.METAMASK_NOT_SUPPORTED;
         } else return undefined;
     }
