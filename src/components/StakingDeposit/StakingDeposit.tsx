@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import styled from 'styled-components';
 import axios from 'axios';
 
 import {NETWORK_IDS} from 'service/WalletProviders/Metamask/constants';
@@ -18,7 +19,6 @@ import useModals from '../ModalsManager/useModals';
 import {MODAL_TYPES} from '../ModalsManager/constants';
 import WalletProvidersContext from "../../service/WalletProviders/WalletProvidersContext";
 import {Spinner} from "../../common/components";
-import styled from "styled-components";
 
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
@@ -33,7 +33,33 @@ const initialWalletInfoState = {
 
 const initialErrorState = {type: '', message: ''};
 
+const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
+
 // let walletProvider: WalletProvidersContext;
+
+const NotificationContent = styled.div`
+    width:350px;
+    display:flex;
+    flex-direction:column;
+`;
+
+const NotificationContentInnerWrapper = styled.div`
+    display:flex;
+`;
+
+const Span = styled.span`
+    width:200px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+`;
+
+const DepositConfirmed = styled.div`
+    width:858px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+`;
 
 const StakingDeposit = () => {
     const [walletProvider, setWalletProvider] = useState(null);
@@ -173,12 +199,21 @@ const StakingDeposit = () => {
             return;
         }
 
+        
+
         const onStart = async (txHash) => {
             setTxHash(txHash);
             setCheckingDepositedStatus(false);
             setDepositLoadingStatus(true);
             await sendAccountUpdate(false, txHash, () => {
-                notification.success({message: '', description: `Transaction hash: ${txHash}`});
+                notification.success({message: '', description: 
+                <NotificationContent>
+                    Transaction hash: <br />
+                    <NotificationContentInnerWrapper>
+                        <Span>{txHash}</Span> 
+                        <Icon name={'icons-export'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txHash}`, '_blank')}/>
+                    </NotificationContentInnerWrapper>
+                </NotificationContent>});
                 return;
             }, () => {
                 return;
@@ -186,7 +221,6 @@ const StakingDeposit = () => {
         };
 
         const onSuccess = async (error, txReceipt) => {
-            const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
             if (error) {
                 setCheckingDepositedStatus(false);
                 notification.error({message: '', description: error});
@@ -196,12 +230,13 @@ const StakingDeposit = () => {
                     }, () => {
                     });
                     notification.success({
-                        message: '', description: <div>
-                            Successfully deposited 32 ETH to {deposit_to}
-                            <a href={`${etherscanLink}${txHash}`} rel="noreferrer" target={'_blank'}>
-                                <Icon name={'close'} color={'primary900'} fontSize={'16px'}/>
-                            </a>
-                        </div>
+                        message: '', description: <NotificationContent>
+                            Successfully deposited 32 ETH to <br />
+                            <NotificationContentInnerWrapper>
+                                <Span>{deposit_to}</Span>
+                                <Icon name={'icons-export'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txHash}`, '_blank')}/>
+                            </NotificationContentInnerWrapper>
+                        </NotificationContent>
                     });
                     setDepositSuccessStatus(true);
                 } else {
@@ -255,6 +290,7 @@ const StakingDeposit = () => {
             onFailure(error);
         }
     };
+
     const Loading = styled.div`        
         display:flex;        
         color:${({theme}) => theme.primary900};
@@ -266,6 +302,16 @@ const StakingDeposit = () => {
     `;
     if (network_id && deposit_to && public_key) {
         const desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${deposit_to}`;
+
+        const onGoBackClick = () => {
+            const root = document.getElementById('root');
+            const newIframe = document.createElement('iframe');
+            newIframe.src=desktopAppLink;
+            newIframe.width='0px';
+            newIframe.height='0px';
+            root.appendChild(newIframe);
+        }
+
         return (
             <Wrapper>
                 <Title>{network_id === "1" ? 'Mainnet' : 'Testnet'} Staking Deposit</Title>
@@ -305,10 +351,16 @@ const StakingDeposit = () => {
                 </Section>
                 <Faq networkId={network_id}/>
                 <ModalsManager modal={modal} onClose={hideModal}/>
-                {isDepositSuccess && txHash && (
+                {showSecurityNotification && <SecurityNotification hide={() => setSecurityNotificationDisplay(false)}/>}
+                {true && ( 
+                    <DepositConfirmed>
+                        Deposit executed &amp; confirmed! <br />
+                        <a onClick={() => onGoBackClick()} >Go back to app</a>
+                    </DepositConfirmed>
+                )}
+                {(isDepositSuccess && txHash) && (
                     <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={desktopAppLink}/>
                 )}
-                {showSecurityNotification && <SecurityNotification hide={() => setSecurityNotificationDisplay(false)}/>}
             </Wrapper>
         );
     }
