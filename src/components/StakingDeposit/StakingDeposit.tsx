@@ -81,6 +81,7 @@ const StakingDeposit = () => {
     const areNetworksEqual = network_id === walletInfo.networkVersion;
 
     useEffect(() => {
+        document.title = 'Blox Staking - Transfers Hub';
         const placement = 'bottomRight';
         notification.config({placement});
         // window.history.replaceState(null, null, window.location.pathname);
@@ -321,7 +322,7 @@ const StakingDeposit = () => {
                         {(!isLoadingWallet && (walletInfo.balance && walletInfo.networkName && walletInfo.networkVersion && walletInfo.selectedAddress)) ?
                             (<ConnectedWallet walletInfo={walletInfo} areNetworksEqual={areNetworksEqual}
                                               error={error} onDisconnect={disconnect}/>) :
-                            (<ConnectWalletButton onWalletProviderClick={onWalletProviderClick}/>
+                            (<ConnectWalletButton onWalletProviderClick={onWalletProviderClick} disable={isLoadingWallet}/>
                             )}
                         {network_id === "5" &&
                         <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
