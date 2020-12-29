@@ -159,7 +159,9 @@ const StakingDeposit = () => {
     };
 
     const showAlreadyDepositedNotification = () => {
-        notification.success({message: '', description: 'Your Staking Deposit was already executed. Go to Desktop App'});
+        notification.success({message: '', description: <div style={{padding: 8}}>
+            Your Staking Deposit was already executed. Go to Desktop App
+        </div>});
     };
 
     const onDepositStart = async () => {
@@ -185,7 +187,6 @@ const StakingDeposit = () => {
 
         const onSuccess = async (error, txReceipt) => {
             const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
-            setDepositLoadingStatus(false);
             if (error) {
                 setCheckingDepositedStatus(false);
                 notification.error({message: '', description: error});
