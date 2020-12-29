@@ -19,7 +19,6 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
         } else return undefined;
     }
 
-
     async connect(): Promise<void> {
         try {
             this.metaMask = window['ethereum'];
@@ -57,7 +56,7 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
     };
 
     private onAccountChange = async (accountsList) => {
-        accountsList.length === 0 ? this.disconnect() : this.infoUpdateCallback();
+        accountsList.length === 0 ? this.logoutCallback() : this.infoUpdateCallback();
     };
 
     sendTransaction(depositTo: string, txData: string, onStart, onSuccess): Promise<any> {
@@ -88,6 +87,10 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
                 onSuccess(error.message, null);
                 Promise.resolve({error: error})
             });
+    }
+
+    showLoader = () => {
+        return true;
     }
 
     disconnect() {

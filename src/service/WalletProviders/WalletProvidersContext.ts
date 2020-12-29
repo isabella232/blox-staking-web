@@ -17,7 +17,7 @@ export default class WalletProvidersContext {
                 break;
             case "ledger":
             case "trezor":
-            case "metamask":
+            case "metaMask":
                 this._strategy = new MetaMaskStrategy();
                 break;
             default:
@@ -44,6 +44,10 @@ export default class WalletProvidersContext {
 
     public subscribeToUpdate(callback){
         return this._strategy.subscribeToUpdate(callback);
+    }
+
+    public subscribeToLogout(callback){
+        return this._strategy.subscribeToLogout(callback);
     }
 
     public sendSignTransaction(depositTo: string, txData: string, onStart, onSuccess): void {

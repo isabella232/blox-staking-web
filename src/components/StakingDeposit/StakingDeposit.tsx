@@ -117,6 +117,7 @@ const StakingDeposit = () => {
                 });
                 setLoadingWallet(false);
                 walletProvider.subscribeToUpdate(onInfoUpdate);
+                walletProvider.subscribeToLogout(onLogout);
                 walletProvider.getInfo().then((info) => {
                     updateWalletInfo(info)
                 });
@@ -139,6 +140,7 @@ const StakingDeposit = () => {
     };
 
     const onInfoUpdate = async () => updateWalletInfo(await walletProvider.getInfo());
+    const onLogout = async () => disconnect();
 
     const checkIfAlreadyDeposited = async () => {
         let deposited = false;
@@ -248,7 +250,6 @@ const StakingDeposit = () => {
             onFailure(error);
         }
     };
-    console.log('TEST--------', walletProvider != null , !isLoadingWallet)
     const Loading = styled.div`        
         display:flex;        
         color:${({theme}) => theme.primary900};
@@ -266,7 +267,7 @@ const StakingDeposit = () => {
                 <Section>
                     <SubTitle>Deposit Method</SubTitle>
                     <DepositMethod>
-                        {(walletProvider != null && !isLoadingWallet) ?
+                        {(!isLoadingWallet && (walletInfo.balance && walletInfo.networkName && walletInfo.networkVersion && walletInfo.selectedAddress)) ?
                             (<ConnectedWallet walletInfo={walletInfo} areNetworksEqual={areNetworksEqual}
                                               error={error} onDisconnect={disconnect}/>) :
                             (<ConnectWalletButton onWalletProviderClick={onWalletProviderClick}/>
@@ -276,7 +277,7 @@ const StakingDeposit = () => {
                     </DepositMethod>
                     {error.type && <ErrorMessage>{error.message}</ErrorMessage>}
                     {isLoadingWallet &&
-                    <Loading> <Spinner width={'17px'} margin-right={'12px'}/> Waiting for Portis wallet to be connected</Loading>}
+                    <Loading> <Spinner width={'17px'} margin-right={'12px'}/> Waiting for {walletProvider.providerType.charAt(0).toUpperCase() + walletProvider.providerType.slice(1)} wallet to be connected</Loading>}
                 </Section>
                 <Section>
                     <SubTitle>Plan and Summary</SubTitle>

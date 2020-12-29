@@ -55,7 +55,7 @@ const ConnectWalletButton = ({ onWalletProviderClick}: Props) => {
 
   const ITEMS = [
     { label: 'portis', displayName: 'Portis', icon: icons.PortisImage, onClick: () => onWalletProviderClick('portis') },
-    { label: 'metamask', displayName: 'MetaMask', icon: icons.MetamaskImage, onClick: () => onWalletProviderClick('metamask') },
+    { label: 'metamask', displayName: 'MetaMask', icon: icons.MetamaskImage, onClick: () => onWalletProviderClick('metaMask') },
     { label: 'ledger', displayName: 'Ledger via MetaMask', icon: icons.LedgerImage, onClick: () => onWalletProviderClick('ledger') },
     { label: 'trezor', displayName: 'Trezor via MetaMask', icon: icons.TrezorImage, onClick: () => onWalletProviderClick('trezor') },
   ];

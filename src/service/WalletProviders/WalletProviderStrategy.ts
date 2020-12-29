@@ -6,6 +6,7 @@ export abstract class WalletProviderStrategy{
     protected web3: Web3;
     protected timer=null;
     protected infoUpdateCallback: () => void;
+    protected logoutCallback: () => void;
 
     abstract connect();
     abstract disconnect()
@@ -19,7 +20,9 @@ export abstract class WalletProviderStrategy{
     subscribeToUpdate(callback) {
         this.infoUpdateCallback = callback;
     }
-
+    subscribeToLogout(callback){
+        this.logoutCallback = callback;
+    }
     getReceipt = async (txHash, onSuccess) => {
         try {
             return await this.web3.eth.getTransactionReceipt(txHash, onSuccess);
