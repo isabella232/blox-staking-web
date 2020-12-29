@@ -24,6 +24,10 @@ export default class PortisStrategy extends WalletProviderStrategy{
             this.web3 = new Web3(this.portis.provider);
             const accounts = await this.web3.eth.getAccounts();
             this.selectedAccount = accounts[0];
+            this.portis.onActiveWalletChanged((walletAddress => {
+                this.selectedAccount = walletAddress;
+                this.infoUpdateCallback()
+            }));
             return Promise.resolve()
         }catch (e) {
             return Promise.reject(e)

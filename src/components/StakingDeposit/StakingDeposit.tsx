@@ -83,15 +83,21 @@ const StakingDeposit = () => {
             showModal({show: true, type: neededModal});
             return
         }
-        if (walletProvider.providerType === 'ledger' || walletProvider.providerType === 'trezor') {
+
+        setSecurityNotificationDisplay(false);
+        if (walletProvider.showLoader()) setLoadingWallet(true);
+        connectWallet(walletProvider.providerType);
+    }, [walletProvider]);
+
+    const onWalletProviderClick = async (type: string) => {
+        if (type === 'ledger' || type === 'trezor') {
             showModal({
-                    show: true, type: MODAL_TYPES[`${walletProvider.providerType.toUpperCase()}`], params: {
+                    show: true, type: MODAL_TYPES[`${type.toUpperCase()}`], params: {
                         onClick: () => {
                             hideModal();
-                            connectWallet(walletProvider.providerType);
+                            setWalletProvider(new WalletProvidersContext(type, network_id));
                         },
                         onClose: () => {
-                            setWalletProvider(null);
                             hideModal();
                         }
                     }
@@ -99,12 +105,6 @@ const StakingDeposit = () => {
             );
             return
         }
-        setSecurityNotificationDisplay(false);
-        if (walletProvider.showLoader()) setLoadingWallet(true);
-        connectWallet(walletProvider.providerType);
-    }, [walletProvider]);
-
-    const onWalletProviderClick = async (type: string) => {
         setWalletProvider(new WalletProvidersContext(type, network_id));
     };
 
@@ -116,8 +116,7 @@ const StakingDeposit = () => {
                     description: `Successfully connected to ${type.charAt(0).toUpperCase() + type.slice(1)}`
                 });
                 setLoadingWallet(false);
-                walletProvider.subscribeToEvent('networkChanged', onNetworkChange);
-                walletProvider.subscribeToEvent('accountsChanged', onAccountChange);
+                walletProvider.subscribeToUpdate(onInfoUpdate);
                 walletProvider.getInfo().then((info) => {
                     updateWalletInfo(info)
                 });
@@ -139,11 +138,7 @@ const StakingDeposit = () => {
         }));
     };
 
-    const onNetworkChange = async () => updateWalletInfo(await walletProvider.getInfo());
-
-    const onAccountChange = async (accountsList) => {
-        accountsList.length === 0 ? disconnect() : updateWalletInfo(await walletProvider.getInfo());
-    };
+    const onInfoUpdate = async () => updateWalletInfo(await walletProvider.getInfo());
 
     const checkIfAlreadyDeposited = async () => {
         let deposited = false;
@@ -159,7 +154,7 @@ const StakingDeposit = () => {
             }
         }
         return deposited;
-    }
+    };
 
     const showAlreadyDepositedNotification = () => {
         notification.error({message: 'Error', description: `Account Id ${account_id} already deposited`});
@@ -253,7 +248,7 @@ const StakingDeposit = () => {
             onFailure(error);
         }
     };
-
+    console.log('TEST--------', walletProvider != null , !isLoadingWallet)
     const Loading = styled.div`        
         display:flex;        
         color:${({theme}) => theme.primary900};

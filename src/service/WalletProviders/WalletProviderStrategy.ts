@@ -5,6 +5,7 @@ export abstract class WalletProviderStrategy{
 
     protected web3: Web3;
     protected timer=null;
+    protected infoUpdateCallback: () => void;
 
     abstract connect();
     abstract disconnect()
@@ -14,9 +15,11 @@ export abstract class WalletProviderStrategy{
     }
     abstract info(): Record<string, any>
     abstract sendTransaction(depositTo: string, txData: string, onStart, onSuccess);
-    subscribeToEvent(eventName, callback){
-        console.info(eventName, callback)
+
+    subscribeToUpdate(callback) {
+        this.infoUpdateCallback = callback;
     }
+
     getReceipt = async (txHash, onSuccess) => {
         try {
             return await this.web3.eth.getTransactionReceipt(txHash, onSuccess);

@@ -42,8 +42,8 @@ export default class WalletProvidersContext {
         return this._strategy.info();
     }
 
-    public subscribeToEvent(event: string, callback){
-        return this._strategy.subscribeToEvent(event, callback);
+    public subscribeToUpdate(callback){
+        return this._strategy.subscribeToUpdate(callback);
     }
 
     public sendSignTransaction(depositTo: string, txData: string, onStart, onSuccess): void {

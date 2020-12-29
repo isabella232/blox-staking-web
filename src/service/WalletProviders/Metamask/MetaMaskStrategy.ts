@@ -27,15 +27,13 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
             this.web3 = new Web3(Web3.givenProvider);
             this.networkName = NETWORK_IDS[this.metaMask.networkVersion];
 
-            this.subscribeToEvent('networkChanged', this.onNetworkChange);
+            this.metaMask.on(EVENTS['networkChanged'], this.onNetworkChange);
+            this.metaMask.on(EVENTS['accountsChanged'], this.onAccountChange);
+
             return Promise.resolve();
-        }catch (e) {
+        } catch (e) {
             return Promise.reject(e)
         }
-    }
-
-    onNetworkChange(networkId){
-        this.networkName = networkId ? NETWORK_IDS[networkId] : NETWORK_IDS[this.metaMask.networkVersion];
     }
 
     async info(): Promise<Record<string, any>> {
@@ -53,18 +51,17 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
         return this.web3.utils.fromWei(balanceInWei, "ether");
     }
 
+    private onNetworkChange = async (networkId) => {
+        this.networkName = networkId ? NETWORK_IDS[networkId] : NETWORK_IDS[this.metaMask.networkVersion];
+        this.infoUpdateCallback();
+    };
 
-    subscribeToEvent(eventName, callback) {
-        if (!EVENTS[eventName]) {
-            return;
-        }
-        this.web3 = new Web3(Web3.givenProvider);
-        this.metaMask.on(EVENTS[eventName], callback);
-    }
+    private onAccountChange = async (accountsList) => {
+        accountsList.length === 0 ? this.disconnect() : this.infoUpdateCallback();
+    };
 
-
-    sendTransaction(depositTo: string, txData: string, onStart, onSuccess) : Promise<any>{
-        const { selectedAddress } = this.metaMask;
+    sendTransaction(depositTo: string, txData: string, onStart, onSuccess): Promise<any> {
+        const {selectedAddress} = this.metaMask;
 
         const method = 'eth_sendTransaction';
         const from = selectedAddress;
