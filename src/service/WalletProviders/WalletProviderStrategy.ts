@@ -15,7 +15,7 @@ export abstract class WalletProviderStrategy{
         return undefined
     }
     abstract info(): Record<string, any>
-    abstract sendTransaction(depositTo: string, txData: string, onStart, onSuccess);
+    abstract sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError);
 
     subscribeToUpdate(callback) {
         this.infoUpdateCallback = callback;

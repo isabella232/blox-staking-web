@@ -59,7 +59,7 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
         accountsList.length === 0 ? this.logoutCallback() : this.infoUpdateCallback();
     };
 
-    sendTransaction(depositTo: string, txData: string, onStart, onSuccess): Promise<any> {
+    sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError): Promise<any> {
         const {selectedAddress} = this.metaMask;
 
         const method = 'eth_sendTransaction';
@@ -84,8 +84,7 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
                 Promise.resolve(response);
             })
             .catch((error) => {
-                onSuccess(error.message, null);
-                Promise.resolve({error: error})
+                Promise.resolve(onError(error))
             });
     }
 

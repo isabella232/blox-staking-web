@@ -160,7 +160,9 @@ const StakingDeposit = () => {
     };
 
     const showAlreadyDepositedNotification = () => {
-        notification.error({message: 'Error', description: `Account Id ${account_id} already deposited`});
+        notification.success({message: '', description: <div style={{padding: 8}}>
+            Your Staking Deposit was already executed. Go to Desktop App
+        </div>});
     };
 
     const onDepositStart = async () => {
@@ -186,7 +188,6 @@ const StakingDeposit = () => {
 
         const onSuccess = async (error, txReceipt) => {
             const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
-            setDepositLoadingStatus(false);
             if (error) {
                 setCheckingDepositedStatus(false);
                 notification.error({message: '', description: error});
@@ -210,7 +211,11 @@ const StakingDeposit = () => {
             }
         };
 
-        walletProvider.sendSignTransaction(deposit_to, tx_data, onStart, onSuccess);
+        const onError = () => {
+            setCheckingDepositedStatus(false);
+        };
+
+        walletProvider.sendSignTransaction(deposit_to, tx_data, onStart, onSuccess, onError);
     };
 
     const disconnect = () => {
