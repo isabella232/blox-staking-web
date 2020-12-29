@@ -18,6 +18,7 @@ const Authentication = () => {
   const [tokenData, setTokenData] = useState<Record<string, any> | null> (null);
 
   useEffect(() => {
+    document.title = 'Blox Staking - Web Login';
     startLogin();
   }, []);
 
@@ -51,7 +52,7 @@ const Authentication = () => {
     await setLoadingStatus(true);
   }
 
-  return ( 
+  return (
     <Wrapper>
       {isLoading && <BackToDesktop onClick={backToDesktop} />}
       {provider && !isLoading && <ConnectingTo provider={provider} />}
