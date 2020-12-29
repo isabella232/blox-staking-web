@@ -5,6 +5,8 @@ export abstract class WalletProviderStrategy{
 
     protected web3: Web3;
     protected timer=null;
+    protected infoUpdateCallback: () => void;
+    protected logoutCallback: () => void;
 
     abstract connect();
     abstract disconnect()
@@ -14,8 +16,12 @@ export abstract class WalletProviderStrategy{
     }
     abstract info(): Record<string, any>
     abstract sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError);
-    subscribeToEvent(eventName, callback){
-        console.info(eventName, callback)
+
+    subscribeToUpdate(callback) {
+        this.infoUpdateCallback = callback;
+    }
+    subscribeToLogout(callback){
+        this.logoutCallback = callback;
     }
     getReceipt = async (txHash, onSuccess) => {
         try {
@@ -23,7 +29,7 @@ export abstract class WalletProviderStrategy{
         }
         catch(error) {
             return error.message;
-        }        
+        }
     };
     protected subscribeToTransactionReceipt = (txHash, onSuccess) => {
         const callback = (error, txReceipt) => {
@@ -42,4 +48,7 @@ export abstract class WalletProviderStrategy{
             this.web3.eth.getTransactionReceipt(txHash, callback);
         }, 3000);
     };
+    showLoader = (): boolean => {
+        return false;
+    }
 }

@@ -24,6 +24,10 @@ export default class PortisStrategy extends WalletProviderStrategy{
             this.web3 = new Web3(this.portis.provider);
             const accounts = await this.web3.eth.getAccounts();
             this.selectedAccount = accounts[0];
+            this.portis.onActiveWalletChanged((walletAddress => {
+                this.selectedAccount = walletAddress;
+                this.infoUpdateCallback()
+            }));
             return Promise.resolve()
         }catch (e) {
             return Promise.reject(e)
@@ -62,9 +66,17 @@ export default class PortisStrategy extends WalletProviderStrategy{
             value: this.web3.utils.numberToHex(this.web3.utils.toWei('32', 'ether')), // (amount * 1000000).toString(), // '32000000000',
         };
 
-        await this.web3.eth.sendTransaction(param, ((_, hash) => {
+        await this.web3.eth.sendTransaction(param, ((error, hash) => {
+            if (error){
+                onSuccess(error.message);
+                return;
+            }
             onStart(hash);
             this.subscribeToTransactionReceipt(hash, onSuccess);
         }));
+    }
+
+    showLoader = () => {
+        return true;
     }
 }

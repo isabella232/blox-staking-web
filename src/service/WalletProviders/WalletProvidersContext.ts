@@ -17,7 +17,7 @@ export default class WalletProvidersContext {
                 break;
             case "ledger":
             case "trezor":
-            case "metamask":
+            case "metaMask":
                 this._strategy = new MetaMaskStrategy();
                 break;
             default:
@@ -42,8 +42,12 @@ export default class WalletProvidersContext {
         return this._strategy.info();
     }
 
-    public subscribeToEvent(event: string, callback){
-        return this._strategy.subscribeToEvent(event, callback);
+    public subscribeToUpdate(callback){
+        return this._strategy.subscribeToUpdate(callback);
+    }
+
+    public subscribeToLogout(callback){
+        return this._strategy.subscribeToLogout(callback);
     }
 
     public sendSignTransaction(depositTo: string, txData: string, onStart, onSuccess, onError): void {
@@ -57,5 +61,9 @@ export default class WalletProvidersContext {
 
     public disconnect(){
         return this._strategy.disconnect();
+    }
+
+    public showLoader() : boolean{
+        return this._strategy.showLoader();
     }
 }

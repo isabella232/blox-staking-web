@@ -16,12 +16,12 @@ const BrowserNotSupported = ({onClose}: Props) => {
       justifyContent={'initial'} onClose={onClose}>
       <Title>Browser Not Supported by MetaMask</Title>
       <Description>
-        Blox uses Metamask (and its Trezor &amp; Ledger integration) to initiate transactions.
-        Unfortunately, Metamask is available on Chrome and Firefox browsers only. <br /> <br />
+        Blox uses MetaMask (and its Trezor &amp; Ledger integration) to initiate transactions.
+        Unfortunately, MetaMask is available on Chrome and Firefox browsers only. <br /> <br />
 
         To continue: <br />
         1. Open Firefox or Chrome <br />
-        2. Install Metamask extension (Chrome/Firefox) <br />
+        2. Install MetaMask extension (Chrome/Firefox) <br />
         3. Copy your unique deposit URL <br />
         4. Paste it and continue with your deposit <br />
       </Description>

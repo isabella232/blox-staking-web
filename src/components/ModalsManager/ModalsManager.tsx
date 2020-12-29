@@ -14,9 +14,9 @@ const ModalsManager = ({modal, onClose}: Props) => {
         case MODAL_TYPES.WRONG_NETWORK:
           return <WrongNetworkModal networkType={params?.networkType} onClose={onClose} />;
         case MODAL_TYPES.LEDGER:
-          return <LedgerModal onClose={onClose} onClick={params.onClick} />;
+          return <LedgerModal onClose={params.onClose ?? onClose} onClick={params.onClick} />;
         case MODAL_TYPES.TREZOR:
-          return <TrezorModal onClose={onClose} onClick={params.onClick} />;
+          return <TrezorModal onClose={params.onClose ?? onClose} onClick={params.onClick} />;
         default:
           return null;
       }

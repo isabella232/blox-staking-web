@@ -14,11 +14,10 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
         const browser = detect();
         if (browser.name !== 'chrome' && browser.name !== 'firefox') {
             return MODAL_TYPES.BROWSER_NOT_SUPPORTED;
-        } else if (typeof window['ethereum'] == 'undefined'/*typeof this.metaMask !== 'undefined' && this.metaMask.isMetaMask*/) {
+        } else if (typeof window['ethereum'] == 'undefined') {
             return MODAL_TYPES.METAMASK_NOT_SUPPORTED;
         } else return undefined;
     }
-
 
     async connect(): Promise<void> {
         try {
@@ -27,15 +26,13 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
             this.web3 = new Web3(Web3.givenProvider);
             this.networkName = NETWORK_IDS[this.metaMask.networkVersion];
 
-            this.subscribeToEvent('networkChanged', this.onNetworkChange);
+            this.metaMask.on(EVENTS['networkChanged'], this.onNetworkChange);
+            this.metaMask.on(EVENTS['accountsChanged'], this.onAccountChange);
+
             return Promise.resolve();
-        }catch (e) {
+        } catch (e) {
             return Promise.reject(e)
         }
-    }
-
-    onNetworkChange(networkId){
-        this.networkName = networkId ? NETWORK_IDS[networkId] : NETWORK_IDS[this.metaMask.networkVersion];
     }
 
     async info(): Promise<Record<string, any>> {
@@ -53,18 +50,17 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
         return this.web3.utils.fromWei(balanceInWei, "ether");
     }
 
+    private onNetworkChange = async (networkId) => {
+        this.networkName = networkId ? NETWORK_IDS[networkId] : NETWORK_IDS[this.metaMask.networkVersion];
+        this.infoUpdateCallback();
+    };
 
-    subscribeToEvent(eventName, callback) {
-        if (!EVENTS[eventName]) {
-            return;
-        }
-        this.web3 = new Web3(Web3.givenProvider);
-        this.metaMask.on(EVENTS[eventName], callback);
-    }
+    private onAccountChange = async (accountsList) => {
+        accountsList.length === 0 ? this.logoutCallback() : this.infoUpdateCallback();
+    };
 
-
-    sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError) : Promise<any>{
-        const { selectedAddress } = this.metaMask;
+    sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError): Promise<any> {
+        const {selectedAddress} = this.metaMask;
 
         const method = 'eth_sendTransaction';
         const from = selectedAddress;
@@ -87,7 +83,18 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
                 this.subscribeToTransactionReceipt(response, onSuccess);
                 Promise.resolve(response);
             })
+<<<<<<< HEAD
             .catch((error) => Promise.reject(onError(error)));
+=======
+            .catch((error) => {
+                onSuccess(error.message, null);
+                Promise.resolve({error: error})
+            });
+    }
+
+    showLoader = () => {
+        return true;
+>>>>>>> 3f15b43822e9227d6c03553666a35398c35cbee1
     }
 
     disconnect() {

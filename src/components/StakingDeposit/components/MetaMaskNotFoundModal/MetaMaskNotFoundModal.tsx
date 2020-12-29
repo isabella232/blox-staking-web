@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import CustomModal from "../../../../common/components/CustomModal";
 
 import metaMaskIcon from 'assets/images/meta-mask-logo.svg';
+import {Link} from "../../../../common/components";
 
 const Title = styled.div`
   font-size: 26px;
@@ -33,7 +34,7 @@ const MetaMaskNotFoundModal = ({onClose}: Props) => {
             <Title>MetaMask Required</Title>
             <DescriptionWrapper>
                 <Description>You need </Description>
-                <Description style={{'color': '#0090ff'}}>MetaMask's wallet browser extension</Description> <br />
+                <Link style={{'color': '#0090ff', 'fontSize': '12px'}} href={'https://metamask.io/'} target={'_blank'}>MetaMask's wallet browser extension <br /></Link>
                 <Description>in order to send the staking deposit.</Description>
             </DescriptionWrapper>
         </CustomModal>
