@@ -205,7 +205,11 @@ const StakingDeposit = () => {
             }
         };
 
-        walletProvider.sendSignTransaction(deposit_to, tx_data, onStart, onSuccess);
+        const onError = () => {
+            setCheckingDepositedStatus(false);
+        };
+
+        walletProvider.sendSignTransaction(deposit_to, tx_data, onStart, onSuccess, onError);
     };
 
     const disconnect = () => {

@@ -46,8 +46,8 @@ export default class WalletProvidersContext {
         return this._strategy.subscribeToEvent(event, callback);
     }
 
-    public sendSignTransaction(depositTo: string, txData: string, onStart, onSuccess): void {
-        return this._strategy.sendTransaction(depositTo, txData, onStart, onSuccess);
+    public sendSignTransaction(depositTo: string, txData: string, onStart, onSuccess, onError): void {
+        return this._strategy.sendTransaction(depositTo, txData, onStart, onSuccess, onError);
     };
 
     public async getReceipt(txHash, onSuccess) {

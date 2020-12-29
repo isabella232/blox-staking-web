@@ -13,7 +13,7 @@ export abstract class WalletProviderStrategy{
         return undefined
     }
     abstract info(): Record<string, any>
-    abstract sendTransaction(depositTo: string, txData: string, onStart, onSuccess);
+    abstract sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError);
     subscribeToEvent(eventName, callback){
         console.info(eventName, callback)
     }
