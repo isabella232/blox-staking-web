@@ -159,7 +159,7 @@ const StakingDeposit = () => {
     };
 
     const showAlreadyDepositedNotification = () => {
-        notification.error({message: 'Error', description: `Account Id ${account_id} already deposited`});
+        notification.success({message: '', description: 'Your Staking Deposit was already executed. Go to Desktop App'});
     };
 
     const onDepositStart = async () => {
