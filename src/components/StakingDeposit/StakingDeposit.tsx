@@ -200,18 +200,18 @@ const StakingDeposit = () => {
             return;
         }
 
-        
+
 
         const onStart = async (txHash) => {
             setTxHash(txHash);
             setCheckingDepositedStatus(false);
             setDepositLoadingStatus(true);
             await sendAccountUpdate(false, txHash, () => {
-                notification.success({message: '', description: 
+                notification.success({message: '', description:
                 <NotificationContent>
                     Transaction hash: <br />
                     <NotificationContentInnerWrapper>
-                        <Span>{txHash}</Span> 
+                        <Span>{txHash}</Span>
                         <Icon name={'icons-export'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txHash}`, '_blank')}/>
                     </NotificationContentInnerWrapper>
                 </NotificationContent>});
@@ -353,7 +353,7 @@ const StakingDeposit = () => {
                 <Faq networkId={network_id}/>
                 <ModalsManager modal={modal} onClose={hideModal}/>
                 {showSecurityNotification && <SecurityNotification hide={() => setSecurityNotificationDisplay(false)}/>}
-                {true && ( 
+                {isDepositSuccess && (
                     <DepositConfirmed>
                         Deposit executed &amp; confirmed! <br />
                         <a onClick={() => onGoBackClick()} >Go back to app</a>
