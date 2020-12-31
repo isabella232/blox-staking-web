@@ -224,6 +224,7 @@ const StakingDeposit = () => {
         const onSuccess = async (error, txReceipt) => {
             if (error) {
                 setCheckingDepositedStatus(false);
+                setDepositLoadingStatus(false);
                 notification.error({message: '', description: error});
             } else if (txReceipt) {
                 if (txReceipt.status) {
@@ -241,6 +242,7 @@ const StakingDeposit = () => {
                     });
                     setDepositSuccessStatus(true);
                 } else {
+                    setDepositLoadingStatus(false);
                     notification.error({message: '', description: `Failed to send transaction`});
                 }
             }
