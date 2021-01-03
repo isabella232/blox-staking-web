@@ -236,7 +236,7 @@ const StakingDeposit = () => {
                             Successfully deposited 32 ETH to <br />
                             <NotificationContentInnerWrapper>
                                 <Span>{deposit_to}</Span>
-                                <Icon name={'icons-export'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txHash}`, '_blank')}/>
+                                <Icon name={'icons-export'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txReceipt.transactionHash}`, '_blank')}/>
                             </NotificationContentInnerWrapper>
                         </NotificationContent>
                     });

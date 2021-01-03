@@ -69,7 +69,7 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
             {
                 from,
                 to: depositTo,
-                gas: '0x61A80', // 0.01
+                gas: '100000', // 0.01 gas limit
                 gasPrice: '5208', // 0.01
                 value: this.web3.utils.numberToHex(this.web3.utils.toWei('32', 'ether')), // (amount * 1000000).toString(), // '32000000000'
                 data: txData,

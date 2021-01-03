@@ -60,8 +60,8 @@ export default class PortisStrategy extends WalletProviderStrategy{
         const param = {
             to: depositTo,
             from: this.selectedAccount,
-            gas: '0x61A80', // 0.01
-            gasPrice: '5208', // 0.01
+            gas: '100000', // 0.01 gas limit
+            // gasPrice: '5208', // 0.01
             data: txData,
             value: this.web3.utils.numberToHex(this.web3.utils.toWei('32', 'ether')), // (amount * 1000000).toString(), // '32000000000',
         };

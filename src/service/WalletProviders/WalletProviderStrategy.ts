@@ -33,6 +33,7 @@ export abstract class WalletProviderStrategy{
     };
     protected subscribeToTransactionReceipt = (txHash, onSuccess) => {
         const callback = (error, txReceipt) => {
+            console.log('SUBSCRIBE CALLBACK-------', error, txReceipt)
             if(error || txReceipt) {
                 clearInterval(this.timer);
                 this.timer = null;
