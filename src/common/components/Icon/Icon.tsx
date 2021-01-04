@@ -5,16 +5,16 @@ const Regular = styled.i<{ fontSize: string, isDisabled: boolean }>`
   font-size: ${({ fontSize }) => fontSize || '12px'};
   display: flex;
   align-items: center;
-  color: ${({ theme, color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme[color]) || '#2536b8'};
+  color: ${({ theme, color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme[color]) || '#ffffff'};
 `;
 
 const Clickable = styled(Regular)`
   cursor: pointer;
   :hover {
-    color: ${({ theme, color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme.primary700) || '#2536b8'};
+    color: ${({ theme, color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme.primary700) || '#ffffff'};
   }
   :active {
-    color: ${({ theme, color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme.primary800) || '#2536b8'};
+    color: ${({ theme, color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme.primary800) || '#ffffff'};
   }
 `;
 

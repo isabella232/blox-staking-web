@@ -12,8 +12,7 @@ const WrongNetworkModal = (props: Props) => {
 
     const Title = styled.div`        
         font-size: 26px;
-        font-weight: 900;
-        margin-top: 115px;   
+        font-weight: 900;         
     `;
 
     const Description = styled.div`
@@ -23,7 +22,7 @@ const WrongNetworkModal = (props: Props) => {
     `;
 
     return (
-        <ModalTemplate onClose={onClose} padding={'32px 32px 32px 72px'} imageWidth={'192px'} image={isMainnet ? mainnet : test}>
+        <ModalTemplate onClose={onClose} padding={'115px 32px 115px 72px'} imageWidth={'192px'} image={isMainnet ? mainnet : test}>
             <Title>{networkName} Network Required</Title>
             <Description>{networkName}net validator supports {token} deposits only. Please change your MetaMask Network to {token} {networkName} Network. </Description>
             <Button style={{'width': '175px', 'marginTop': '116px'}} onClick={onClose}>Got it</Button>
