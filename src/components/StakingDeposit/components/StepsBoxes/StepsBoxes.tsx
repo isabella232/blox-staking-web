@@ -89,11 +89,11 @@ const ViewTransaction = styled.a`
 `;
 
 const tooltipText = `
-  By depositing the service fee of $180 (paid in ETH and automatically converted to CDT by a third party),
-  Blox Staking will provide staking services for 1 Eth2 validator until transfers are available (phase 1.5)
-  or for up to 2 years following activation (whichever comes first).
-  The fee will not renew automatically and you will be asked to deposit a new fee for the following year of service.
-  The service fee is non-refundable. Network gas fees will apply.
+  Blox Staking service charges will only be applied
+  to validators created after this promotion ends.
+  Don't worry, we will NEVER charge you for
+  creating or running the validators created during
+  this promotion period.
 `;
 
 const StepsBoxes = (props: Props) => {
@@ -146,9 +146,9 @@ const StepsBoxes = (props: Props) => {
         <StepBox data={stepsData[0]}>
           <StepBoxLeft>
             <StepBoxLeftParagraph>
-              After completing the Service Fee Deposit, you will be able to run the validator {truncatedPublicKey} with
-              BloxStaking until transfers are enabled (phase 1.5) OR for up to 2 years.
-              Whichever comes first.&nbsp;
+              Early-bird promotion - During the promotion, we will NOT charge you on any
+              validators created during the “early stage” period. Once we start to charge
+              our users, you will be notified (no surprise fees).&nbsp;
               <InfoWithTooltip title={tooltipText} placement={'bottom'} margin={'0px'} verticalAlign={'sub'}/>
             </StepBoxLeftParagraph>
           </StepBoxLeft>
