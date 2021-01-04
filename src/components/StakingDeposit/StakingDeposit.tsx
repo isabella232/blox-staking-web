@@ -35,8 +35,6 @@ const initialErrorState = {type: '', message: ''};
 
 const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
 
-// let walletProvider: WalletProvidersContext;
-
 const NotificationContent = styled.div`
     width:350px;
     display:flex;
@@ -86,6 +84,7 @@ const StakingDeposit = () => {
         notification.config({placement});
         // window.history.replaceState(null, null, window.location.pathname);
         setTimeout(() => setSecurityNotificationDisplay(false), 5000);
+
     }, []);
 
     useEffect(() => {
@@ -200,8 +199,6 @@ const StakingDeposit = () => {
             return;
         }
 
-
-
         const onStart = async (txHash) => {
             setTxHash(txHash);
             setCheckingDepositedStatus(false);
@@ -212,7 +209,7 @@ const StakingDeposit = () => {
                     Transaction hash: <br />
                     <NotificationContentInnerWrapper>
                         <Span>{txHash}</Span>
-                        <Icon name={'icons-export'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txHash}`, '_blank')}/>
+                        <Icon color={'primary900'} name={'icons-export'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txHash}`, '_blank')}/>
                     </NotificationContentInnerWrapper>
                 </NotificationContent>});
                 return;

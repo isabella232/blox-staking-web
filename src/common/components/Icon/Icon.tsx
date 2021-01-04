@@ -1,20 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
+import theme from "../../../theme";
 
 const Regular = styled.i<{ fontSize: string, isDisabled: boolean }>`
   font-size: ${({ fontSize }) => fontSize || '12px'};
   display: flex;
   align-items: center;
-  color: ${({ theme, color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme[color]) || '#ffffff'};
+  color: ${({ color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme[color]) || '#ffffff'};
 `;
 
 const Clickable = styled(Regular)`
   cursor: pointer;
   :hover {
-    color: ${({ theme, color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme.primary700) || '#ffffff'};
+    color: ${({ color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme.primary700) || '#ffffff'};
   }
   :active {
-    color: ${({ theme, color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme.primary800) || '#ffffff'};
+    color: ${({color, isDisabled }) => isDisabled ? theme.gray400 : (color && theme.primary800) || '#ffffff'};
   }
 `;
 
