@@ -17,6 +17,7 @@ const Wrapper = styled.div<{ isOpen: boolean }>`
   flex-direction:column;
   box-shadow:-1px 0px 3px 0px rgba(0,0,0,0.05);
   transition:all 0.5s;
+  margin-top: 70px;
 `;
 
 const ToggleButton = styled.div`
@@ -27,7 +28,7 @@ const ToggleButton = styled.div`
   line-height: 1.75;
   color:${({theme}) => theme.gray600};
   position:absolute;
-  top:120px;
+  top:50px;
   left:-60px;
   background-color:#ffffff;
   display:flex;
