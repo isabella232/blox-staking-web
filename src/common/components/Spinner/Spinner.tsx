@@ -10,6 +10,7 @@ const Spinner = styled((props) => (
 ))`
   &.spinner {
     width: ${(props) => `${props.width} !important` || '8px !important'};
+    margin-right: ${(props) => `${props['margin-right']}`};
     height: auto !important;
     .MuiLinearProgress-barColorPrimary {
       background-color: ${(props) => props.theme.primary900};

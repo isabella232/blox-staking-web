@@ -201,6 +201,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 .icon-protection:before {
   content: "\61";
 }
@@ -287,6 +288,9 @@
 }
 .icon-checked-cirlce:before {
   content: "\43";
+}
+.icon-icons-export:before {
+  content: "\44";
 }
 
 

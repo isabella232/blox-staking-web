@@ -2,19 +2,25 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as icons from './images';
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{isDisabled: boolean}>`
   width: 182px;
   height: 32px;
   font-size: 14px;
   font-weight: 900;
   border-radius: 4px;
   border: solid 1px ${({theme}) => theme.gray400};
-  color:${({theme}) => theme.primary600};
+  color:${({theme, isDisabled}) => theme[isDisabled ? 'gray400' : 'primary600']};  
   position:relative;
   display:flex;
   align-items:center;
   justify-content:center;
   cursor:pointer;
+   &:hover {
+    color:${({theme, isDisabled}) => isDisabled ? null : theme.primary400};
+  }
+  &:active{
+    color:${({theme, isDisabled}) => isDisabled ? null : theme.primary800};
+  }
 `;
 
 const Menu = styled.div`
@@ -41,7 +47,7 @@ const Row = styled.div`
   color:${({theme}) => theme.gray800};
   &:hover {
     color:${({theme}) => theme.primary600};
-  }
+  }  
 `;
 
 const Image = styled.img`
@@ -50,18 +56,18 @@ const Image = styled.img`
   margin-right:5px;
 `;
 
-const ConnectWalletButton = ({ onMetamaskClick }: Props) => {
+const ConnectWalletButton = ({ onWalletProviderClick, disable}: Props) => {
   const [ showMenu, setMenuStatus ] = useState(false);
 
   const ITEMS = [
-    { label: 'portis', displayName: 'Portis', icon: icons.PortisImage, onClick: () => null },
-    { label: 'metamask', displayName: 'Metamask', icon: icons.MetamaskImage, onClick: () => onMetamaskClick() },
-    { label: 'ledger', displayName: 'Ledger via Metamask', icon: icons.LedgerImage, onClick: () => null },
-    { label: 'trezor', displayName: 'Trezor via Metamask', icon: icons.TrezorImage, onClick: () => null },
+    { label: 'portis', displayName: 'Portis', icon: icons.PortisImage, onClick: () => onWalletProviderClick('portis') },
+    { label: 'metamask', displayName: 'MetaMask', icon: icons.MetamaskImage, onClick: () => onWalletProviderClick('metaMask') },
+    { label: 'ledger', displayName: 'Ledger via MetaMask', icon: icons.LedgerImage, onClick: () => onWalletProviderClick('ledger') },
+    { label: 'trezor', displayName: 'Trezor via MetaMask', icon: icons.TrezorImage, onClick: () => onWalletProviderClick('trezor') },
   ];
 
   return (
-    <Wrapper onClick={() => setMenuStatus(!showMenu)}>
+    <Wrapper isDisabled={disable} onClick={() => disable ? null : setMenuStatus(!showMenu)}>
       Connect Wallet
       {showMenu && (
         <Menu>
@@ -78,7 +84,8 @@ const ConnectWalletButton = ({ onMetamaskClick }: Props) => {
 };
 
 type Props = {
-  onMetamaskClick: () => void;
+  onWalletProviderClick: (type:string) => void;
+  disable: boolean;
 };
 
 export default ConnectWalletButton;

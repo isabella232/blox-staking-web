@@ -89,20 +89,20 @@ const ViewTransaction = styled.a`
 `;
 
 const tooltipText = `
-  By depositing the service fee of $180 (paid in ETH and automatically converted to CDT by a third party),
-  Blox Staking will provide staking services for 1 Eth2 validator until transfers are available (phase 1.5)
-  or for up to 2 years following activation (whichever comes first).
-  The fee will not renew automatically and you will be asked to deposit a new fee for the following year of service.
-  The service fee is non-refundable. Network gas fees will apply.
+  Blox Staking service charges will only be applied
+  to validators created after this promotion ends.
+  Don't worry, we will NEVER charge you for
+  creating or running the validators created during
+  this promotion period.
 `;
 
 const StepsBoxes = (props: Props) => {
   const { stepsData, setStepsData, checkedTerms, setCheckedTermsStatus,
-          metamaskInfo, onDepositStart, publicKey, depositTo, error, network_id,
-          isLoadingDeposit, isDepositSuccess, txHash
+          walletInfo, onDepositStart, publicKey, depositTo, error, network_id,
+          isLoadingDeposit, isDepositSuccess, txHash, walletType, alreadyDeposited, checkingDeposited
         } = props;
 
-  const { selectedAddress } = metamaskInfo;
+  const { selectedAddress } = walletInfo;
 
   useEffect(() => {
     if(network_id === '1') {
@@ -113,7 +113,7 @@ const StepsBoxes = (props: Props) => {
       updateStep(1, selectedAddress && error.type === '');
       updateStep(2, selectedAddress && error.type === '');
     }
-  }, [metamaskInfo, error]);
+  }, [walletInfo, error]);
 
   useEffect(() => {
     if(network_id === '1') {
@@ -124,18 +124,21 @@ const StepsBoxes = (props: Props) => {
   const updateStep = (stepIndex, condition) => {
     setStepsData((prevState) => {
       const newStepsData = [...prevState];
-      const newStep = condition ? 
-      { isActive: true, isDisabled: false } : 
+      const newStep = condition ?
+      { isActive: true, isDisabled: false } :
       { isActive: false, isDisabled: true };
       newStepsData[stepIndex] = {...stepsData[stepIndex], ...newStep};
       return newStepsData;
-    }); 
+    });
   }
 
   const truncatedPublicKey = truncateText(publicKey, 20, 6);
   const truncatedDepositTo = truncateText(depositTo, 20, 6);
 
+  const upperCaseWalletType = walletType ? walletType.charAt(0).toUpperCase() + walletType.slice(1) : null;
+
   const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
+  const isButtonDisabled = stepsData[2].isDisabled || isLoadingDeposit || alreadyDeposited || checkingDeposited;
 
   return (
     <>
@@ -143,9 +146,9 @@ const StepsBoxes = (props: Props) => {
         <StepBox data={stepsData[0]}>
           <StepBoxLeft>
             <StepBoxLeftParagraph>
-              After completing the Service Fee Deposit, you will be able to run the validator {truncatedPublicKey} with
-              BloxStaking until transfers are enabled (phase 1.5) OR for up to 2 years.
-              Whichever comes first.&nbsp; 
+              Early-bird promotion - During the promotion, we will NOT charge you on any
+              validators created during the “early stage” period. Once we start to charge
+              our users, you will be notified (no surprise fees).&nbsp;
               <InfoWithTooltip title={tooltipText} placement={'bottom'} margin={'0px'} verticalAlign={'sub'}/>
             </StepBoxLeftParagraph>
           </StepBoxLeft>
@@ -175,7 +178,7 @@ const StepsBoxes = (props: Props) => {
               In order to give Eth 2.0 an early stage power push, we decided to offer free service for all stakers.&nbsp;
               <GreenColor>Validators created during the promotion are FREE.</GreenColor>
             </StepBoxLeftParagraph>
-          </StepBoxLeft> 
+          </StepBoxLeft>
           <StepBoxRight>
             <Free>Free</Free>
           </StepBoxRight>
@@ -194,7 +197,7 @@ const StepsBoxes = (props: Props) => {
             <StepBoxLeftParagraph>
                 <b>Testnet validators are FREE</b> Staking on Mainnet will require a service fee deposit
             </StepBoxLeftParagraph>
-          </StepBoxLeft> 
+          </StepBoxLeft>
           <StepBoxRight>
             <GreenColor fontSize={'16px'}>Free &amp; Unlimited!</GreenColor>
           </StepBoxRight>
@@ -204,7 +207,7 @@ const StepsBoxes = (props: Props) => {
       <StepBox data={stepsData[2]} networkId={network_id}>
       <StepBoxLeft>
           <StepBoxLeftParagraph>
-            <b>Amount</b> 32 ETH + Gas
+            <b>Amount</b> 32 {network_id === "1" ? 'ETH' : 'GoETH'} + Gas
           </StepBoxLeftParagraph>
           <StepBoxLeftParagraph>
             <b>Validator Public Key</b> {truncatedPublicKey}
@@ -212,7 +215,7 @@ const StepsBoxes = (props: Props) => {
           <StepBoxLeftParagraph>
             <b>Deposit Address</b> {truncatedDepositTo}
           </StepBoxLeftParagraph>
-        </StepBoxLeft> 
+        </StepBoxLeft>
         <StepBoxRight>
           {isDepositSuccess && txHash ? (
             <SuccessWrapper>
@@ -223,8 +226,8 @@ const StepsBoxes = (props: Props) => {
             </SuccessWrapper>
           ) : (
             <ButtonWrapper>
-              <Button isDisabled={stepsData[2].isDisabled || isLoadingDeposit} onClick={() => onDepositStart()}>Deposit</Button> 
-              {isLoadingDeposit && <Loading> <Spinner width={'17px'} /> Waiting for confirmation...</Loading>}
+              <Button isDisabled={isButtonDisabled} onClick={() => !isButtonDisabled && onDepositStart()}>{upperCaseWalletType ? `Deposit with ${upperCaseWalletType}` : `Deposit`}</Button>
+              {(isLoadingDeposit || checkingDeposited) && <Loading> <Spinner width={'17px'} /> Waiting for confirmation...</Loading>}
             </ButtonWrapper>
           )}
         </StepBoxRight>
@@ -238,7 +241,7 @@ type Props = {
   setCheckedTermsStatus: () => void;
   stepsData: Record<string, any>[];
   setStepsData: React.Dispatch<React.SetStateAction<Record<string, any>[]>>;
-  metamaskInfo: Record<string, any>;
+  walletInfo: Record<string, any>;
   onDepositStart: () => void;
   publicKey: string;
   depositTo: string;
@@ -247,6 +250,9 @@ type Props = {
   isLoadingDeposit: boolean;
   isDepositSuccess: boolean;
   txHash: string;
+  walletType: string;
+  checkingDeposited: boolean;
+  alreadyDeposited: boolean;
 };
 
 export default StepsBoxes;
