@@ -1,11 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import Metamask from 'service/Metamask';
-import {NETWORK_IDS} from 'service/Metamask/constants';
 
 import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage,
-    MetaMaskNotFoundModal, BrowserNotSupported, WrongNetworkModal, 
+    MetaMaskNotFoundModal, BrowserNotSupported, WrongNetworkModal,
     StepsBoxes, ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton
 } from './components';
 
@@ -27,7 +25,7 @@ const initialErrorState = { type: '', message: '' };
 
 const metamask = new Metamask({ depositTo: deposit_to });
 
-const StakingDeposit = () => { 
+const StakingDeposit = () => {
   const [ showMetamaskNotSupportedPopUp, setMetamaskNotSupportedPopUpStatus ] = useState(false);
   const [ showBrowserNotSupportedPopUp, setBrowserNotSupportedPopUp ] = useState(false);
   const [ metamaskInfo, setMetamaskInfo ] = useState(initialMetamaskInfoState);
@@ -80,7 +78,7 @@ const StakingDeposit = () => {
     try {
       await metamask.enableAccounts();
       await metamask.subscribeToChange('networkChanged', updateMetamaskInfo); // TODO: change to chainId
-      await metamask.subscribeToChange('accountsChanged', updateMetamaskInfo);  
+      await metamask.subscribeToChange('accountsChanged', updateMetamaskInfo);
       notification.success({ message: '', description: 'Successfully connected to MetaMask' });
     }
     catch(e) { throw new Error(e.message); }
@@ -90,8 +88,8 @@ const StakingDeposit = () => {
     const { networkVersion, selectedAddress } = metamask.metaMask;
     const networkName = networkId ? NETWORK_IDS[networkId] : NETWORK_IDS[networkVersion];
     const balance = await metamask.getBalance(selectedAddress);
-    setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, selectedAddress, balance })); 
-  }; 
+    setMetamaskInfo((prevState) => ({ ...prevState, networkName, networkVersion, selectedAddress, balance }));
+  };
 
   const onDepositStart = () => {
     const onStart = (txHash) => {
@@ -102,7 +100,7 @@ const StakingDeposit = () => {
 
     const onSuccess = (error, txReceipt) => {
       setDepositLoadingStatus(false);
-      if(error) { 
+      if(error) {
         notification.error({ message: '', description: error });
       }
       else if(txReceipt) {
@@ -121,7 +119,7 @@ const StakingDeposit = () => {
       }
     }
 
-    metamask.sendEthersTo(onStart, onSuccess); 
+    metamask.sendEthersTo(onStart, onSuccess);
   }
 
   const onDisconnect = () => {
@@ -129,18 +127,18 @@ const StakingDeposit = () => {
     metamask.disconnect();
   };
 
-  if(network_id && deposit_to && public_key) { 
+  if(network_id && deposit_to && public_key) {
     const desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${deposit_to}`;
-    return (  
+    return (
       <Wrapper>
         <Title>{network_id === "1" ? 'Mainnet' : 'Testnet'} Staking Deposit</Title>
         <Section>
           <SubTitle>Deposit Method</SubTitle>
           <DepositMethod>
-            {metamaskInfo.selectedAddress ? 
-              (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} onDisconnect={onDisconnect} />) : 
+            {metamaskInfo.selectedAddress ?
+              (<ConnectedWallet metamaskInfo={metamaskInfo} areNetworksEqual={areNetworksEqual} error={error} onDisconnect={onDisconnect} />) :
               (<ConnectWalletButton onMetamaskClick={connectAndUpdateMetamask} />
-            )}  
+            )}
             {network_id === "5" && <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
           </DepositMethod>
           {error.type && <ErrorMessage>{error.message}</ErrorMessage>}
