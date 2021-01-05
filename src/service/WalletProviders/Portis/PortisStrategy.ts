@@ -4,10 +4,9 @@ import {NETWORK_IDS, NETWORK_MAP} from "./constants";
 import {WalletProviderStrategy} from "../WalletProviderStrategy";
 
 
+export default class PortisStrategy extends WalletProviderStrategy {
 
-export default class PortisStrategy extends WalletProviderStrategy{
-
-    private portis : Portis;
+    private portis: Portis;
     private readonly networkType;
     private readonly networkVersion;
     private selectedAccount;
@@ -18,7 +17,7 @@ export default class PortisStrategy extends WalletProviderStrategy{
         this.networkType = NETWORK_MAP[networkType];
     }
 
-    async connect() : Promise<void>{
+    async connect(): Promise<void> {
         try {
             this.portis = new Portis(process.env.REACT_APP_PORTIS_ID, this.networkType);  // goerli | mainnet
             this.web3 = new Web3(this.portis.provider);
@@ -29,7 +28,7 @@ export default class PortisStrategy extends WalletProviderStrategy{
                 this.infoUpdateCallback()
             }));
             return Promise.resolve()
-        }catch (e) {
+        } catch (e) {
             return Promise.reject(e)
         }
     }
@@ -56,24 +55,26 @@ export default class PortisStrategy extends WalletProviderStrategy{
         };
     }
 
-    async sendTransaction(depositTo: string, txData: string, onStart, onSuccess) : Promise<any>{
+    async sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError): Promise<any> {
         const param = {
             to: depositTo,
             from: this.selectedAccount,
-            gas: '100000', // 0.01 gas limit
+            gas: '0x186A0', // 100k gas limit
             // gasPrice: '5208', // 0.01
             data: txData,
             value: this.web3.utils.numberToHex(this.web3.utils.toWei('32', 'ether')), // (amount * 1000000).toString(), // '32000000000',
         };
 
-        await this.web3.eth.sendTransaction(param, ((error, hash) => {
-            if (error){
-                onSuccess(error.message);
-                return;
-            }
-            onStart(hash);
-            this.subscribeToTransactionReceipt(hash, onSuccess);
-        }));
+        this.web3.eth.sendTransaction(param)
+            .on('transactionHash', hash=>{
+                onStart(hash);
+            })
+            .on('receipt', receipt => {
+                onSuccess(null, receipt)
+            })
+            .on('error', error => {
+                onError(error)
+            });
     }
 
     showLoader = () => {
