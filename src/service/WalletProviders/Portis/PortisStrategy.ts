@@ -21,6 +21,7 @@ export default class PortisStrategy extends WalletProviderStrategy {
         try {
             this.portis = new Portis(process.env.REACT_APP_PORTIS_ID, this.networkType);  // goerli | mainnet
             this.web3 = new Web3(this.portis.provider);
+            await this.portis.isLoggedIn();
             const accounts = await this.web3.eth.getAccounts();
             this.selectedAccount = accounts[0];
             this.portis.onActiveWalletChanged((walletAddress => {
