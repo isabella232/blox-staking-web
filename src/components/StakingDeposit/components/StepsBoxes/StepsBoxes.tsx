@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import styled from 'styled-components';
 
 import { truncateText } from 'common/helpers/truncateText';
@@ -106,14 +106,14 @@ const StepsBoxes = (props: Props) => {
 
   useEffect(() => {
     if(network_id === '1') {
-      updateStep(0, selectedAddress && error.type === '');
+      updateStep(0, selectedAddress && error.type === '' && (!isLoadingDeposit && !checkingDeposited));
       updateStep(1, selectedAddress && error.type === '');
     }
     else if(network_id === '5') {
       updateStep(1, selectedAddress && error.type === '');
       updateStep(2, selectedAddress && error.type === '');
     }
-  }, [walletInfo, error]);
+  }, [walletInfo, error, isLoadingDeposit, checkingDeposited]);
 
   useEffect(() => {
     if(network_id === '1') {
