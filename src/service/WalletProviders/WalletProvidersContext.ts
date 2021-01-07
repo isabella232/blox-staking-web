@@ -54,9 +54,8 @@ export default class WalletProvidersContext {
         return this._strategy.sendTransaction(depositTo, txData, onStart, onSuccess, onError);
     };
 
-    public async getReceipt(txHash, onSuccess) {
-        const result = await this._strategy.getReceipt(txHash, onSuccess);
-        return result;
+    public async getReceipt(txHash) {
+        return await this._strategy.getReceipt(txHash);
     };
 
     public disconnect(){

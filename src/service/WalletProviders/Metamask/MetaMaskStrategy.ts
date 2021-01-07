@@ -28,6 +28,11 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
 
             this.metaMask.on(EVENTS['networkChanged'], this.onNetworkChange);
             this.metaMask.on(EVENTS['accountsChanged'], this.onAccountChange);
+            this.metaMask.on('message', this.onMessage);
+            this.metaMask.on('notification', this.onMessage);
+            this.metaMask.on('tx_replacement', (message) => console.log('TEST MSG 1', message));
+            this.metaMask.on('tx_speedup', (message) => console.log('TEST MSG 2', message));
+            this.metaMask.on('tx_cancel', (message) => console.log('TEST MSG 3', message));
 
             return Promise.resolve();
         } catch (e) {
@@ -59,6 +64,14 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
         accountsList.length === 0 ? this.logoutCallback() : this.infoUpdateCallback();
     };
 
+    private onMessage = (message) => {
+        console.log('TEST MSG -------', message);
+        if (message.type === 'tx_replacement') {
+            const { oldTx, newTx } = message.data;
+            console.log(`Tx ${oldTx} was cancelled, the new hash is ${newTx}`)
+        }
+    };
+
     sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError): Promise<any> {
         const {selectedAddress} = this.metaMask;
 
@@ -69,8 +82,7 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
             {
                 from,
                 to: depositTo,
-                gas: '186A0', // 0.01 gas limit
-                gasPrice: '5208', // 0.01
+                gas: '186A0', // 100k gas limit
                 value: this.web3.utils.numberToHex(this.web3.utils.toWei('32', 'ether')), // (amount * 1000000).toString(), // '32000000000'
                 data: txData,
             },

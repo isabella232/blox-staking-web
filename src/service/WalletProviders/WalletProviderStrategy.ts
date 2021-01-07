@@ -23,9 +23,9 @@ export abstract class WalletProviderStrategy{
     subscribeToLogout(callback){
         this.logoutCallback = callback;
     }
-    getReceipt = async (txHash, onSuccess) => {
+    getReceipt = async (txHash) => {
         try {
-            return await this.web3.eth.getTransactionReceipt(txHash, onSuccess);
+            return await this.web3.eth.getTransactionReceipt(txHash);
         }
         catch(error) {
             return error.message;
