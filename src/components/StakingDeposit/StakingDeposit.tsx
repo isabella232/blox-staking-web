@@ -201,7 +201,7 @@ const StakingDeposit = () => {
         }
 
         const onStart = async (txHash) => {
-            console.log('TEST START---------', txHash)
+            console.log('deposit start---------', txHash);
             setTxHash(txHash);
             setCheckingDepositedStatus(false);
             setDepositLoadingStatus(true);
@@ -221,7 +221,7 @@ const StakingDeposit = () => {
         };
 
         const onSuccess = async (error, txReceipt) => {
-            console.log('TEST DONE---------', error, txReceipt)
+            console.log('deposit end---------', error, txReceipt);
             if (error) {
                 setCheckingDepositedStatus(false);
                 setDepositLoadingStatus(false);

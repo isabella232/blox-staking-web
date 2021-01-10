@@ -75,9 +75,10 @@ const SuccessWrapper = styled.div`
 `;
 
 const Loading = styled.div`
-  width:85%;
+  width:100%;
   display:flex;
   justify-content:space-between;
+  align-items:center;
   color:${({theme}) => theme.primary900};
 `;
 
@@ -227,7 +228,7 @@ const StepsBoxes = (props: Props) => {
           ) : (
             <ButtonWrapper>
               <Button isDisabled={isButtonDisabled} onClick={() => !isButtonDisabled && onDepositStart()}>{upperCaseWalletType ? `Deposit with ${upperCaseWalletType}` : `Deposit`}</Button>
-              {(isLoadingDeposit || checkingDeposited) && <Loading> <Spinner width={'17px'} /> Waiting for confirmation...</Loading>}
+              {(isLoadingDeposit || checkingDeposited) && <Loading> <Spinner width={'17px'} />Processing transaction... <br/> Do not refresh the web page.</Loading>}
             </ButtonWrapper>
           )}
         </StepBoxRight>
