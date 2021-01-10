@@ -28,11 +28,6 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
 
             this.metaMask.on(EVENTS['networkChanged'], this.onNetworkChange);
             this.metaMask.on(EVENTS['accountsChanged'], this.onAccountChange);
-            this.metaMask.on('message', this.onMessage);
-            this.metaMask.on('notification', this.onMessage);
-            this.metaMask.on('tx_replacement', (message) => console.log('TEST MSG 1', message));
-            this.metaMask.on('tx_speedup', (message) => console.log('TEST MSG 2', message));
-            this.metaMask.on('tx_cancel', (message) => console.log('TEST MSG 3', message));
 
             return Promise.resolve();
         } catch (e) {
@@ -62,14 +57,6 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
 
     private onAccountChange = async (accountsList) => {
         accountsList.length === 0 ? this.logoutCallback() : this.infoUpdateCallback();
-    };
-
-    private onMessage = (message) => {
-        console.log('TEST MSG -------', message);
-        if (message.type === 'tx_replacement') {
-            const { oldTx, newTx } = message.data;
-            console.log(`Tx ${oldTx} was cancelled, the new hash is ${newTx}`)
-        }
     };
 
     sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError): Promise<any> {
