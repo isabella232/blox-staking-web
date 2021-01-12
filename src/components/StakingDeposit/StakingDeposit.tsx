@@ -59,6 +59,8 @@ const DepositConfirmed = styled.div`
     align-items:center;
 `;
 
+const DEPOSIT_THERSHOLD = 32.01;
+
 const StakingDeposit = () => {
     const [walletProvider, setWalletProvider] = useState(null);
     const [walletInfo, setWalletInfo] = useState(initialWalletInfoState);
@@ -94,7 +96,7 @@ const StakingDeposit = () => {
                 setOneTimeWrongNetworkModal(true);
                 showModal({show: true, type: MODAL_TYPES.WRONG_NETWORK, params: {networkType: network_id.toString()}});
             }
-        } else if (walletInfo.balance !== '' && Number(walletInfo.balance) < 33) {
+        } else if (walletInfo.balance !== '' && Number(walletInfo.balance) < DEPOSIT_THERSHOLD) {
             setError({type: 'lowBalance', message: 'Insufficient balance in selected wallet'});
         } else {
             setError({type: '', message: ''});
