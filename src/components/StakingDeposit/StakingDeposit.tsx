@@ -23,7 +23,6 @@ import useModals from '../ModalsManager/useModals';
 import {MODAL_TYPES} from '../ModalsManager/constants';
 import WalletProvidersContext from "../../service/WalletProviders/WalletProvidersContext";
 import {Spinner} from "../../common/components";
-import { AnyARecord } from 'dns';
 
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
