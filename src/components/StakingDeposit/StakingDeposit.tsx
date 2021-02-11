@@ -296,7 +296,7 @@ const StakingDeposit = () => {
 
     const sendAccountUpdate = async (deposited, txHash, onSuccess, onFailure) => {
         const userProfile: any = jwtDecode(id_token);
-        analytics.identify(userProfile.sub);
+        deposited && analytics.identify(userProfile.sub);
         try {
             const res = await axios({
                 url: `${process.env.REACT_APP_API_URL}/accounts/${account_id}`,
@@ -306,11 +306,11 @@ const StakingDeposit = () => {
                 headers: {Authorization: `Bearer ${id_token}`},
             });
             onSuccess(res.data);
-            analytics.track('validator-deposited');
+            deposited && analytics.track('validator-deposited');
         } catch (error) {
             console.log(`Error updating account - ${error}`);
             onFailure(error);
-            analytics.track('error-occurred', {
+            deposited && analytics.track('error-occurred', {
                 reason: 'validator-deposited-failed'
             });
         }
