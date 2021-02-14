@@ -306,12 +306,15 @@ const StakingDeposit = () => {
                 headers: {Authorization: `Bearer ${id_token}`},
             });
             onSuccess(res.data);
-            deposited && analytics.track('validator-deposited');
+            deposited && analytics.track('validator-deposited', {
+                provider: walletProvider.providerType
+            });
         } catch (error) {
             console.log(`Error updating account - ${error}`);
             onFailure(error);
             deposited && analytics.track('error-occurred', {
-                reason: 'validator-deposited-failed'
+                reason: 'validator-deposited-failed',
+                provider: walletProvider.providerType
             });
         }
     };
