@@ -1,8 +1,12 @@
+import jwtDecode from 'jwt-decode';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
+import Analytics from 'analytics';
 
 import {NETWORK_IDS} from 'service/WalletProviders/Metamask/constants';
+
+import bloxAnalyticsPlugin from 'service/analytics/blox-analytics-plugin';
 
 import {
     Wrapper, Section, Title, SubTitle, Total, ErrorMessage, StepsBoxes,
@@ -23,6 +27,14 @@ import {Spinner} from "../../common/components";
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
 const {network_id, deposit_to, public_key, account_id, tx_data, id_token} = qsObject;
+
+const analytics = Analytics({
+  app: 'blox-live',
+
+  plugins: [
+    bloxAnalyticsPlugin(id_token),
+  ]
+});
 
 const initialWalletInfoState = {
     networkVersion: '',
@@ -283,6 +295,8 @@ const StakingDeposit = () => {
     };
 
     const sendAccountUpdate = async (deposited, txHash, onSuccess, onFailure) => {
+        const userProfile: any = jwtDecode(id_token);
+        deposited && analytics.identify(userProfile.sub);
         try {
             const res = await axios({
                 url: `${process.env.REACT_APP_API_URL}/accounts/${account_id}`,
@@ -292,9 +306,16 @@ const StakingDeposit = () => {
                 headers: {Authorization: `Bearer ${id_token}`},
             });
             onSuccess(res.data);
+            deposited && analytics.track('validator-deposited', {
+                provider: walletProvider.providerType
+            });
         } catch (error) {
             console.log(`Error updating account - ${error}`);
             onFailure(error);
+            deposited && analytics.track('error-occurred', {
+                reason: 'validator-deposited-failed',
+                provider: walletProvider.providerType
+            });
         }
     };
 
