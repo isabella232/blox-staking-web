@@ -120,7 +120,7 @@ const Faq = ({networkId}: Props) => {
           )
         })}
         <LearnMore>
-          Want to learn more? Join our <Link href={'https://discord.com/invite/VgHDdAP'} target={'_blank'}>Discord</Link>&nbsp;
+          Want to learn more? Join our <Link href={'http://bit.ly/30HwvsC'} target={'_blank'}>Discord</Link>&nbsp;
           or visit our <Link href={'https://www.bloxstaking.com/frequently-asked-questions/'} target={'_blank'}>FAQ page</Link>
         </LearnMore>
       </Content>

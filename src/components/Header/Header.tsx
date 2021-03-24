@@ -22,7 +22,7 @@ const ClickableImage = styled(Image)`
   cursor:pointer;
 `;
 
-const onDiscordClick = () => window.open('https://discord.com/invite/VgHDdAP','_blank');
+const onDiscordClick = () => window.open('http://bit.ly/30HwvsC','_blank');
 
 const Header = () => (
   <Wrapper>
