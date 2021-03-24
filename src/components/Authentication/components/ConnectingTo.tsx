@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 
 import logoImage from '../../../assets/images/infra-logo-blue-2@2x.png';

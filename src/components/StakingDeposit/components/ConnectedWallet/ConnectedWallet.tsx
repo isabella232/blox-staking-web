@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 import { Icon } from 'common/components';
 import { truncateText } from 'common/helpers/truncateText';

@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode';
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import Analytics from 'analytics';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { MetaMaskNotFoundModal, BrowserNotSupported, WrongNetworkModal, LedgerModal, TrezorModal } from '../StakingDeposit/components';
 import { MODAL_TYPES } from './constants';
 

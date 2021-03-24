@@ -1,4 +1,3 @@
-import React from "react";
 import styled from "styled-components";
 import {Button, ModalTemplate} from "../../../../common/components";
 import mainnet from 'assets/images/metamask-mainnet-network.gif';
