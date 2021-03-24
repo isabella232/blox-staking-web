@@ -12,19 +12,14 @@ export default class Auth {
     this.auth = {
       domain: process.env.REACT_APP_AUTH0_DOMAIN || '',
       clientID: process.env.REACT_APP_AUTH0_CLIENT_ID || '',
-      clientSecret: process.env.REACT_APP_AUTH0_CLIENT_SECRET || '',
       redirectUri: process.env.REACT_APP_AUTH0_CALLBACK_URL || '',
       responseType: 'code',
-      scope: 'openid profile email'
+      scope: 'openid profile email offline_access'
     };
   }
 
   loginWithSocialApp = async (socialAppName: string) => {
-    console.log('name', socialAppName);
-    console.log('this.auth', this.auth);
-
-    const authUrl = this.getAuthenticationURL(socialAppName);
-    window.open(authUrl, '_self');
+    window.open(this.getAuthenticationURL(socialAppName), '_self');
   };
 
   getAuthenticationURL = (socialAppName: string) => {
@@ -40,23 +35,14 @@ export default class Auth {
   };
 
   loadAuthToken = async (code: string) => {
-    const { clientID, clientSecret, redirectUri, domain } = this.auth;
-    
-    const exchangeOptions = {
-      grant_type: 'authorization_code',
-      client_id: clientID,
-      client_secret: clientSecret,
-      code,
-      redirect_uri: redirectUri
-    };
-
     try {
       const response: Auth0Response = await axios({
-        url: `https://${domain}/oauth/token`,
-        method: 'post',
-        data: exchangeOptions,
+        url: '/api/token',
+        method: 'get',
+        params: { code },
         responseType: 'json',
       });
+      console.warn('Client side token data: ', response.data);
       return response.data;
     } catch (error) {
       return Error(error);
@@ -67,7 +53,6 @@ export default class Auth {
 interface Auth0ConfigObject {
   domain: string;
   clientID: string;
-  clientSecret: string;
   redirectUri: string;
   responseType: string;
   scope: string;
@@ -79,7 +64,9 @@ interface Auth0Response {
 }
 
 interface Auth0ResponseData {
-    id_token: string;
+  id_token: string;
+  access_token: string;
+  refresh_token: string;
 }
 
 type Profile = Record<string, any> | null;
