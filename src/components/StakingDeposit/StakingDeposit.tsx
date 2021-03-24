@@ -307,7 +307,8 @@ const StakingDeposit = () => {
             });
             onSuccess(res.data);
             deposited && analytics.track('validator-deposited', {
-                provider: walletProvider.providerType
+                provider: walletProvider.providerType,
+                network: network_id === '1' ? 'mainnet': 'pyrmont'
             });
         } catch (error) {
             console.log(`Error updating account - ${error}`);
