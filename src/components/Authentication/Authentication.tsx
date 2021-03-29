@@ -57,7 +57,7 @@ const Authentication = () => {
       {isLoading && <BackToDesktop onClick={backToDesktop} />}
       {provider && !isLoading && <ConnectingTo provider={provider} />}
       {tokenData && isLoading && (
-        <iframe title={'callApp'} width={'0px'} height={'0px'} src={`blox-live://token_id=${tokenData.id_token}`} />
+        <iframe title={'callApp'} width={'0px'} height={'0px'} src={`blox-live://token_id=${tokenData.id_token}&refresh_token=${tokenData.refresh_token}`} />
       )}
     </Wrapper>
   );
