@@ -4,6 +4,15 @@ import {MODAL_TYPES} from "../../../components/ModalsManager/constants";
 import {detect} from "detect-browser";
 import {WalletProviderStrategy} from "../WalletProviderStrategy";
 
+export class StrategyError extends Error {
+    public code: number;
+    public static ERROR_CODE_NOT_CONNECTED = -1;
+
+    constructor(message, errorCode) {
+        super(message);
+        this.code = errorCode;
+    }
+}
 
 export default class MetaMaskStrategy extends WalletProviderStrategy {
 
@@ -22,6 +31,11 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
     async connect(): Promise<void> {
         try {
             this.metaMask = window['ethereum'];
+
+            if (!this.metaMask?.networkVersion) {
+                throw new StrategyError('MetaMask is not connected. Please try to reload the page.', StrategyError.ERROR_CODE_NOT_CONNECTED);
+            }
+
             await this.metaMask.enable();
             this.web3 = new Web3(Web3.givenProvider);
             this.networkName = NETWORK_IDS[this.metaMask.networkVersion];
@@ -88,7 +102,7 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
     }
 
     showLoader = () => {
-        return true;
+        return window['ethereum'].networkVersion;
     }
 
     disconnect() {

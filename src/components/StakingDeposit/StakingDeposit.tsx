@@ -23,6 +23,7 @@ import useModals from '../ModalsManager/useModals';
 import {MODAL_TYPES} from '../ModalsManager/constants';
 import WalletProvidersContext from "../../service/WalletProviders/WalletProvidersContext";
 import {Spinner} from "../../common/components";
+import { StrategyError } from "../../service/WalletProviders/Metamask/MetaMaskStrategy";
 
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
@@ -71,6 +72,30 @@ const DepositConfirmed = styled.div`
     align-items:center;
 `;
 
+const ReloadPageButton = styled.button`
+  width: 182px;
+  height: 32px;
+  font-size: 14px;
+  font-weight: 900;
+  border-radius: 4px;
+  border: solid 1px ${({theme}) => theme.gray400};
+  color:${({theme}) => 'white'};
+  background-color: ${({theme}) => theme.primary900};
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+   &:hover {
+    color:${({theme}) => theme.primary600};
+    background-color: transparent;
+  }
+  &:active{
+    color:${({theme}) => theme.primary600};
+    background-color: transparent;
+  }
+`;
+
 const DEPOSIT_THERSHOLD = 32.01;
 
 const StakingDeposit = () => {
@@ -87,6 +112,7 @@ const StakingDeposit = () => {
     const [showSecurityNotification, setSecurityNotificationDisplay] = useState(true);
     const [checkingDeposited, setCheckingDepositedStatus] = useState(false);
     const [alreadyDeposited, setAlreadyDeposited] = useState(false);
+    const [isShowingReloadButton, showReloadButton] = useState(false);
 
     const {showModal, hideModal, modal} = useModals();
 
@@ -163,6 +189,10 @@ const StakingDeposit = () => {
                 });
             }, null)
             .catch((error) => {
+                if (error.code === StrategyError.ERROR_CODE_NOT_CONNECTED) {
+                    showReloadButton(true);
+                    setError({ type: 'disconnected', message: error.message });
+                }
                 console.log('Wallet provider connect error - ', error);
                 disconnect();
             });
@@ -356,6 +386,12 @@ const StakingDeposit = () => {
                         <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
                     </DepositMethod>
                     {error.type && <ErrorMessage>{error.message}</ErrorMessage>}
+                    {isShowingReloadButton && (
+                        <>
+                            <br/>
+                            <ReloadPageButton onClick={() => window.location.reload()}>Reload Page</ReloadPageButton>
+                        </>
+                    )}
                     {isLoadingWallet &&
                     <Loading> <Spinner width={'17px'} margin-right={'12px'}/> Waiting for {walletProvider.providerType.charAt(0).toUpperCase() + walletProvider.providerType.slice(1)} wallet to be connected</Loading>}
                 </Section>
