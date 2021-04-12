@@ -27,7 +27,10 @@ import { StrategyError } from "../../service/WalletProviders/Metamask/MetaMaskSt
 
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
-const {network_id, deposit_to, public_key, account_id, tx_data, id_token} = qsObject;
+const { network_id, public_key, account_id, tx_data, id_token } = qsObject;
+const deposit_to = process.env.REACT_APP_DEPOSIT_CONTRACT_ADDRESS;
+
+console.warn('🧧️ DEPOSIT CONTRACT ADDRESS: ', deposit_to);
 
 const analytics = Analytics({
   app: 'blox-live',
