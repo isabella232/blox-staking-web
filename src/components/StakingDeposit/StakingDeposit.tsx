@@ -315,24 +315,32 @@ const StakingDeposit = () => {
             const enableContractDataMessage = 'Failed to send transaction. Please enable contract data on your Ledger and try again.';
             let defaultMessage = 'Failed to send transaction. Please report us about this issue.';
             let errorMessage;
-            if (walletProviderError.code) {
-                switch (walletProviderError.code) {
-                    // MetaMask -> Ledger error code
-                    case -32603:
-                        errorMessage = enableContractDataMessage;
-                        break;
-                    default:
-                        if (walletProviderError.message && String(walletProviderError.message).indexOf('EnableContractData') !== -1) {
-                            errorMessage = enableContractDataMessage;
+            const errorMessageString = String(walletProviderError.message);
+            if (walletProviderError.message) {
+                if (errorMessageString.indexOf('EnableContractData') !== -1) {
+                    errorMessage = enableContractDataMessage;
+                } else {
+                    const errorPrefix = 'Error: ';
+                    const errorParts = errorMessageString.split(errorPrefix);
+                    if (errorParts.length > 1) {
+                        errorParts.shift();
+                        if (errorParts.length > 1) {
+                            errorMessage = errorParts.join('. ');
+                        } else {
+                            errorMessage = errorParts[0];
                         }
+                    }
                 }
+            }
+            if (!errorMessage) {
+                errorMessage = defaultMessage;
             }
 
             notification.error({
-                message: errorMessage || defaultMessage,
+                message: errorMessage,
                 duration: 0
             });
-            console.error(errorMessage || defaultMessage, {
+            console.error(errorMessage, {
                 deposit_to,
                 tx_data
             });
