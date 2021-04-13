@@ -272,7 +272,7 @@ const StakingDeposit = () => {
             if (error) {
                 setCheckingDepositedStatus(false);
                 setDepositLoadingStatus(false);
-                notification.error({message: '', description: error});
+                notification.error({ message: error.message, duration: 0 });
             } else if (txReceipt) {
                 if (txReceipt.status) {
                     await sendAccountUpdate(true, txReceipt.transactionHash, () => {
@@ -290,15 +290,39 @@ const StakingDeposit = () => {
                     setDepositSuccessStatus(true);
                 } else {
                     setDepositLoadingStatus(false);
-                    notification.error({message: '', description: `Failed to send transaction`});
+                    notification.error({ message: `Failed to send transaction`, duration: 0 });
                 }
             }
         };
 
-        const onError = () => {
+        const onError = (walletProviderError) => {
             setCheckingDepositedStatus(false);
             setDepositLoadingStatus(false);
-            notification.error({message: '', description: error});
+
+            const enableContractDataMessage = 'Failed to send transaction. Please enable contract data on your Ledger and try again.';
+            let defaultMessage = 'Failed to send transaction. Please report us about this issue.';
+            let errorMessage;
+            if (walletProviderError.code) {
+                switch (walletProviderError.code) {
+                    // MetaMask -> Ledger error code
+                    case -32603:
+                        errorMessage = enableContractDataMessage;
+                        break;
+                    default:
+                        if (walletProviderError.message && String(walletProviderError.message).indexOf('EnableContractData') !== -1) {
+                            errorMessage = enableContractDataMessage;
+                        }
+                }
+            }
+
+            notification.error({
+                message: errorMessage || defaultMessage,
+                duration: 0
+            });
+            console.error(errorMessage || defaultMessage, {
+                deposit_to,
+                tx_data
+            });
         };
 
         walletProvider.sendSignTransaction(deposit_to, tx_data, onStart, onSuccess, onError);
