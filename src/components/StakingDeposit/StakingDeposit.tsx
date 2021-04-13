@@ -215,9 +215,9 @@ const StakingDeposit = () => {
     const onInfoUpdate = async () => updateWalletInfo(await walletProvider.getInfo());
     const onLogout = async () => disconnect();
 
-    const isUnknownAccountStatus = async () => {
+    const isWaitingAccountStatus = async () => {
         const account = await getAccount();
-        return account.status === 'unknown_status';
+        return account.status === 'waiting';
     }
 
     const checkIfAlreadyDeposited = async () => {
@@ -250,8 +250,8 @@ const StakingDeposit = () => {
             setCheckingDepositedStatus(false);
         }
 
-        const unknownAccountStatus = await isUnknownAccountStatus();
-        if (!unknownAccountStatus) {
+        const waitingAccountStatus = await isWaitingAccountStatus();
+        if (!waitingAccountStatus) {
             return alreadyDepositedFallback();
         }
 
@@ -358,10 +358,12 @@ const StakingDeposit = () => {
         }
     };
 
+    let fetchedAccount;
+
     const getAccount = async function getAccountData () {
         try {
-            if (this.account) {
-                return this.account;
+            if (fetchedAccount) {
+                return fetchedAccount;
             }
             const res = await axios({
                 url: `${process.env.REACT_APP_API_URL}/accounts`,
@@ -369,8 +371,8 @@ const StakingDeposit = () => {
                 responseType: 'json',
                 headers: {Authorization: `Bearer ${id_token}`},
             });
-            this.account = res.data.filter((account) => account.id === Number(account_id))[0];
-            return this.account;
+            fetchedAccount = res.data.filter((account) => account.id === Number(account_id))[0];
+            return fetchedAccount;
         } catch (error) {
             return error;
         }
