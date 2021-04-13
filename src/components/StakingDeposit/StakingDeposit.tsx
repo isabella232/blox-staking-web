@@ -215,6 +215,11 @@ const StakingDeposit = () => {
     const onInfoUpdate = async () => updateWalletInfo(await walletProvider.getInfo());
     const onLogout = async () => disconnect();
 
+    const isUnknownAccountStatus = async () => {
+        const account = await getAccount();
+        return account.status === 'unknown_status';
+    }
+
     const checkIfAlreadyDeposited = async () => {
         let deposited = false;
         setCheckingDepositedStatus(true);
@@ -239,12 +244,20 @@ const StakingDeposit = () => {
     };
 
     const onDepositStart = async () => {
-        const deposited = await checkIfAlreadyDeposited();
-        if (deposited) {
+        const alreadyDepositedFallback = () => {
             showAlreadyDepositedNotification();
             setAlreadyDeposited(true);
             setCheckingDepositedStatus(false);
-            return;
+        }
+
+        const unknownAccountStatus = await isUnknownAccountStatus();
+        if (!unknownAccountStatus) {
+            return alreadyDepositedFallback();
+        }
+
+        const deposited = await checkIfAlreadyDeposited();
+        if (deposited) {
+            return alreadyDepositedFallback();
         }
 
         const onStart = async (txHash) => {
@@ -337,15 +350,19 @@ const StakingDeposit = () => {
         }
     };
 
-    const getAccount = async () => {
+    const getAccount = async function getAccountData () {
         try {
+            if (this.account) {
+                return this.account;
+            }
             const res = await axios({
                 url: `${process.env.REACT_APP_API_URL}/accounts`,
                 method: 'get',
                 responseType: 'json',
                 headers: {Authorization: `Bearer ${id_token}`},
             });
-            return res.data.filter((account) => account.id === Number(account_id))[0];
+            this.account = res.data.filter((account) => account.id === Number(account_id))[0];
+            return this.account;
         } catch (error) {
             return error;
         }
