@@ -2,6 +2,7 @@ export const EVENTS: Record<string, any> = {
   accountsChanged: 'accountsChanged',
   networkChanged: 'networkChanged',
   chainIdChanged: 'chainIdChanged',
+  message: 'message',
 };
 
 export const NETWORK_IDS: Record<string, any> = {

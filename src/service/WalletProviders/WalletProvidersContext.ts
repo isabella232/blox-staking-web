@@ -50,6 +50,10 @@ export default class WalletProvidersContext {
         return this._strategy.subscribeToLogout(callback);
     }
 
+    public getWeb3() {
+        return this._strategy.getWeb3();
+    }
+
     public sendSignTransaction(depositTo: string, txData: string, onStart, onSuccess, onError): void {
         return this._strategy.sendTransaction(depositTo, txData, onStart, onSuccess, onError);
     };

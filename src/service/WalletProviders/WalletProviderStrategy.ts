@@ -1,7 +1,7 @@
 import Web3 from "web3";
 
 
-export abstract class WalletProviderStrategy{
+export abstract class WalletProviderStrategy {
 
     protected web3: Web3;
     protected timer=null;
@@ -50,5 +50,8 @@ export abstract class WalletProviderStrategy{
     };
     showLoader = (): boolean => {
         return false;
+    }
+    public getWeb3(): Web3 {
+        return this.web3;
     }
 }

@@ -1,10 +1,10 @@
-import jwtDecode from 'jwt-decode';
-import {useEffect, useState} from 'react';
-import styled from 'styled-components';
 import axios from 'axios';
 import Analytics from 'analytics';
+import jwtDecode from 'jwt-decode';
+import styled from 'styled-components';
+import {useEffect, useState} from 'react';
 
-import {NETWORK_IDS} from 'service/WalletProviders/Metamask/constants';
+import { NETWORK_IDS } from 'service/WalletProviders/Metamask/constants';
 
 import bloxAnalyticsPlugin from 'service/analytics/blox-analytics-plugin';
 
@@ -24,6 +24,7 @@ import {MODAL_TYPES} from '../ModalsManager/constants';
 import WalletProvidersContext from "../../service/WalletProviders/WalletProvidersContext";
 import {Spinner} from "../../common/components";
 import { StrategyError } from "../../service/WalletProviders/Metamask/MetaMaskStrategy";
+import {TransactionReceipt} from "web3-core";
 
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
@@ -116,7 +117,6 @@ const StakingDeposit = () => {
     const [checkingDeposited, setCheckingDepositedStatus] = useState(false);
     const [alreadyDeposited, setAlreadyDeposited] = useState(false);
     const [isShowingReloadButton, showReloadButton] = useState(false);
-
     const {showModal, hideModal, modal} = useModals();
 
     const areNetworksEqual = network_id === walletInfo.networkVersion;
@@ -184,12 +184,46 @@ const StakingDeposit = () => {
                     message: '',
                     description: `Successfully connected to ${type.charAt(0).toUpperCase() + type.slice(1)}`
                 });
+
                 setLoadingWallet(false);
                 walletProvider.subscribeToUpdate(onInfoUpdate);
                 walletProvider.subscribeToLogout(onLogout);
                 walletProvider.getInfo().then((info) => {
                     updateWalletInfo(info)
                 });
+
+                console.debug('web3.currentProvider.selectedAddress:', walletProvider.getWeb3().currentProvider.selectedAddress);
+
+                // walletProvider.getWeb3().eth.subscribe('pendingTransactions', (error, result) => {
+                //     if (!error) console.debug(result);
+                // }).on("data", function(transaction){
+                //     console.debug('Pending Transaction:', transaction);
+                // });
+
+                // walletProvider.getWeb3().eth.subscribe('logs', {
+                //     address: '0xa5cfD290965372553Efd5fDaeB91C335207b76E2'
+                // }, (error, result) => {
+                //     if (!error)
+                //         console.debug(result);
+                // })
+                // .on("connected", function(data){
+                //     console.debug('subscription id:', data);
+                // })
+                // .on("data", function(transaction){
+                //     if (transaction.transactionHash) {
+                //         setTxHash(transaction.transactionHash);
+                //         console.debug('Transaction:', transaction);
+                //     }
+                // });
+                // window['ethereum'].on('message', (message) => {
+                //     console.debug('ETH Provider message: ', message);
+                //     if (message.type === 'tx_replacement') {
+                //         const { oldTx, newTx } = message.data;
+                //         console.debug(`Tx ${oldTx} was cancelled, the new hash is ${newTx}`)
+                //     }
+                // })
+                // walletProvider.getWeb3().eth.subscribe('chainChanged', (_chainId) => window.location.reload());
+                // speedUpSubscribe();
             }, null)
             .catch((error) => {
                 if (error.code === StrategyError.ERROR_CODE_NOT_CONNECTED) {
@@ -243,6 +277,53 @@ const StakingDeposit = () => {
         </div>});
     };
 
+    const updateAccountWithTxHash = async (deposited: boolean, txHash: string, onSuccess?: any, onFailure?: any) => {
+        console.warn('Updating account with txHash:', txHash);
+        const successCallback = onSuccess ? onSuccess : () => {
+            notification.success({message: '', description:
+                    <NotificationContent>
+                        Transaction hash: <br />
+                        <NotificationContentInnerWrapper>
+                            <Span>{txHash}</Span>
+                            <Icon color={'primary900'} name={'icons-export'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txHash}`, '_blank')}/>
+                        </NotificationContentInnerWrapper>
+                    </NotificationContent>});
+            return;
+        };
+        const failureCallback = onFailure ? onFailure : () => {
+            return;
+        };
+        await sendAccountUpdate(false, txHash, successCallback, failureCallback);
+    };
+
+    // @ts-ignore
+    const speedUpSubscribe = () => {
+        console.debug('SUBSCRIBING ON ETHEREUM PROVIDER MESSAGES..');
+        const web3 = walletProvider.getWeb3();
+        web3.eth.on('message', (message) => {
+            console.warn('MESSAGE EVENT:', message);
+            if (message.type === 'tx_replacement') {
+                const { oldTx, newTx } = message.data;
+                console.warn(`>>>>>> Tx ${oldTx} was cancelled, the new hash is ${newTx}`);
+                setTxHash(newTx);
+                return updateAccountWithTxHash(true, newTx);
+            }
+            return false;
+        });
+        web3.eth.on('confirmation', (confNumber: number, receipt: TransactionReceipt, latestBlockHash?: string) => {
+           console.debug('On Provider Confirmation:', {
+               confNumber,
+               receipt,
+               latestBlockHash
+           })
+        });
+        web3.eth.on('transactionHash', (txHash: string) => {
+           console.debug('On transactionHash:', {
+               txHash
+           })
+        });
+    }
+
     const onDepositStart = async () => {
         const alreadyDepositedFallback = () => {
             showAlreadyDepositedNotification();
@@ -265,19 +346,7 @@ const StakingDeposit = () => {
             setTxHash(txHash);
             setCheckingDepositedStatus(false);
             setDepositLoadingStatus(true);
-            await sendAccountUpdate(false, txHash, () => {
-                notification.success({message: '', description:
-                <NotificationContent>
-                    Transaction hash: <br />
-                    <NotificationContentInnerWrapper>
-                        <Span>{txHash}</Span>
-                        <Icon color={'primary900'} name={'icons-export'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txHash}`, '_blank')}/>
-                    </NotificationContentInnerWrapper>
-                </NotificationContent>});
-                return;
-            }, () => {
-                return;
-            });
+            await updateAccountWithTxHash(false, txHash);
         };
 
         const onSuccess = async (error, txReceipt) => {
@@ -288,9 +357,7 @@ const StakingDeposit = () => {
                 notification.error({ message: error.message, duration: 0 });
             } else if (txReceipt) {
                 if (txReceipt.status) {
-                    await sendAccountUpdate(true, txReceipt.transactionHash, () => {
-                    }, () => {
-                    });
+                    await updateAccountWithTxHash(true, txReceipt.transactionHash, () => {}, () => {});
                     notification.success({
                         message: '', description: <NotificationContent>
                             Successfully deposited 32 ETH to <br />
@@ -345,7 +412,7 @@ const StakingDeposit = () => {
                 tx_data
             });
         };
-
+        console.debug('tx_data:', tx_data);
         walletProvider.sendSignTransaction(deposit_to, tx_data, onStart, onSuccess, onError);
     };
 

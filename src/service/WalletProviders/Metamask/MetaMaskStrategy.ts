@@ -102,7 +102,7 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
     }
 
     showLoader = () => {
-        return window['ethereum'].networkVersion;
+        return this.metaMask && this.metaMask.isConnected();
     }
 
     disconnect() {
