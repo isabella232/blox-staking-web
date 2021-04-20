@@ -31,10 +31,10 @@ const { network_id, public_key, account_id, tx_data, id_token } = qsObject;
 
 let deposit_to;
 switch (network_id) {
-    case 1:
+    case '1':
         deposit_to = process.env.REACT_APP_MAINNET_DEPOSIT_CONTRACT_ADDRESS;
         break;
-    case 5:
+    case '5':
         deposit_to = process.env.REACT_APP_PYRMONT_DEPOSIT_CONTRACT_ADDRESS;
         break;
 }
