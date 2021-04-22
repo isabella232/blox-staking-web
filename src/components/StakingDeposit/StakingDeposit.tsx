@@ -125,6 +125,7 @@ const StakingDeposit = () => {
     const [checkingDeposited, setCheckingDepositedStatus] = useState(false);
     const [alreadyDeposited, setAlreadyDeposited] = useState(false);
     const [isShowingReloadButton, showReloadButton] = useState(false);
+    const [isCheckingStatus, setCheckingStatus] = useState(false);
 
     const {showModal, hideModal, modal} = useModals();
 
@@ -257,13 +258,14 @@ const StakingDeposit = () => {
             showAlreadyDepositedNotification();
             setAlreadyDeposited(true);
             setCheckingDepositedStatus(false);
+            setCheckingStatus(false);
         }
 
+        setCheckingStatus(true);
         const waitingAccountStatus = await isWaitingAccountStatus();
         if (!waitingAccountStatus) {
             return alreadyDepositedFallback();
         }
-
         const deposited = await checkIfAlreadyDeposited();
         if (deposited) {
             return alreadyDepositedFallback();
@@ -291,6 +293,7 @@ const StakingDeposit = () => {
 
         const onSuccess = async (error, txReceipt) => {
             console.log('deposit end---------', error, txReceipt);
+            setCheckingStatus(false);
             if (error) {
                 setCheckingDepositedStatus(false);
                 setDepositLoadingStatus(false);
@@ -320,6 +323,7 @@ const StakingDeposit = () => {
         const onError = (walletProviderError) => {
             setCheckingDepositedStatus(false);
             setDepositLoadingStatus(false);
+            setCheckingStatus(false);
 
             const enableContractDataMessage = 'Failed to send transaction. Please enable contract data on your Ledger and try again.';
             let defaultMessage = 'Failed to send transaction. Please report us about this issue.';
@@ -460,7 +464,9 @@ const StakingDeposit = () => {
                 </Section>
                 <Section>
                     <SubTitle>Plan and Summary</SubTitle>
-                    <StepsBoxes stepsData={stepsData} setStepsData={setStepsData}
+                    <StepsBoxes stepsData={stepsData}
+                                isCheckingStatus={isCheckingStatus}
+                                setStepsData={setStepsData}
                                 checkedTerms={checkedTerms} error={error}
                                 setCheckedTermsStatus={() => setCheckedTermsStatus(!checkedTerms)}
                                 walletInfo={walletInfo}

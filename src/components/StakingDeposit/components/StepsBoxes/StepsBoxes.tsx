@@ -98,7 +98,7 @@ const tooltipText = `
 `;
 
 const StepsBoxes = (props: Props) => {
-  const { stepsData, setStepsData, checkedTerms, setCheckedTermsStatus,
+  const { stepsData, setStepsData, checkedTerms, setCheckedTermsStatus, isCheckingStatus,
           walletInfo, onDepositStart, publicKey, depositTo, error, network_id,
           isLoadingDeposit, isDepositSuccess, txHash, walletType, alreadyDeposited, checkingDeposited
         } = props;
@@ -139,7 +139,7 @@ const StepsBoxes = (props: Props) => {
   const upperCaseWalletType = walletType ? walletType.charAt(0).toUpperCase() + walletType.slice(1) : null;
 
   const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
-  const isButtonDisabled = stepsData[2].isDisabled || isLoadingDeposit || alreadyDeposited || checkingDeposited;
+  const isButtonDisabled = isCheckingStatus || stepsData[2].isDisabled || isLoadingDeposit || alreadyDeposited || checkingDeposited;
 
   return (
     <>
@@ -250,6 +250,7 @@ type Props = {
   network_id: string;
   isLoadingDeposit: boolean;
   isDepositSuccess: boolean;
+  isCheckingStatus: boolean;
   txHash: string;
   walletType: string;
   checkingDeposited: boolean;
