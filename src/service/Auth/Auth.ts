@@ -10,19 +10,18 @@ export default class Auth {
     this.idToken = '';
     this.userProfile = null;
     this.auth = {
+      bloxInfraApi: process.env.REACT_APP_BLOX_INFRA_API || '',
       domain: process.env.REACT_APP_AUTH0_DOMAIN || '',
       clientID: process.env.REACT_APP_AUTH0_CLIENT_ID || '',
-      clientSecret: process.env.REACT_APP_AUTH0_CLIENT_SECRET || '',
       redirectUri: process.env.REACT_APP_AUTH0_CALLBACK_URL || '',
       responseType: 'code',
-      scope: 'openid profile email'
+      scope: 'openid profile email offline_access'
     };
   }
 
-  loginWithSocialApp = async (socialAppName: string) => {
+  loginWithSocialApp = (socialAppName: string) => {
     console.log('name', socialAppName);
     console.log('this.auth', this.auth);
-
     const authUrl = this.getAuthenticationURL(socialAppName);
     window.open(authUrl, '_self');
   };
@@ -40,21 +39,10 @@ export default class Auth {
   };
 
   loadAuthToken = async (code: string) => {
-    const { clientID, clientSecret, redirectUri, domain } = this.auth;
-    
-    const exchangeOptions = {
-      grant_type: 'authorization_code',
-      client_id: clientID,
-      client_secret: clientSecret,
-      code,
-      redirect_uri: redirectUri
-    };
-
     try {
       const response: Auth0Response = await axios({
-        url: `https://${domain}/oauth/token`,
-        method: 'post',
-        data: exchangeOptions,
+        url: `${this.auth.bloxInfraApi}/auth/token/${code}`,
+        method: 'get',
         responseType: 'json',
       });
       return response.data;
@@ -67,10 +55,10 @@ export default class Auth {
 interface Auth0ConfigObject {
   domain: string;
   clientID: string;
-  clientSecret: string;
   redirectUri: string;
   responseType: string;
   scope: string;
+  bloxInfraApi: string;
 }
 
 interface Auth0Response {
