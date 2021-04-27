@@ -25,15 +25,15 @@ const Wrapper = styled.div<{isDisabled: boolean}>`
 
 const Menu = styled.div`
   width: 240px;
-  height: 184px;
+  height: 150px;
   padding: 16px 12px;
   border-radius: 4px;
   box-shadow: 0 2px 4px 0 ${({theme}) => theme.gray80015};
   border: solid 1px ${({theme}) => theme.gray300};
   background-color: #ffffff;
   position:absolute;
-  left:0px;
-  bottom:-184px;
+  left:0;
+  bottom:-150px;
   z-index:2;
 `;
 
@@ -60,7 +60,7 @@ const ConnectWalletButton = ({ onWalletProviderClick, disable}: Props) => {
   const [ showMenu, setMenuStatus ] = useState(false);
 
   const ITEMS = [
-    { label: 'portis', displayName: 'Portis', icon: icons.PortisImage, onClick: () => onWalletProviderClick('portis') },
+    // { label: 'portis', displayName: 'Portis', icon: icons.PortisImage, onClick: () => onWalletProviderClick('portis') },
     { label: 'metamask', displayName: 'MetaMask', icon: icons.MetamaskImage, onClick: () => onWalletProviderClick('metaMask') },
     { label: 'ledger', displayName: 'Ledger via MetaMask', icon: icons.LedgerImage, onClick: () => onWalletProviderClick('ledger') },
     { label: 'trezor', displayName: 'Trezor via MetaMask', icon: icons.TrezorImage, onClick: () => onWalletProviderClick('trezor') },
