@@ -35,7 +35,7 @@ switch (network_id) {
         deposit_to = process.env.REACT_APP_MAINNET_DEPOSIT_CONTRACT_ADDRESS;
         break;
     case '5':
-        deposit_to = process.env.REACT_APP_PYRMONT_DEPOSIT_CONTRACT_ADDRESS;
+        deposit_to = process.env.REACT_APP_PRATER_DEPOSIT_CONTRACT_ADDRESS;
         break;
 }
 
@@ -405,7 +405,7 @@ const StakingDeposit = () => {
             onSuccess(res.data);
             deposited && analytics.track('validator-deposited', {
                 provider: walletProvider.providerType,
-                network: network_id === '1' ? 'mainnet': 'pyrmont'
+                network: network_id === '1' ? 'mainnet': 'prater'
             });
         } catch (error) {
             console.log(`Error updating account - ${error}`);
