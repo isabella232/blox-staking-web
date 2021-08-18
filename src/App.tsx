@@ -1,8 +1,7 @@
+import {useState} from "react";
 import styled from 'styled-components';
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-
 import { Header, Authentication, StakingDeposit, UploadDepositFile } from './components';
-import {useState} from "react";
 
 const Wrapper = styled.div`
   height:100vh;

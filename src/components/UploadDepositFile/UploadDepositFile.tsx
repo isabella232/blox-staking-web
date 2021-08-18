@@ -6,10 +6,10 @@ import {DropzoneArea} from 'material-ui-dropzone';
 import {CircularProgress} from '@material-ui/core';
 import WarningIcon from '@material-ui/icons/Warning';
 import {ErrorMessages} from './constants';
+import {InfoWithTooltip} from '../../common/components';
 import {readFile, verifyDepositFile, getAccounts} from './helper'
-import {InfoWithTooltip} from "../../common/components";
-import {Section, SubTitle, Title} from "../StakingDeposit/components";
-import parsedQueryString from "../../common/helpers/getParsedQueryString";
+import {Section, SubTitle, Title} from '../StakingDeposit/components';
+import parsedQueryString from '../../common/helpers/getParsedQueryString';
 
 const DropZoneContainer = styled.div`
   & .MuiDropzoneArea-root {
@@ -218,16 +218,15 @@ const UploadDepositFile = (props: Props) => {
         setDepositFile(null);
     };
 
-    const renderIconStatus = () => {
-        switch (isLoadingFile) {
-            case true:
-                return progress
-            case false && fileIsJson:
-                return approved
-            case false && !fileIsJson:
-                return failed
+    function renderIconStatus() {
+        if (isLoadingFile) {
+            return progress
+        } else if (fileIsJson) {
+            return approved
+        } else {
+            return failed
         }
-    };
+    }
 
     const renderButtonText = () => {
         switch (keyStoreMatchDeposit) {

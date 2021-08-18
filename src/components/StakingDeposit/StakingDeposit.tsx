@@ -98,25 +98,24 @@ type Props = {
 
 const StakingDeposit = (props: Props) => {
     const {validatorsDepositData} = props
-    const [walletProvider, setWalletProvider] = useState(null);
-    const [walletInfo, setWalletInfo] = useState(initialWalletInfoState);
-    const [isTermsChecked, setTermsCheck] = useState(false);
-    const [error, setError] = useState({type: '', message: ''});
+    const [txHash, setTxHash] = useState(null);
     const [stepsData, setStepsData] = useState(STEP_BOXES);
-    const [loadingWallet, setLoadingWallet] = useState(false);
-    const [oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal] = useState(false);
-    const [showSecurityNotification, setSecurityNotificationDisplay] = useState(true);
-    const [isShowingReloadButton, showReloadButton] = useState(false);
     const [inProgress, setInProgress] = useState(false);
     const [bloxAccounts, setBloxAccounts] = useState(null);
+    const [isTermsChecked, setTermsCheck] = useState(false);
+    const [loadingWallet, setLoadingWallet] = useState(false);
+    const [walletProvider, setWalletProvider] = useState(null);
+    const [walletInfo, setWalletInfo] = useState(initialWalletInfoState);
+    const [error, setError] = useState({type: '', message: ''});
     const [successDeposited, setSuccessDeposited] = useState([]);
-    const [txHash, setTxHash] = useState(null);
-    const [depositTo] = useState(network_id === '1' ? process.env.REACT_APP_MAINNET_DEPOSIT_CONTRACT_ADDRESS : '0x67Ce5c69260bd819B4e0AD13f4b873074D479811')
-    const [analytics] = useState(Analytics({app: 'blox-live', plugins: [bloxAnalyticsPlugin(id_token)]}));
-
-
+    const [isShowingReloadButton, showReloadButton] = useState(false);
     const [loadingDeposit, setDepositLoadingStatus] = useState(false);
     const [isDepositSuccess, setDepositSuccessStatus] = useState(false);
+    const [oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal] = useState(false);
+    const [showSecurityNotification, setSecurityNotificationDisplay] = useState(true);
+    const [analytics] = useState(Analytics({app: 'blox-live', plugins: [bloxAnalyticsPlugin(id_token)]}));
+    const [depositTo] = useState(network_id === '1' ? process.env.REACT_APP_MAINNET_DEPOSIT_CONTRACT_ADDRESS : process.env.REACT_APP_PRATER_DEPOSIT_CONTRACT_ADDRESS)
+
 
     const DEPOSIT_THERSHOLD = 32.01;
     const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
