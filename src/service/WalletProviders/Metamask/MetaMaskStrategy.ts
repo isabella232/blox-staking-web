@@ -3,6 +3,8 @@ import {EVENTS, NETWORK_IDS} from "./constants";
 import {MODAL_TYPES} from "../../../components/ModalsManager/constants";
 import {detect} from "detect-browser";
 import {WalletProviderStrategy} from "../WalletProviderStrategy";
+import {prefix0x} from '../../../components/UploadDepositFile/helper';
+const depositContractABI = require('../../../components/StakingDeposit/contract_abi.json');
 
 export class StrategyError extends Error {
     public code: number;
@@ -73,11 +75,22 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
         accountsList.length === 0 ? this.logoutCallback() : this.infoUpdateCallback();
     };
 
-    sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError): Promise<any> {
+    sendTransaction(depositTo: string, accountId: number, txData: string, onStart, onSuccess, onError, depositData?: any): Promise<any> {
         const {selectedAddress} = this.metaMask;
 
         const method = 'eth_sendTransaction';
         const from = selectedAddress;
+
+        if(depositData){
+            const depositContract = new this.web3.eth.Contract(depositContractABI, depositTo);
+            const depositMethod = depositContract.methods.deposit(
+                prefix0x(depositData.pubkey),
+                prefix0x(depositData.withdrawal_credentials),
+                prefix0x(depositData.signature),
+                prefix0x(depositData.deposit_data_root)
+            );
+            txData = depositMethod.encodeABI();
+        }
 
         const params = [
             {
@@ -92,12 +105,12 @@ export default class MetaMaskStrategy extends WalletProviderStrategy {
         const configObject = {method, params};
         return this.metaMask.request(configObject)
             .then((response) => {
-                onStart(response);
-                this.subscribeToTransactionReceipt(response, onSuccess);
+                onStart(response, accountId);
+                this.subscribeToTransactionReceipt(response, onSuccess, accountId);
                 Promise.resolve(response);
             })
             .catch((error) => {
-                Promise.resolve(onError(error))
+                Promise.resolve(onError(error, accountId))
             });
     }
 

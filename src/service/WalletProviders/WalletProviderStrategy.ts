@@ -4,7 +4,7 @@ import Web3 from "web3";
 export abstract class WalletProviderStrategy{
 
     protected web3: Web3;
-    protected timer=null;
+    protected timer= {};
     protected infoUpdateCallback: () => void;
     protected logoutCallback: () => void;
 
@@ -15,7 +15,7 @@ export abstract class WalletProviderStrategy{
         return undefined
     }
     abstract info(): Record<string, any>
-    abstract sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError);
+    abstract sendTransaction(depositTo: string, accountId: number, txData: string, onStart, onSuccess, onError, depositData?: any);
 
     subscribeToUpdate(callback) {
         this.infoUpdateCallback = callback;
@@ -31,20 +31,19 @@ export abstract class WalletProviderStrategy{
             return error.message;
         }
     };
-    protected subscribeToTransactionReceipt = (txHash, onSuccess) => {
+    protected subscribeToTransactionReceipt = (txHash, onSuccess, accountId) => {
         const callback = (error, txReceipt) => {
             if(error || txReceipt) {
-                clearInterval(this.timer);
-                this.timer = null;
+                if (this.timer[txHash]) clearInterval(this.timer[txHash]);
             }
             if(error) {
-                onSuccess(error, null);
+                onSuccess(error, null, accountId);
             }
             if(txReceipt) {
-                onSuccess(null, txReceipt);
+                onSuccess(null, txReceipt, accountId);
             }
         };
-        this.timer = setInterval(() => {
+        this.timer[txHash] = setInterval(() => {
             this.web3.eth.getTransactionReceipt(txHash, callback);
         }, 3000);
     };

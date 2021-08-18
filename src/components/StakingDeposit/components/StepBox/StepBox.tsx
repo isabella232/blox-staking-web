@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 const Wrapper = styled.div<{ isDisabled: boolean }>`
   width: 858px;
-  height: 84px;
   margin: 0 0 12px;
   padding: 8px 24px;
   opacity: 0.5;
@@ -11,7 +10,7 @@ const Wrapper = styled.div<{ isDisabled: boolean }>`
   background-color:${({theme}) => theme.white};
   opacity:${({isDisabled}) => isDisabled ? '0.5' : '1'};
   display:flex;
-  align-items:center;
+  align-items: self-start;
 `;
 
 const Number = styled.div`
