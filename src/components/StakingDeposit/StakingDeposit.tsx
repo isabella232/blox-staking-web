@@ -1,53 +1,29 @@
-import jwtDecode from 'jwt-decode';
-import {useEffect, useState} from 'react';
-import styled from 'styled-components';
 import axios from 'axios';
 import Analytics from 'analytics';
-
+import {notification} from 'antd';
+import jwtDecode from 'jwt-decode';
+import styled from 'styled-components';
+import {useEffect, useState} from 'react';
+import {Icon} from 'common/components';
+import parsedQueryString from 'common/helpers/getParsedQueryString';
 import {NETWORK_IDS} from 'service/WalletProviders/Metamask/constants';
-
 import bloxAnalyticsPlugin from 'service/analytics/blox-analytics-plugin';
-
+import ModalsManager from '../ModalsManager';
+import {Spinner} from "../../common/components";
+import useModals from '../ModalsManager/useModals';
+import {STEP_BOXES, BUTTON_STATE} from './constants';
+import {MODAL_TYPES} from '../ModalsManager/constants';
+import {getAccounts, prefix0x} from "../UploadDepositFile/helper";
+import {StrategyError} from "../../service/WalletProviders/Metamask/MetaMaskStrategy";
+import WalletProvidersContext from "../../service/WalletProviders/WalletProvidersContext";
 import {
-    Wrapper, Section, Title, SubTitle, Total, ErrorMessage, StepsBoxes,
+    Wrapper, Section, Title, SubTitle, ErrorMessage, StepsBoxes,
     ConnectedWallet, NeedGoETH, DepositMethod, ConnectWalletButton, Faq, SecurityNotification
 } from './components';
-import {Icon} from 'common/components';
-
-import {STEP_BOXES} from './constants';
-import parsedQueryString from 'common/helpers/getParsedQueryString';
-import {notification} from 'antd';
-
-import ModalsManager from '../ModalsManager';
-import useModals from '../ModalsManager/useModals';
-import {MODAL_TYPES} from '../ModalsManager/constants';
-import WalletProvidersContext from "../../service/WalletProviders/WalletProvidersContext";
-import {Spinner} from "../../common/components";
-import { StrategyError } from "../../service/WalletProviders/Metamask/MetaMaskStrategy";
 
 
 const qsObject: Record<string, any> = parsedQueryString(location.search);
-const { network_id, public_key, account_id, tx_data, id_token } = qsObject;
-
-let deposit_to;
-switch (network_id) {
-    case '1':
-        deposit_to = process.env.REACT_APP_MAINNET_DEPOSIT_CONTRACT_ADDRESS;
-        break;
-    case '5':
-        deposit_to = process.env.REACT_APP_PRATER_DEPOSIT_CONTRACT_ADDRESS;
-        break;
-}
-
-console.warn('🧧️ DEPOSIT CONTRACT ADDRESS: ', deposit_to);
-
-const analytics = Analytics({
-  app: 'blox-live',
-
-  plugins: [
-    bloxAnalyticsPlugin(id_token),
-  ]
-});
+const {network_id, account_id, tx_data, id_token} = qsObject;
 
 const initialWalletInfoState = {
     networkVersion: '',
@@ -56,32 +32,38 @@ const initialWalletInfoState = {
     balance: '',
 };
 
-const initialErrorState = {type: '', message: ''};
-
-const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
-
 const NotificationContent = styled.div`
-    width:350px;
-    display:flex;
-    flex-direction:column;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Loading = styled.div`
+  display: flex;
+  color: ${({theme}) => theme.primary900};
+  width: 320px;
+  height: 16px;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 500;
 `;
 
 const NotificationContentInnerWrapper = styled.div`
-    display:flex;
+  display: flex;
 `;
 
 const Span = styled.span`
-    width:200px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
+  width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const DepositConfirmed = styled.div`
-    width:858px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
+  width: 858px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const ReloadPageButton = styled.button`
@@ -91,57 +73,74 @@ const ReloadPageButton = styled.button`
   font-weight: 900;
   border-radius: 4px;
   border: solid 1px ${({theme}) => theme.gray400};
-  color:${({theme}) => 'white'};
+  color: ${({theme}) => 'white'};
   background-color: ${({theme}) => theme.primary900};
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-   &:hover {
-    color:${({theme}) => theme.primary600};
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    color: ${({theme}) => theme.primary600};
     background-color: transparent;
   }
-  &:active{
-    color:${({theme}) => theme.primary600};
+
+  &:active {
+    color: ${({theme}) => theme.primary600};
     background-color: transparent;
   }
 `;
 
-const DEPOSIT_THERSHOLD = 32.01;
+type Props = {
+    validatorsDepositData: any;
+};
 
-const StakingDeposit = () => {
+const StakingDeposit = (props: Props) => {
+    const {validatorsDepositData} = props
     const [walletProvider, setWalletProvider] = useState(null);
     const [walletInfo, setWalletInfo] = useState(initialWalletInfoState);
-    const [checkedTerms, setCheckedTermsStatus] = useState(false);
-    const [error, setError] = useState(initialErrorState);
+    const [isTermsChecked, setTermsCheck] = useState(false);
+    const [error, setError] = useState({type: '', message: ''});
     const [stepsData, setStepsData] = useState(STEP_BOXES);
-    const [isLoadingDeposit, setDepositLoadingStatus] = useState(false);
-    const [isLoadingWallet, setLoadingWallet] = useState(false);
-    const [isDepositSuccess, setDepositSuccessStatus] = useState(false);
-    const [txHash, setTxHash] = useState('');
+    const [loadingWallet, setLoadingWallet] = useState(false);
     const [oneTimeWrongNetworkModal, setOneTimeWrongNetworkModal] = useState(false);
     const [showSecurityNotification, setSecurityNotificationDisplay] = useState(true);
-    const [checkingDeposited, setCheckingDepositedStatus] = useState(false);
-    const [alreadyDeposited, setAlreadyDeposited] = useState(false);
     const [isShowingReloadButton, showReloadButton] = useState(false);
-    const [isCheckingStatus, setCheckingStatus] = useState(false);
+    const [inProgress, setInProgress] = useState(false);
+    const [bloxAccounts, setBloxAccounts] = useState(null);
+    const [successDeposited, setSuccessDeposited] = useState([]);
+    const [txHash, setTxHash] = useState(null);
+    const [depositTo] = useState(network_id === '1' ? process.env.REACT_APP_MAINNET_DEPOSIT_CONTRACT_ADDRESS : '0x67Ce5c69260bd819B4e0AD13f4b873074D479811')
+    const [analytics] = useState(Analytics({app: 'blox-live', plugins: [bloxAnalyticsPlugin(id_token)]}));
+
+
+    const [loadingDeposit, setDepositLoadingStatus] = useState(false);
+    const [isDepositSuccess, setDepositSuccessStatus] = useState(false);
+
+    const DEPOSIT_THERSHOLD = 32.01;
+    const etherscanLink = network_id === '1' ? 'https://etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
+
 
     const {showModal, hideModal, modal} = useModals();
 
     const areNetworksEqual = network_id === walletInfo.networkVersion;
 
     useEffect(() => {
+        console.warn('🧧️ DEPOSIT CONTRACT ADDRESS: ', depositTo);
         document.title = 'Blox Staking - Transfers Hub';
         const placement = 'bottomRight';
         notification.config({placement});
-        // window.history.replaceState(null, null, window.location.pathname);
-        setTimeout(() => setSecurityNotificationDisplay(false), 5000);
+        getAccounts(id_token, account_id, setBloxAccounts);
+        const timeout = setTimeout(() => setSecurityNotificationDisplay(false), 5000);
+        return () => {
+            clearTimeout(timeout);
+        };
 
     }, []);
 
     useEffect(() => {
-        if (qsObject.network_id && walletInfo.networkVersion && !areNetworksEqual) {
+        if (network_id && walletInfo.networkVersion && !areNetworksEqual) {
             setError({type: 'networksNotEqual', message: `Please change to ${NETWORK_IDS[network_id]}`,});
             if (!oneTimeWrongNetworkModal) {
                 setOneTimeWrongNetworkModal(true);
@@ -152,7 +151,7 @@ const StakingDeposit = () => {
         } else {
             setError({type: '', message: ''});
         }
-    }, [qsObject, walletInfo]);
+    }, [network_id, walletInfo]);
 
     useEffect(() => {
         if (walletProvider == null) return;
@@ -204,7 +203,7 @@ const StakingDeposit = () => {
             .catch((error) => {
                 if (error.code === StrategyError.ERROR_CODE_NOT_CONNECTED) {
                     showReloadButton(true);
-                    setError({ type: 'disconnected', message: error.message });
+                    setError({type: 'disconnected', message: error.message});
                 }
                 console.log('Wallet provider connect error - ', error);
                 disconnect();
@@ -225,141 +224,142 @@ const StakingDeposit = () => {
     const onInfoUpdate = async () => updateWalletInfo(await walletProvider.getInfo());
     const onLogout = async () => disconnect();
 
-    const isWaitingAccountStatus = async () => {
-        const account = await getAccount();
-        return account.status === 'waiting';
-    }
 
-    const checkIfAlreadyDeposited = async () => {
-        let deposited = false;
-        setCheckingDepositedStatus(true);
-        const account = await getAccount();
-        if (account) {
-            if (account.depositTxHash && account.deposited) {
-                deposited = true;
+    const setValidatorStatus = (accountId: string, status: string, txHash?: string) => {
+        const newAccounts = [...bloxAccounts];
+        newAccounts.forEach((account) => {
+            if (account.id === accountId) {
+                account.status = status
+                if (txHash) account.depositTxHash = txHash
             }
-            if (account.depositTxHash) {
-                const result = await walletProvider.getReceipt(account.depositTxHash);
-                if (result == null) return true;
-                deposited = result.status;
-            }
-        }
-        return deposited;
+        });
+        setBloxAccounts(newAccounts);
     };
 
-    const showAlreadyDepositedNotification = () => {
-        notification.success({message: '', description: <div style={{padding: 8}}>
-            Your Staking Deposit was already executed. Go to Desktop App
-        </div>});
+    const onDepositStart = async (sendAll: boolean = false, publicKey?: string) => {
+        const accounts = sendAll ? [...bloxAccounts] : bloxAccounts.filter((account) => {
+            return account.publicKey === publicKey
+        });
+        setInProgress(true);
+
+        if (tx_data) {
+            walletProvider.sendSignTransaction(depositTo, accounts[0].id, tx_data, onStart, onSuccess, onError);
+        } else {
+            await handleMultipleTransactions(accounts);
+        }
     };
 
-    const onDepositStart = async () => {
-        const alreadyDepositedFallback = () => {
-            showAlreadyDepositedNotification();
-            setAlreadyDeposited(true);
-            setCheckingDepositedStatus(false);
-            setCheckingStatus(false);
+    const handleMultipleTransactions = async (accounts) => {
+        const remainingTxs = accounts.filter(key => key.status === 'waiting');
+        const nextTransaction = remainingTxs.shift();
+        if (nextTransaction === undefined) {
+            return;
+        }
+        let depositData = null;
+        if(validatorsDepositData) depositData = validatorsDepositData.filter(deposit => prefix0x(deposit.pubkey) === nextTransaction.publicKey)[0];
+
+        if (!depositData) {
+            setInProgress(false);
+            return;
         }
 
-        setCheckingStatus(true);
-        const waitingAccountStatus = await isWaitingAccountStatus();
-        if (!waitingAccountStatus) {
-            return alreadyDepositedFallback();
-        }
-        const deposited = await checkIfAlreadyDeposited();
-        if (deposited) {
-            return alreadyDepositedFallback();
-        }
+        setValidatorStatus(nextTransaction.id, BUTTON_STATE.WAITING_FOR_CONFIRMATION.key);
+        walletProvider.sendSignTransaction(depositTo, nextTransaction.id, tx_data, onStart, onSuccess, onError, depositData);
+        await handleMultipleTransactions(remainingTxs)
+    };
 
-        const onStart = async (txHash) => {
-            console.log('deposit start---------', txHash);
-            setTxHash(txHash);
-            setCheckingDepositedStatus(false);
-            setDepositLoadingStatus(true);
-            await sendAccountUpdate(false, txHash, () => {
-                notification.success({message: '', description:
-                <NotificationContent>
-                    Transaction hash: <br />
-                    <NotificationContentInnerWrapper>
-                        <Span>{txHash}</Span>
-                        <Icon color={'primary900'} name={'icons-export'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txHash}`, '_blank')}/>
-                    </NotificationContentInnerWrapper>
-                </NotificationContent>});
-                return;
-            }, () => {
-                return;
+
+    const onStart = async (txHash, accountId) => {
+        console.log('deposit start---------', txHash);
+        await sendAccountUpdate(false, accountId, txHash, () => {
+            setValidatorStatus(accountId, BUTTON_STATE.PENDING.key);
+            notification.success({
+                message: '', description:
+                    <NotificationContent>
+                        Transaction hash: <br/>
+                        <NotificationContentInnerWrapper>
+                            <Span>{txHash}</Span>
+                            <Icon color={'primary900'} name={'icons-export'} fontSize={'16px'}
+                                  onClick={() => window.open(`${etherscanLink}${txHash}`, '_blank')}/>
+                        </NotificationContentInnerWrapper>
+                    </NotificationContent>
             });
-        };
+            return;
+        }, () => {
+            setValidatorStatus(accountId, BUTTON_STATE.DEPOSIT.key);
+            return;
+        });
+    };
 
-        const onSuccess = async (error, txReceipt) => {
-            console.log('deposit end---------', error, txReceipt);
-            setCheckingStatus(false);
-            if (error) {
-                setCheckingDepositedStatus(false);
-                setDepositLoadingStatus(false);
-                notification.error({ message: error.message, duration: 0 });
-            } else if (txReceipt) {
-                if (txReceipt.status) {
-                    await sendAccountUpdate(true, txReceipt.transactionHash, () => {
-                    }, () => {
-                    });
-                    notification.success({
-                        message: '', description: <NotificationContent>
-                            Successfully deposited 32 ETH to <br />
-                            <NotificationContentInnerWrapper>
-                                <Span>{deposit_to}</Span>
-                                <Icon name={'icons-export'} color={'primary900'} fontSize={'16px'} onClick={() => window.open(`${etherscanLink}${txReceipt.transactionHash}`, '_blank')}/>
-                            </NotificationContentInnerWrapper>
-                        </NotificationContent>
-                    });
-                    setDepositSuccessStatus(true);
-                } else {
-                    setDepositLoadingStatus(false);
-                    notification.error({ message: `Failed to send transaction`, duration: 0 });
-                }
-            }
-        };
-
-        const onError = (walletProviderError) => {
-            setCheckingDepositedStatus(false);
+    const onSuccess = async (error, txReceipt, accountId) => {
+        console.log('deposit end---------', error, txReceipt);
+        setInProgress(false);
+        if (error) {
             setDepositLoadingStatus(false);
-            setCheckingStatus(false);
+            notification.error({message: error.message, duration: 0});
+        } else if (txReceipt) {
+            if (txReceipt.status) {
+                if(tx_data) setTxHash(txReceipt.transactionHash);
+                await sendAccountUpdate(true, accountId, txReceipt.transactionHash, () => {
+                    setSuccessDeposited([...successDeposited, account_id]);
+                    setValidatorStatus(accountId, BUTTON_STATE.DEPOSITED.key, txReceipt.transactionHash);
+                }, () => {
+                    setValidatorStatus(accountId, BUTTON_STATE.DEPOSIT.key, txReceipt.transactionHash);
+                });
+                notification.success({
+                    message: '', description: <NotificationContent>
+                        Successfully deposited 32 ETH to <br/>
+                        <NotificationContentInnerWrapper>
+                            <Span>{depositTo}</Span>
+                            <Icon name={'icons-export'} color={'primary900'} fontSize={'16px'}
+                                  onClick={() => window.open(`${etherscanLink}${txReceipt.transactionHash}`, '_blank')}/>
+                        </NotificationContentInnerWrapper>
+                    </NotificationContent>
+                });
+                setDepositSuccessStatus(true);
+            } else {
+                setDepositLoadingStatus(false);
+                notification.error({message: `Failed to send transaction`, duration: 0});
+            }
+        }
+    };
 
-            const enableContractDataMessage = 'Failed to send transaction. Please enable contract data on your Ledger and try again.';
-            let defaultMessage = 'Failed to send transaction. Please report us about this issue.';
-            let errorMessage;
-            const errorMessageString = String(walletProviderError.message);
-            if (walletProviderError.message) {
-                if (errorMessageString.indexOf('EnableContractData') !== -1) {
-                    errorMessage = enableContractDataMessage;
-                } else {
-                    const errorPrefix = 'Error: ';
-                    const errorParts = errorMessageString.split(errorPrefix);
+    const onError = (walletProviderError, accountId) => {
+        setDepositLoadingStatus(false);
+        setInProgress(false);
+        setValidatorStatus(accountId, BUTTON_STATE.DEPOSIT.key);
+        const enableContractDataMessage = 'Failed to send transaction. Please enable contract data on your Ledger and try again.';
+        let defaultMessage = 'Failed to send transaction. Please report us about this issue.';
+        let errorMessage;
+        const errorMessageString = String(walletProviderError.message);
+        if (walletProviderError.message) {
+            if (errorMessageString.indexOf('EnableContractData') !== -1) {
+                errorMessage = enableContractDataMessage;
+            } else {
+                const errorPrefix = 'Error: ';
+                const errorParts = errorMessageString.split(errorPrefix);
+                if (errorParts.length > 1) {
+                    errorParts.shift();
                     if (errorParts.length > 1) {
-                        errorParts.shift();
-                        if (errorParts.length > 1) {
-                            errorMessage = errorParts.join('. ');
-                        } else {
-                            errorMessage = errorParts[0];
-                        }
+                        errorMessage = errorParts.join('. ');
+                    } else {
+                        errorMessage = errorParts[0];
                     }
                 }
             }
-            if (!errorMessage) {
-                errorMessage = defaultMessage;
-            }
+        }
+        if (!errorMessage) {
+            errorMessage = defaultMessage;
+        }
 
-            notification.error({
-                message: errorMessage,
-                duration: 0
-            });
-            console.error(errorMessage, {
-                deposit_to,
-                tx_data
-            });
-        };
-
-        walletProvider.sendSignTransaction(deposit_to, tx_data, onStart, onSuccess, onError);
+        notification.error({
+            message: errorMessage,
+            duration: 0
+        });
+        console.error(errorMessage, {
+            depositTo,
+            tx_data
+        });
     };
 
     const disconnect = () => {
@@ -371,32 +371,12 @@ const StakingDeposit = () => {
         }
     };
 
-    let fetchedAccount;
-
-    const getAccount = async function getAccountData () {
-        try {
-            if (fetchedAccount) {
-                return fetchedAccount;
-            }
-            const res = await axios({
-                url: `${process.env.REACT_APP_API_URL}/accounts`,
-                method: 'get',
-                responseType: 'json',
-                headers: {Authorization: `Bearer ${id_token}`},
-            });
-            fetchedAccount = res.data.filter((account) => account.id === Number(account_id))[0];
-            return fetchedAccount;
-        } catch (error) {
-            return error;
-        }
-    };
-
-    const sendAccountUpdate = async (deposited, txHash, onSuccess, onFailure) => {
+    const sendAccountUpdate = async (deposited, accountId, txHash, onSuccess, onFailure) => {
         const userProfile: any = jwtDecode(id_token);
         deposited && analytics.identify(userProfile.sub);
         try {
             const res = await axios({
-                url: `${process.env.REACT_APP_API_URL}/accounts/${account_id}`,
+                url: `${process.env.REACT_APP_API_URL}/accounts/${accountId}`,
                 method: 'patch',
                 data: {deposited: deposited, depositTxHash: txHash},
                 responseType: 'json',
@@ -405,7 +385,7 @@ const StakingDeposit = () => {
             onSuccess(res.data);
             deposited && analytics.track('validator-deposited', {
                 provider: walletProvider.providerType,
-                network: network_id === '1' ? 'mainnet': 'prater'
+                network: network_id === '1' ? 'mainnet' : 'prater'
             });
         } catch (error) {
             console.log(`Error updating account - ${error}`);
@@ -417,24 +397,20 @@ const StakingDeposit = () => {
         }
     };
 
-    const Loading = styled.div`        
-        display:flex;        
-        color:${({theme}) => theme.primary900};
-        width: 320px;
-        height: 16px;
-        margin-top: 8px;        
-        font-size: 11px;
-        font-weight: 500;
-    `;
-    if (network_id && deposit_to && public_key) {
-        const desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${deposit_to}`;
+    if (network_id && depositTo && bloxAccounts && (tx_data || validatorsDepositData)) {
+        let desktopAppLink = ''
+            if(tx_data){
+                desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${account_id}&network_id=${network_id}&deposit_to=${depositTo};`
+            }else {
+                desktopAppLink = `blox-live://account_id=${successDeposited}`;
+            }
 
         const onGoBackClick = () => {
             const root = document.getElementById('root');
             const newIframe = document.createElement('iframe');
-            newIframe.src=desktopAppLink;
-            newIframe.width='0px';
-            newIframe.height='0px';
+            newIframe.src = desktopAppLink;
+            newIframe.width = '0px';
+            newIframe.height = '0px';
             root.appendChild(newIframe);
         }
 
@@ -444,10 +420,11 @@ const StakingDeposit = () => {
                 <Section>
                     <SubTitle>Deposit Method</SubTitle>
                     <DepositMethod>
-                        {(!isLoadingWallet && (walletInfo.balance && walletInfo.networkName && walletInfo.networkVersion && walletInfo.selectedAddress)) ?
+                        {(!loadingWallet && (walletInfo.balance && walletInfo.networkName && walletInfo.networkVersion && walletInfo.selectedAddress)) ?
                             (<ConnectedWallet walletInfo={walletInfo} areNetworksEqual={areNetworksEqual}
                                               error={error} onDisconnect={disconnect}/>) :
-                            (<ConnectWalletButton onWalletProviderClick={onWalletProviderClick} disable={isLoadingWallet}/>
+                            (<ConnectWalletButton onWalletProviderClick={onWalletProviderClick}
+                                                  disable={loadingWallet}/>
                             )}
                         {network_id === "5" &&
                         <NeedGoETH href={'https://discord.gg/wXxuQwY'} target={'_blank'}>Need GoETH?</NeedGoETH>}
@@ -459,40 +436,37 @@ const StakingDeposit = () => {
                             <ReloadPageButton onClick={() => window.location.reload()}>Reload Page</ReloadPageButton>
                         </>
                     )}
-                    {isLoadingWallet &&
-                    <Loading> <Spinner width={'17px'} margin-right={'12px'}/> Waiting for {walletProvider.providerType.charAt(0).toUpperCase() + walletProvider.providerType.slice(1)} wallet to be connected</Loading>}
+                    {loadingWallet &&
+                    <Loading> <Spinner width={'17px'} margin-right={'12px'}/> Waiting
+                        for {walletProvider.providerType.charAt(0).toUpperCase() + walletProvider.providerType.slice(1)} wallet
+                        to be connected</Loading>}
                 </Section>
                 <Section>
                     <SubTitle>Plan and Summary</SubTitle>
                     <StepsBoxes stepsData={stepsData}
-                                isCheckingStatus={isCheckingStatus}
-                                setStepsData={setStepsData}
-                                checkedTerms={checkedTerms} error={error}
-                                setCheckedTermsStatus={() => setCheckedTermsStatus(!checkedTerms)}
-                                walletInfo={walletInfo}
-                                onDepositStart={onDepositStart}
-                                depositTo={deposit_to}
-                                publicKey={public_key}
+                                depositTo={depositTo}
                                 network_id={network_id}
-                                isLoadingDeposit={isLoadingDeposit}
-                                isDepositSuccess={isDepositSuccess}
-                                txHash={txHash}
-                                walletType={walletProvider ? walletProvider.providerType : null}
-                                alreadyDeposited={alreadyDeposited}
-                                checkingDeposited={checkingDeposited}
+                                walletInfo={walletInfo}
+                                inProgress={inProgress}
+                                bloxAccounts={bloxAccounts}
+                                setStepsData={setStepsData}
+                                onDepositStart={onDepositStart}
+                                isLoadingDeposit={loadingDeposit}
+                                checkedTerms={isTermsChecked} error={error}
+                                setCheckedTermsStatus={() => setTermsCheck(!isTermsChecked)}
                     />
-                    <Total>Total: 32 {network_id === "1" ? 'ETH' : 'GoETH'} + gas fees</Total>
                 </Section>
                 <Faq networkId={network_id}/>
                 <ModalsManager modal={modal} onClose={hideModal}/>
                 {showSecurityNotification && <SecurityNotification hide={() => setSecurityNotificationDisplay(false)}/>}
+                <a onClick={() => onGoBackClick()}>Go back to app</a>
                 {isDepositSuccess && (
                     <DepositConfirmed>
-                        Deposit executed &amp; confirmed! <br />
-                        <a onClick={() => onGoBackClick()} >Go back to app</a>
+                        Deposit executed &amp; confirmed! <br/>
+                        <a onClick={() => onGoBackClick()}>Go back to app</a>
                     </DepositConfirmed>
                 )}
-                {(isDepositSuccess && txHash) && (
+                {(isDepositSuccess) && (
                     <iframe title={'depositSuccess'} width={'0px'} height={'0px'} src={desktopAppLink}/>
                 )}
             </Wrapper>
