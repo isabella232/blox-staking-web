@@ -458,7 +458,7 @@ const StakingDeposit = (props: Props) => {
                 <Faq networkId={network_id}/>
                 <ModalsManager modal={modal} onClose={hideModal}/>
                 {showSecurityNotification && <SecurityNotification hide={() => setSecurityNotificationDisplay(false)}/>}
-                <a onClick={() => onGoBackClick()}>Go back to app</a>
+                {!isDepositSuccess && <a onClick={() => onGoBackClick()}>Go back to app</a>}
                 {isDepositSuccess && (
                     <DepositConfirmed>
                         Deposit executed &amp; confirmed! <br/>
