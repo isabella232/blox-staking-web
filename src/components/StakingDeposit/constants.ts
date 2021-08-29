@@ -13,3 +13,8 @@ export const BUTTON_STATE = {
   DEPOSITED: {key: 'deposited', value: 'Deposited'},
   ERROR: {key: 'error', value: 'Failed To Deposit'},
 }
+
+export const NETWORKS = {
+  '1': {name: 'mainnet', displayName: 'Mainnet', contract: process.env.REACT_APP_MAINNET_DEPOSIT_CONTRACT_ADDRESS},
+  '5': {name: 'prater', displayName: 'Prater', contract: process.env.REACT_APP_PRATER_DEPOSIT_CONTRACT_ADDRESS},
+}

@@ -5,7 +5,8 @@ const Wrapper = styled.div`
   height: 100vh;
   padding:45px 115px 45px 115px;
   position:relative;
-  background-color:${({theme}) => theme.gray100};
+  margin-bottom: 20px;
+  background-color:${({ theme }) => theme.gray100};
 `;
 
 export default Wrapper;

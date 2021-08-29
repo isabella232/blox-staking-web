@@ -7,6 +7,7 @@ export const readFile = async (file) => {
         reader.onload = function(){
             if (typeof reader.result === "string") {
                 const publicKeys = JSON.parse(reader.result)
+                //TODO: if file contains all the relevant keys
                 if(!Array.isArray(publicKeys)){
                     resolve(false);
                 }
@@ -62,6 +63,9 @@ export const buttonText = (buttonState: string) => {
             break;
         case BUTTON_STATE.DEPOSITED.key:
             buttonText = BUTTON_STATE.DEPOSITED.value
+            break;
+        case BUTTON_STATE.ERROR.key:
+            buttonText = BUTTON_STATE.ERROR.value
             break;
         default:
             buttonText = BUTTON_STATE.DEPOSIT.value

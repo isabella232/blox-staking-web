@@ -30,7 +30,6 @@ const UnderLine = styled.div`
 `;
 
 const StepBoxRight = styled.div`
-  width: 185px;
   height: 100%;
   margin-left: 60px;
   font-size: 11px;
@@ -59,7 +58,7 @@ const Free = styled.div`
   text-transform: uppercase;
 `;
 
-const GreenColor = styled.span<{ fontSize?: string }>`
+const GreenColor = styled.span`
   color: ${({theme}) => theme.white};
 `;
 
@@ -148,7 +147,7 @@ const StepsBoxes = (props: Props) => {
         if(depositAll && bloxAccounts.length === 1) return '';
         if (isDepositSuccess && txHash && !depositAll) {
             return <SuccessWrapper>
-                <GreenColor fontSize={'16px'}>{buttonText}</GreenColor>
+                <GreenColor>{buttonText}</GreenColor>
             </SuccessWrapper>
         } else {
             return <ButtonWrapper>
@@ -157,9 +156,9 @@ const StepsBoxes = (props: Props) => {
         }
     };
 
-    const isButtonDisabled = inProgress || stepsData[2].isDisabled || isLoadingDeposit;
     const notDeposited = bloxAccounts.filter(account => account.status !== 'deposited').length;
     const allDeposited = notDeposited === 0
+    const isButtonDisabled = inProgress || stepsData[2].isDisabled || isLoadingDeposit || allDeposited
 
     return (
         <>
@@ -227,7 +226,7 @@ const StepsBoxes = (props: Props) => {
                         </StepBoxLeftParagraph>
                     </StepBoxLeft>
                     <StepBoxRight>
-                        <GreenColor fontSize={'16px'}>Free &amp; Unlimited!</GreenColor>
+                        <GreenColor>Free &amp; Unlimited!</GreenColor>
                     </StepBoxRight>
                 </StepBox>
             )}
