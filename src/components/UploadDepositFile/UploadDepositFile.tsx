@@ -1,16 +1,16 @@
-import React, {useContext, useEffect, useState} from "react";
+import { observer } from "mobx-react-lite";
 import { useHistory } from 'react-router-dom';
 import ClearIcon from '@material-ui/icons/Clear';
-import {DropzoneArea} from 'material-ui-dropzone';
-import {CircularProgress} from '@material-ui/core';
+import { DropzoneArea } from 'material-ui-dropzone';
+import { CircularProgress } from '@material-ui/core';
 import WarningIcon from '@material-ui/icons/Warning';
-import {ERROR_MESSAGES} from './constants';
-import {InfoWithTooltip} from '../../common/components';
-import {readFile, verifyDepositFile, getAccounts} from './helper'
-import {Section, SubTitle, Title} from '../StakingDeposit/components';
-import {observer} from "mobx-react-lite";
-import {AppStoreContext} from "../../common/stores/AppStore";
-import {UploadDepositStoreContext} from "../../common/stores/UploadDepositStore";
+import React, { useContext, useEffect, useState } from "react";
+import { ERROR_MESSAGES } from './constants';
+import { InfoWithTooltip } from '../../common/components';
+import { AppStoreContext } from "../../common/stores/AppStore";
+import {readFile, verifyDepositFile, getAccounts } from './helper'
+import { Section, SubTitle, Title } from '../StakingDeposit/components';
+import { UploadDepositStoreContext } from "../../common/stores/UploadDepositStore";
 import {
     ApprovedIcon,
     IconWrapper,
@@ -34,14 +34,15 @@ const failed = <ClearIcon style={{color: 'red', float: 'left', marginRight: '10p
 
 const UploadDepositFile = observer(() => {
     const history = useHistory()
-    const appStore = useContext(AppStoreContext)
-    const {queryParams} = appStore
+    const appStore = useContext( AppStoreContext )
+    const { queryParams } = appStore
     const [fileIsJson, setFileIsJson] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
-    const uploadDepositStore = useContext(UploadDepositStoreContext)
+    const uploadDepositStore = useContext(UploadDepositStoreContext);
     const [redirectToBloxApp, shouldRedirectToBloxApp] = useState(false);
     const [keyStoreMatchDeposit, setKeyStoreMatchDeposit] = useState(null);
-    const {setDepositFile, setDepositFileData, depositFile, setLoadingFile, isLoadingFile} = uploadDepositStore
+    const [bloxReturnUrl] = useState(`blox-live://token_id=${queryParams['id_token']}&refresh_token=${queryParams['id_token']}`)
+    const { setDepositFile, setDepositFileData, depositFile, setLoadingFile, isLoadingFile } = uploadDepositStore
 
     useEffect(() => {
         if (!fileIsJson) setErrorMessage(ERROR_MESSAGES.WRONG_FILE_TYPE);
@@ -62,7 +63,11 @@ const UploadDepositFile = observer(() => {
             setKeyStoreMatchDeposit(false);
         } else {
             const bloxAccounts = await getAccounts(queryParams['id_token'], queryParams['account_id']);
+            if (bloxAccounts.length === 0) {
+                setErrorMessage(ERROR_MESSAGES.NO_ACCOUNTS);
+            }
             const allPublicKeysExist = await verifyDepositFile(validators, bloxAccounts);
+
             setKeyStoreMatchDeposit(allPublicKeysExist);
             if (!allPublicKeysExist) {
                 setErrorMessage(ERROR_MESSAGES.CORRUPTED_DEPOSIT_FILE);
@@ -143,7 +148,7 @@ const UploadDepositFile = observer(() => {
                         </ErrorMessage>
                     </Section>
                     }
-                    {fileIsJson && keyStoreMatchDeposit !== null &&
+                    {!errorMessage && keyStoreMatchDeposit !== null &&
                     <>
                         <Section>
                             <Deposit isDisabled={!keyStoreMatchDeposit} onClick={()=>{history.push(`/staking-deposit`)}}>
@@ -154,7 +159,7 @@ const UploadDepositFile = observer(() => {
                         {redirectToBloxApp && <iframe title={'callApp'}
                                                       width={'0px'}
                                                       height={'0px'}
-                                                      src={`blox-live://token_id=${queryParams['id_token']}&refresh_token=${queryParams['id_token']}`}
+                                                      src={bloxReturnUrl}
                                               />
                         }
                     </>

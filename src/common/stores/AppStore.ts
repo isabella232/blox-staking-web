@@ -1,11 +1,11 @@
-import {action, observable, makeObservable, computed} from 'mobx';
-import {createContext} from 'react';
 import Analytics from 'analytics';
+import {createContext} from 'react';
+import {action, observable, makeObservable, computed} from 'mobx';
+import { NETWORKS } from '../../components/StakingDeposit/constants';
 import bloxAnalyticsPlugin from '../../service/analytics/blox-analytics-plugin';
 
 const RELEVANT_PARAMS = [
     {name: 'id_token', mandatory: true, callback: 'setAnalytics'},
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     {name: 'network_id', mandatory: true, callback: 'setDepositContract'},
     {name: 'account_id', mandatory: true},
     {name: 'tx_data', mandatory: false, callback: 'setSeedMode'}
@@ -33,8 +33,8 @@ class AppStore {
 
             //Action
             setQueryParams: action,
-            addDepositedValidator: action,
-            setTransactionInProgress: action,
+            addDepositedValidator: action.bound,
+            setTransactionInProgress: action.bound,
 
             //computed
             isTransactionsInProgress: computed,
@@ -49,37 +49,36 @@ class AppStore {
             }
             if(urlParams.get(key.name) && key.callback){
                 this[key.callback](urlParams.get(key.name))
-                // key.callback(this, urlParams.get(key.name))
             }
             this.queryParams[key.name] = urlParams.get(key.name);
         }
     }
 
-    setDepositContract(networkId){
-        this.depositContract = networkId === '5' ? '0x67Ce5c69260bd819B4e0AD13f4b873074D479811' : process.env.REACT_APP_MAINNET_DEPOSIT_CONTRACT_ADDRESS
-    };
+    setDepositContract(networkId: string){
+        this.depositContract = NETWORKS[networkId].contract;
+    }
 
-    addDepositedValidator = (accountId) => {
+    addDepositedValidator(accountId: string){
         this.successfullyDeposited.push(accountId);
-    };
+    }
 
-    setAnalytics(token){
+    setAnalytics(token: string){
         this.analytics = Analytics({app: 'blox-live', plugins: [bloxAnalyticsPlugin(token)]});
-    };
+    }
 
-    setSeedMode(isSeed){
+    setSeedMode(isSeed: boolean){
         this.seedMode = !!isSeed
-    };
+    }
 
-    setTransactionInProgress = (accountId, status) => {
+    setTransactionInProgress(accountId: string, status: boolean) {
         if(status){
             this.transactionsInProgress[accountId] = true;
         } else {
             delete this.transactionsInProgress[accountId];
         }
-    };
+    }
 
-    get isTransactionsInProgress(){
+    get isTransactionsInProgress() {
         return Object.keys(this.transactionsInProgress).length !== 0
     }
 }
