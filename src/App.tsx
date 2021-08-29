@@ -24,13 +24,15 @@ const App = observer(() => {
     <Router>
       <Wrapper>
         <Header />
-        {appStore.allMandatoryParamsExist &&
-          <Switch>
-            <Route path="/auth" component={Authentication}/>
-            <Route path="/staking-deposit" component={StakingDeposit}/>
-            <Route path="/upload_deposit_file" component={UploadDepositFile}/>
-          </Switch>
-        }
+        <Switch>
+          <Route path="/auth" component={Authentication}/>
+          {appStore.allMandatoryParamsExist &&
+            <>
+              <Route path="/staking-deposit" component={StakingDeposit}/>
+              <Route path="/upload_deposit_file" component={UploadDepositFile}/>
+            </>
+          }
+        </Switch>
       </Wrapper>
     </Router>
   );
