@@ -15,7 +15,7 @@ const App = observer(() => {
   useEffect(() => {
     appStore.setQueryParams();
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      if(window['ethereum'] && !window['ethereum'].networkVersion){
+      if(window.location.pathname !== '/auth' && window['ethereum'] && !window['ethereum'].networkVersion){
         location.reload();
       }
   },[]);
