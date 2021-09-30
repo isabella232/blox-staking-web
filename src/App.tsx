@@ -13,13 +13,14 @@ const App = observer(() => {
   const appStore = useContext(AppStoreContext)
 
   useEffect(() => {
-    appStore.setQueryParams();
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       if(!localStorage.getItem('reloaded') && window.location.pathname !== '/auth' && window['ethereum'] && !window['ethereum'].networkVersion){
         localStorage.setItem('reloaded', 'true');
         location.reload();
       }
   },[]);
+
+  appStore.setQueryParams();
 
   return (
     <Router>
