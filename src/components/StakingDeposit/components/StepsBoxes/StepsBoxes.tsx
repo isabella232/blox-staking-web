@@ -64,6 +64,10 @@ const GreenColor = styled.span`
   color: ${({theme}) => theme.accent2400};
 `;
 
+const GreenColorText = styled.span`
+  color: ${({theme}) => theme.white};
+`;
+
 const ButtonWrapper = styled.div`
   width: 100%;
   height: 100%;
@@ -149,7 +153,7 @@ const StepsBoxes = (props: Props) => {
         if(depositAll && bloxAccounts.length === 1) return '';
         if (isDepositSuccess && txHash && !depositAll) {
             return <SuccessWrapper>
-                <GreenColor>{buttonText}</GreenColor>
+                <GreenColorText>{buttonText}</GreenColorText>
             </SuccessWrapper>
         } else {
             return <ButtonWrapper>
@@ -228,7 +232,7 @@ const StepsBoxes = (props: Props) => {
                         </StepBoxLeftParagraph>
                     </StepBoxLeft>
                     <StepBoxRight>
-                        <GreenColor>Free &amp; Unlimited!</GreenColor>
+                        <Free>Free &amp; Unlimited!</Free>
                     </StepBoxRight>
                 </StepBox>
             )}
