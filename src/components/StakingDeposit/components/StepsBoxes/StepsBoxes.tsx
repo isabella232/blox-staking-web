@@ -53,13 +53,15 @@ const Link = styled.a<{ isDisabled: boolean }>`
 
 const Free = styled.div`
   font-size: 20px;
+  margin-left: 60px;
+  margin-top: 15px;
   font-weight: 900;
   color: ${({theme}) => theme.accent2400};
   text-transform: uppercase;
 `;
 
 const GreenColor = styled.span`
-  color: ${({theme}) => theme.white};
+  color: ${({theme}) => theme.accent2400};
 `;
 
 const ButtonWrapper = styled.div`

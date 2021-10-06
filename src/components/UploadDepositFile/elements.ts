@@ -110,7 +110,7 @@ const IconWrapper = styled.div`
 
 const ErrorText = styled.div``;
 
-const Deposit = styled.button<{ isDisabled: boolean }>`
+const Deposit = styled.button`
   display: block;
   width: 250px;
   height: 40px;
@@ -124,14 +124,14 @@ const Deposit = styled.button<{ isDisabled: boolean }>`
   text-align: center;
   align-content: center;
   vertical-align: middle;
-  background-color: ${({theme, isDisabled}) => isDisabled ? theme.gray400 : theme.primary900};
+  background-color: ${({theme}) =>  theme.primary900};
 
   &:hover {
-    color: ${({theme, isDisabled}) => isDisabled ? null : theme.primary400};
+    color: ${({theme}) => theme.primary400};
   }
 
   &:active {
-    color: ${({theme, isDisabled}) => isDisabled ? null : theme.primary800};
+    color: ${({theme}) =>  theme.primary800};
   }`;
 
 const DoNotDeposit = styled.p`

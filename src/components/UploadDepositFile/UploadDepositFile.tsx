@@ -32,6 +32,7 @@ const progress = <CircularProgress style={{color: 'black', width: 20, height: 20
 const approved = <ApprovedIcon src={'/images/approved_file_icon.svg'}/>;
 const failed = <ClearIcon style={{color: 'red', float: 'left', marginRight: '10px'}}/>;
 
+
 const UploadDepositFile = observer(() => {
     const history = useHistory()
     const appStore = useContext( AppStoreContext )
@@ -39,9 +40,8 @@ const UploadDepositFile = observer(() => {
     const [fileIsJson, setFileIsJson] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
     const uploadDepositStore = useContext(UploadDepositStoreContext);
-    const [redirectToBloxApp, shouldRedirectToBloxApp] = useState(false);
     const [keyStoreMatchDeposit, setKeyStoreMatchDeposit] = useState(null);
-    const [bloxReturnUrl] = useState(`blox-live://token_id=${queryParams['id_token']}&refresh_token=${queryParams['id_token']}`)
+    const [bloxReturnUrl] = useState(`blox-live://token_id=${queryParams['id_token']}&refresh_token=${queryParams['id_token']}&account_id=`)
     const { setDepositFile, setDepositFileData, depositFile, setLoadingFile, isLoadingFile } = uploadDepositStore
 
     useEffect(() => {
@@ -78,7 +78,12 @@ const UploadDepositFile = observer(() => {
     };
 
     const redirectToBlox = () => {
-        shouldRedirectToBloxApp(true);
+        const root = document.getElementById('root');
+        const newIframe = document.createElement('iframe');
+        newIframe.src = bloxReturnUrl;
+        newIframe.width = '0px';
+        newIframe.height = '0px';
+        root.appendChild(newIframe);
     };
 
     const removeDepositFile = () => {
@@ -99,9 +104,23 @@ const UploadDepositFile = observer(() => {
         if (keyStoreMatchDeposit === null) {
             return progress
         }
-        return 'Manage Keystore Files'
+        if(errorMessage) {
+            return 'Go to dashboard'
+        }
+        return 'Next'
 
     };
+
+    const submitAction = () => {
+        console.log('asdasdasdsas')
+        console.log(!errorMessage && keyStoreMatchDeposit)
+        if(!errorMessage && keyStoreMatchDeposit) {
+            history.push(`/staking-deposit`)
+        } else {
+            console.log('23123123123123123')
+            redirectToBlox()
+        }
+    }
 
     return (
          <Wrapper>
@@ -148,22 +167,14 @@ const UploadDepositFile = observer(() => {
                         </ErrorMessage>
                     </Section>
                     }
-                    {!errorMessage && keyStoreMatchDeposit !== null &&
                     <>
                         <Section>
-                            <Deposit isDisabled={!keyStoreMatchDeposit} onClick={()=>{history.push(`/staking-deposit`)}}>
+                            <Deposit onClick={submitAction} >
                                 {renderButtonText()}
                             </Deposit>
-                            <DoNotDeposit onClick={redirectToBlox}>Do not deposit these validators</DoNotDeposit>
+                            {!errorMessage && keyStoreMatchDeposit !== null && <DoNotDeposit onClick={redirectToBlox}>Do not deposit these validators</DoNotDeposit>}
                         </Section>
-                        {redirectToBloxApp && <iframe title={'callApp'}
-                                                      width={'0px'}
-                                                      height={'0px'}
-                                                      src={bloxReturnUrl}
-                                              />
-                        }
                     </>
-                    }
                 </>}
             </UploadWrapper>
         </Wrapper>

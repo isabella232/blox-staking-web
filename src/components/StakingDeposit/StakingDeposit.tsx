@@ -392,7 +392,7 @@ const StakingDeposit = observer(() => {
     if (bloxAccounts && (queryParams['tx_data'] || depositFileData)) {
         let desktopAppLink = ''
         if (queryParams['tx_data']) {
-            desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${queryParams['account_id']}&network_id=${queryParams['network_id']}&deposit_to=${depositContract};`
+            desktopAppLink = `blox-live://tx_hash=${txHash}&account_id=${successfullyDeposited.join(',')}&network_id=${queryParams['network_id']}&deposit_to=${depositContract};`
         } else {
             desktopAppLink = `blox-live://account_id=${successfullyDeposited.join(',')}`;
         }
