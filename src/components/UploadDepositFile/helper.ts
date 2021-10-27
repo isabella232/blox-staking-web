@@ -29,7 +29,23 @@ export const getAccounts = async (id_token: string, id: string, onSuccess?: any)
             responseType: 'json',
             headers: {Authorization: `Bearer ${id_token}`},
         });
-        onSuccess && onSuccess(res.data);
+        await onSuccess && onSuccess(res.data);
+        return res.data;
+    } catch (error) {
+        return 'Error';
+    }
+};
+
+export const doubleDepositProtection = async (id_token: string, network: string, accounts: any) => {
+    try {
+        const networkParsed = network === '5' ? 'prater' : 'mainnet'
+        const res = await axios({
+            url: `${process.env.REACT_APP_API_URL}/ethereum2/validators-deposits/?network=${networkParsed}&publicKeys=${accounts.join(',')}`,
+
+            method: 'get',
+            responseType: 'json',
+            headers: {Authorization: `Bearer ${id_token}`},
+        });
         return res.data;
     } catch (error) {
         return error;

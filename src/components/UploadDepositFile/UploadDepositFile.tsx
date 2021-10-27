@@ -63,6 +63,11 @@ const UploadDepositFile = observer(() => {
             setKeyStoreMatchDeposit(false);
         } else {
             const bloxAccounts = await getAccounts(queryParams['id_token'], queryParams['account_id']);
+
+            if(bloxAccounts === 'Error'){
+                setErrorMessage(ERROR_MESSAGES.UNAUTHORIZED);
+                return;
+            }
             if (bloxAccounts.length === 0) {
                 setErrorMessage(ERROR_MESSAGES.NO_ACCOUNTS);
             }
@@ -112,12 +117,9 @@ const UploadDepositFile = observer(() => {
     };
 
     const submitAction = () => {
-        console.log('asdasdasdsas')
-        console.log(!errorMessage && keyStoreMatchDeposit)
         if(!errorMessage && keyStoreMatchDeposit) {
             history.push(`/staking-deposit`)
         } else {
-            console.log('23123123123123123')
             redirectToBlox()
         }
     }
