@@ -29,7 +29,7 @@ export const getAccounts = async (id_token: string, id: string, onSuccess?: any)
             responseType: 'json',
             headers: {Authorization: `Bearer ${id_token}`},
         });
-        await onSuccess && onSuccess(res.data);
+         onSuccess && onSuccess(res.data);
         return res.data;
     } catch (error) {
         return 'Error';

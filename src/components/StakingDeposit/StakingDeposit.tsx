@@ -135,30 +135,28 @@ const StakingDeposit = observer(() => {
         const placement = 'bottomRight';
         notification.config({placement});
         getAccounts(queryParams['id_token'], queryParams['account_id']).then((accounts) => {
-            let hashedAccounts = accounts.reduce((obj, item) => Object.assign(obj, { [item.publicKey]: item }), {});
-            // eslint-disable-next-line array-callback-return
-                // @ts-ignore
-           const notDepositedAccounts = Object.fromEntries(Object.entries(hashedAccounts).filter(([key, val]) => !val.deposited));
-                doubleDepositProtection(queryParams['id_token'], queryParams['network_id'], Object.keys(notDepositedAccounts)).then((depositedHash) => {
-                    Object.keys(depositedHash).forEach((key: string) => {
-                        const account = hashedAccounts[`0x${key}`]
-                        if(account){
-                             sendAccountUpdate(true, account.id, depositedHash[key], () => {
-                                account.status = 'deposited';
-                                 account.depositTxHash = depositedHash[key];
-                                 addDepositedValidator(account.id)
-                            }, () => {
-                                 account.status = 'deposited';
-                                 account.depositTxHash = depositedHash[key];
-                                 addDepositedValidator(account.id)
-                             });
-                        }
-                    })
-                    setLoadingAccounts(false)
-                    setBloxAccounts(Object.values(hashedAccounts))
-                });
-            }
-        );
+            let hashedAccounts = accounts.reduce((obj, item) => Object.assign(obj, {[item.publicKey]: item}), {});
+            // @ts-ignore
+            const notDepositedAccounts = Object.fromEntries(Object.entries(hashedAccounts).filter(([key, val]) => !val.deposited));
+            doubleDepositProtection(queryParams['id_token'], queryParams['network_id'], Object.keys(notDepositedAccounts)).then((depositedHash) => {
+                Object.keys(depositedHash).forEach((key: string) => {
+                    const account = hashedAccounts[`0x${key}`]
+                    if (account) {
+                        sendAccountUpdate(true, account.id, depositedHash[key], () => {
+                            account.status = 'deposited';
+                            account.depositTxHash = depositedHash[key];
+                            addDepositedValidator(account.id)
+                        }, () => {
+                            account.status = 'deposited';
+                            account.depositTxHash = depositedHash[key];
+                            addDepositedValidator(account.id)
+                        });
+                    }
+                })
+                setLoadingAccounts(false)
+                setBloxAccounts(Object.values(hashedAccounts))
+            });
+        });
         const timeout = setTimeout(() => setSecurityNotificationDisplay(false), 5000);
         return () => {
             clearTimeout(timeout);
