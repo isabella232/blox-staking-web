@@ -12,7 +12,7 @@ import useModals from '../ModalsManager/useModals';
 import {STEP_BOXES, BUTTON_STATE} from './constants';
 import {MODAL_TYPES} from '../ModalsManager/constants';
 import {AppStoreContext} from "../../common/stores/AppStore";
-import {getAccounts, prefix0x} from "../UploadDepositFile/helper";
+import {doubleDepositProtection, getAccounts, prefix0x} from "../UploadDepositFile/helper";
 import {UploadDepositStoreContext} from '../../common/stores/UploadDepositStore';
 import {StrategyError} from "../../service/WalletProviders/Metamask/MetaMaskStrategy";
 import WalletProvidersContext from "../../service/WalletProviders/WalletProvidersContext";
@@ -43,6 +43,12 @@ const Loading = styled.div`
   margin-top: 8px;
   font-size: 11px;
   font-weight: 500;
+`;
+
+const SpinnerWrapper = styled.div`
+  position: absolute;
+  left: 47%;
+  top: 50%;
 `;
 
 const NotificationContentInnerWrapper = styled.div`
@@ -105,6 +111,7 @@ const StakingDeposit = observer(() => {
     const [isTermsChecked, setTermsCheck] = useState(false);
     const [loadingWallet, setLoadingWallet] = useState(false);
     const [walletProvider, setWalletProvider] = useState(null);
+    const [loadingAccounts, setLoadingAccounts] = useState(true);
     const [walletInfo, setWalletInfo] = useState(initialWalletInfoState);
     const [error, setError] = useState({type: '', message: ''});
     const [isShowingReloadButton, showReloadButton] = useState(false);
@@ -127,7 +134,29 @@ const StakingDeposit = observer(() => {
         document.title = 'Blox Staking - Transfers Hub';
         const placement = 'bottomRight';
         notification.config({placement});
-        getAccounts(queryParams['id_token'], queryParams['account_id'], setBloxAccounts);
+        getAccounts(queryParams['id_token'], queryParams['account_id']).then((accounts) => {
+            let hashedAccounts = accounts.reduce((obj, item) => Object.assign(obj, {[item.publicKey]: item}), {});
+            // @ts-ignore
+            const notDepositedAccounts = Object.fromEntries(Object.entries(hashedAccounts).filter(([key, val]) => !val.deposited));
+            doubleDepositProtection(queryParams['id_token'], queryParams['network_id'], Object.keys(notDepositedAccounts)).then((depositedHash) => {
+                Object.keys(depositedHash).forEach((key: string) => {
+                    const account = hashedAccounts[`0x${key}`]
+                    if (account) {
+                        sendAccountUpdate(true, account.id, depositedHash[key], () => {
+                            account.status = 'deposited';
+                            account.depositTxHash = depositedHash[key];
+                            addDepositedValidator(account.id)
+                        }, () => {
+                            account.status = 'deposited';
+                            account.depositTxHash = depositedHash[key];
+                            addDepositedValidator(account.id)
+                        });
+                    }
+                })
+                setLoadingAccounts(false)
+                setBloxAccounts(Object.values(hashedAccounts))
+            });
+        });
         const timeout = setTimeout(() => setSecurityNotificationDisplay(false), 5000);
         return () => {
             clearTimeout(timeout);
@@ -375,14 +404,14 @@ const StakingDeposit = observer(() => {
                 headers: {Authorization: `Bearer ${queryParams['id_token']}`},
             });
             onSuccess(res.data);
-            deposited && analytics.track('validator-deposited', {
+            deposited && walletProvider && analytics.track('validator-deposited', {
                 provider: walletProvider.providerType,
                 network: queryParams['network_id'] === '1' ? 'mainnet' : 'prater'
             });
         } catch (error) {
             console.log(`Error updating account - ${error}`);
             onFailure(error);
-            deposited && analytics.track('error-occurred', {
+            deposited && walletProvider && analytics.track('error-occurred', {
                 reason: 'validator-deposited-failed',
                 provider: walletProvider.providerType
             });
@@ -430,6 +459,7 @@ const StakingDeposit = observer(() => {
                     <Loading> <Spinner width={'17px'} margin-right={'12px'}/> Waiting
                         for {walletProvider.providerType.charAt(0).toUpperCase() + walletProvider.providerType.slice(1)} wallet
                         to be connected</Loading>}
+
                 </Section>
                 <Section>
                     <SubTitle>Plan and Summary</SubTitle>
@@ -459,7 +489,7 @@ const StakingDeposit = observer(() => {
             </Wrapper>
         );
     }
-    return null;
+    return (loadingAccounts && <SpinnerWrapper><Spinner position={'absolute'} width={'50px'} margin-right={'50px'}/></SpinnerWrapper>)
 });
 
 export default StakingDeposit;
