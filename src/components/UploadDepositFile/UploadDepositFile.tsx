@@ -44,6 +44,7 @@ const UploadDepositFile = observer(() => {
     const [bloxReturnUrl] = useState(`blox-live://token_id=${queryParams['id_token']}&refresh_token=${queryParams['id_token']}&account_id=`)
     const { setDepositFile, setDepositFileData, depositFile, setLoadingFile, isLoadingFile } = uploadDepositStore
 
+
     useEffect(() => {
         if (!fileIsJson) setErrorMessage(ERROR_MESSAGES.WRONG_FILE_TYPE);
     }, [fileIsJson])
