@@ -14,6 +14,7 @@ const getBgColor = ({theme, checked, isDisabled}) => {
 const Wrapper = styled.div<{ checked: boolean, isDisabled: boolean }>`
   width:18px;
   height:18px;
+  margin-right: 18px;
   position:relative;
   display:flex;
   align-items:center;

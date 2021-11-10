@@ -2,6 +2,8 @@ import Portis from "@portis/web3";
 import Web3 from "web3";
 import {NETWORK_IDS, NETWORK_MAP} from "./constants";
 import {WalletProviderStrategy} from "../WalletProviderStrategy";
+import {prefix0x} from "../../../components/UploadDepositFile/helper";
+const depositContractABI = require('../../../components/StakingDeposit/contract_abi.json');
 
 
 export default class PortisStrategy extends WalletProviderStrategy {
@@ -56,7 +58,18 @@ export default class PortisStrategy extends WalletProviderStrategy {
         };
     }
 
-    async sendTransaction(depositTo: string, txData: string, onStart, onSuccess, onError): Promise<any> {
+    async sendTransaction(depositTo: string, accountId: number, txData: string, onStart, onSuccess, onError, depositData?: any): Promise<any> {
+        if(depositData){
+            const depositContract = new this.web3.eth.Contract(depositContractABI, depositTo);
+            const depositMethod = depositContract.methods.deposit(
+                prefix0x(depositData.pubkey),
+                prefix0x(depositData.withdrawal_credentials),
+                prefix0x(depositData.signature),
+                prefix0x(depositData.deposit_data_root)
+            );
+            txData = depositMethod.encodeABI();
+        }
+
         const param = {
             to: depositTo,
             from: this.selectedAccount,
@@ -68,13 +81,13 @@ export default class PortisStrategy extends WalletProviderStrategy {
 
         this.web3.eth.sendTransaction(param)
             .on('transactionHash', hash=>{
-                onStart(hash);
+                onStart(hash, accountId);
             })
             .on('receipt', receipt => {
-                onSuccess(null, receipt)
+                onSuccess(null, receipt, accountId)
             })
             .on('error', error => {
-                onError(error)
+                onError(error, accountId)
             });
     }
 
